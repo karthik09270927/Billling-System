@@ -1,0 +1,31 @@
+import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import { LoginPage } from '../auth/AdminLogin';
+import ForgotPassword from '../auth/ForgotPassword';
+import UpdatePassword from '../auth/UpdatePassword';
+
+
+const AppRoutes = () => {
+
+//   const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
+//     const isAuth = !!localStorage.getItem('accessToken');
+//     return isAuth ? element : <Navigate to="/" />;
+//   };
+
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        {/* <Route path="/Register" element={<Register />} /> */}
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/UpdatePassword" element={<UpdatePassword />} />
+
+        {/* <Route path="/Layout" element={<ProtectedRoute element={<Layout />} />} />
+        <Route path="/dashboard" element={<ProtectedRoute element={<WeatherApp />} />} />
+        <Route path="/favourites" element={<ProtectedRoute element={<FavouritePage />} />} /> */}
+      </Routes>
+    </Router>
+  );
+};
+
+export default AppRoutes;
