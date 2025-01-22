@@ -18,18 +18,13 @@ const AppRoutes = () => {
         {/* <Route path="/Register" element={<Register />} /> */}
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/UpdatePassword" element={<UpdatePassword />} />
-        
+        <Route path="/staff-dashboard" element={<StaffLayout />} />
 
         {/* <Route path="/Layout" element={<ProtectedRoute element={<Layout />} />} />
         <Route path="/dashboard" element={<ProtectedRoute element={<WeatherApp />} />} />
         <Route path="/favourites" element={<ProtectedRoute element={<FavouritePage />} />} /> */}
 
-        
-        <Route path="/StaffLayout"  element={<StaffLayout />}  >
-       
-        </Route>
-
-        <Route path="/AdminLayout"  element={<AdminLayout />}  >
+        <Route path="/admin-dashboard"  element={<AdminLayout />}  >
         <Route path="productmanagement"  element={<ProductManagement />}  />
         <Route path="userhistory"  element={<UserHistory />}  />
         </Route>
@@ -40,3 +35,9 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
+
+
+
+
+
+

@@ -13,8 +13,8 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 const adminNavItems = [
   //   { name: "Dashboard", path: "/layout/dashboard" },
-  { name: "Product Management", path: "/AdminLayout/productmanagement" },
-  { name: "User History", path: "/AdminLayout/userhistory" },
+  { name: "Product Management", path: "/admin-dashboard/productmanagement" },
+  { name: "User History", path: "/admin-dashboard/userhistory" },
 ];
 
 

@@ -108,7 +108,7 @@ export const lightTheme = createTheme({
     MuiTextField: {
       styleOverrides: {
         root: {
-          background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9a7 100%)',
+          // background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9a7 100%)',
           fontColor: '#ffffff',
         },
       },

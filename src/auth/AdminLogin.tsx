@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Grid, Box, InputAdornment, IconButton, Typography, Divider } from '@mui/material';
+import { Grid, Box, InputAdornment, IconButton, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
-  loginCard, loginGrid, loginMaingrid, userNamefield, PasswordField, signIn, BtnSignIn, OrTypo, checkBoxForgotBox
+  loginCard, loginGrid, loginMaingrid, userNamefield, PasswordField, signIn, BtnSignIn,  checkBoxForgotBox
 } from '../../src/styles/home.style';
 import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { Inputtextcomponent } from '../centralizedComponents/forms/InputText.Component';
-// import { loginUser } from '../utils/api-collections';
-import { toast } from 'react-toastify';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import WeatherLoader from '../centralizedComponents/forms/WeatherLoader';
 import logo from '../assets/weblogo.png';
+import { loginUser } from '../utils/api-collection';
+import { jwtDecode } from "jwt-decode";
+import Loader from '../centralizedComponents/forms/Loader';
+import { Toasts } from '../centralizedComponents/forms/Toast';
 
 
 
@@ -31,10 +32,9 @@ export const LoginPage: React.FC = () => {
 
   const buttonLabel = "Sign in";
   const head = "Log in";
-  const subhead1 = "Email address*";
+  const subhead1 = "UseName*";
   const subhead2 = "Password*";
   const subhead3 = "Forgot Password?";
-  const subhead4 = "Don't have an account?";
 
 
   const SplashScreen = styled.div`
@@ -61,26 +61,43 @@ export const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-
-    // try {
-    //   const result = await loginUser(formValues.userMail, formValues.password);
-    //   console.log('Login Successful:', result);
-    //   toast.success('Login Successful');
-    //   // Show splash screen
-    //   setShowSplash(true);
-
-    //   // Hide splash screen and navigate after 5 seconds
-    //   setTimeout(() => {
-    //     setShowSplash(false);
-    //     navigate('/Layout');
-    //   }, 5000);
-
-    //   setIsLoggedIn(true);
-    // } catch (error: any) {
-    //   console.error('Login Failed:', error);
-    //   toast.error('Login Failed');
-    //   setErrorMessage(error || 'Login failed. Please try again.');
-    // }
+  
+    try {
+      const result = await loginUser(formValues.userMail, formValues.password);
+      console.log('Login Successful:', result);
+      Toasts({ message: 'Login Successfully', type: 'success'})
+  
+      const { accessToken } = result.data;
+  
+      if (accessToken) {
+        // Decode the accessToken to extract role
+        const decodedToken: { role: string } = jwtDecode(accessToken);
+        console.log('Decoded Token:', decodedToken);
+  
+        // Show splash screen
+        setShowSplash(true);
+  
+        // Hide splash screen and navigate after 5 seconds
+        setTimeout(() => {
+          setShowSplash(false);
+  
+          // Navigate based on role
+          if (decodedToken.role === 'admin') {
+            navigate('/admin-dashboard');
+          } else if (decodedToken.role === 'staff') {
+            navigate('/staff-dashboard');
+          } else {
+            Toasts({ message: 'Invalid Role', type: 'error'})
+          }
+        }, 5000);
+  
+        setIsLoggedIn(true);
+      }
+    } catch (error: any) {
+      console.error('Login Failed:', error);
+      Toasts({ message: 'Login Failed', type: 'error'})
+      setErrorMessage(error || 'Login failed. Please try again.');
+    }
   };
 
   const handleForgotPasswordClick = () => {
@@ -111,27 +128,30 @@ export const LoginPage: React.FC = () => {
               color: 'linear-gradient(90deg, hsla(59, 86%, 68%, 1) 0%, hsla(134, 36%, 53%, 1) 100%)',
             }}
           >
-            Welcome to Weather Dashboard
+            Fresh SuperMarket Billing System
           </Typography>
         </motion.div>
-        <WeatherLoader />
+        <Typography sx={{mt:2}}>
+        <Loader />
+        </Typography>
+        
       </SplashScreen>
     );
   }
 
   return (
-    <Box >
+    <Box sx={{ backgroundColor: '#fbfbe5' }} >
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
-            <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%" }}>
+            <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)' }}>
               <img src={logo} alt="login" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </Box>
 
           </Grid>
 
         )}
-        <Grid item xs={12} md={6} sx={loginMaingrid}>
+        <Grid item xs={12} md={6} sx={loginMaingrid} mt={4}>
           <Box sx={loginCard}>
             <Typography variant="h5" sx={signIn}>{head}</Typography>
             <Box component="form" onSubmit={handleSubmit} sx={{ marginTop: 4 }}>
@@ -142,7 +162,7 @@ export const LoginPage: React.FC = () => {
                 id={'userMail'}
                 value={formValues.userMail}
                 onChange={handleInputChange}
-                type="email"
+                type="text"
                 sx={userNamefield}
                 height="46px"
               />
