@@ -4,6 +4,7 @@ import AppRoutes from './routes/Routes';
 import { useState } from 'react';
 import { darkTheme, lightTheme } from './themes/theme';
 import ThemeSwitcher from '../../Billling-System/src/themes/ThemeSwitcher';
+import Layout from './layout/Layout';
 
 
 
@@ -20,7 +21,8 @@ function App() {
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <CssBaseline />
       <ThemeSwitcher isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-      <AppRoutes />
+      {/* <AppRoutes /> */}
+      <Layout />
     </ThemeProvider>
 
   )
