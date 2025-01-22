@@ -41,8 +41,8 @@ export const lightTheme = createTheme({
         root: {
           backgroundColor: '#ffffff',
           color: '#000000',
-          boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)',
-          borderRadius: '30px',
+          // boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)',
+          // borderRadius: '30px',
         },
       },
     },
@@ -106,7 +106,7 @@ export const lightTheme = createTheme({
     MuiTextField: {
       styleOverrides: {
         root: {
-          background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9a7 100%)',
+          // background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9a7 100%)',
           fontColor: '#ffffff',
         },
       },
@@ -139,7 +139,7 @@ export const darkTheme = createTheme({
           backgroundColor: '#1d1d1d',
           color: '#ffffff',
           // border: '5px solid #ffffff',
-          borderRadius: '30px',
+          // borderRadius: '30px',
         },
       },
     },
