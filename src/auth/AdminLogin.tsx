@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Grid, Box, InputAdornment, IconButton, Typography, Divider } from '@mui/material';
+import { Grid, Box, InputAdornment, IconButton, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
-  loginCard, loginGrid, loginMaingrid, userNamefield, PasswordField, signIn, BtnSignIn, OrTypo, checkBoxForgotBox
+  loginCard, loginGrid, loginMaingrid, userNamefield, PasswordField, signIn, BtnSignIn,  checkBoxForgotBox
 } from '../../src/styles/home.style';
 import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { Inputtextcomponent } from '../centralizedComponents/forms/InputText.Component';
-import { toast } from 'react-toastify';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import WeatherLoader from '../centralizedComponents/forms/WeatherLoader';
 import logo from '../assets/weblogo.png';
 import { loginUser } from '../utils/api-collection';
 import { jwtDecode } from "jwt-decode";
 import Loader from '../centralizedComponents/forms/Loader';
+import { Toasts } from '../centralizedComponents/forms/Toast';
 
 
 
@@ -36,7 +35,6 @@ export const LoginPage: React.FC = () => {
   const subhead1 = "UseName*";
   const subhead2 = "Password*";
   const subhead3 = "Forgot Password?";
-  const subhead4 = "Don't have an account?";
 
 
   const SplashScreen = styled.div`
@@ -67,7 +65,7 @@ export const LoginPage: React.FC = () => {
     try {
       const result = await loginUser(formValues.userMail, formValues.password);
       console.log('Login Successful:', result);
-      toast.success('Login Successful');
+      Toasts({ message: 'Login Successfully', type: 'success'})
   
       const { accessToken } = result.data;
   
@@ -89,7 +87,7 @@ export const LoginPage: React.FC = () => {
           } else if (decodedToken.role === 'staff') {
             navigate('/staff-dashboard');
           } else {
-            toast.error('Unauthorized role');
+            Toasts({ message: 'Invalid Role', type: 'error'})
           }
         }, 5000);
   
@@ -97,41 +95,10 @@ export const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login Failed:', error);
-      toast.error('Login Failed');
+      Toasts({ message: 'Login Failed', type: 'error'})
       setErrorMessage(error || 'Login failed. Please try again.');
     }
   };
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setErrorMessage(null);
-
-  //   // Mock role-based authentication
-  //   const mockUserDatabase = [
-  //     { email: 'admin@gmail.com', password: 'admin', role: 'Admin' },
-  //     { email: 'staff@gmail.com', password: 'staf', role: 'Staff' },
-  //   ];
-
-  //   const user = mockUserDatabase.find(
-  //     (u) => u.email === formValues.userMail && u.password === formValues.password
-  //   );
-
-  //   if (user) {
-  //     // Store role in localStorage
-  //     localStorage.setItem('userRole', user.role);
-
-  //     setIsLoggedIn(true);
-  //     if (user.role === 'Admin') {
-  //       navigate('/admin-dashboard'); // Navigate to Admin page
-  //     } else if (user.role === 'Staff') {
-  //       navigate('/staff-dashboard'); // Navigate to Staff page
-  //     }
-  //   } else {
-  //     setErrorMessage('Invalid email or password. Please try again.');
-  //   }
-  // };
-
-
 
   const handleForgotPasswordClick = () => {
     navigate('/ForgotPassword', { state: { userMail: formValues.userMail } });
@@ -173,11 +140,11 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <Box >
+    <Box sx={{ backgroundColor: '#fbfbe5' }} >
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
-            <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%" }}>
+            <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)' }}>
               <img src={logo} alt="login" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </Box>
 
