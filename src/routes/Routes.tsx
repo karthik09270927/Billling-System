@@ -3,8 +3,8 @@ import { LoginPage } from '../auth/AdminLogin';
 import ForgotPassword from '../auth/ForgotPassword';
 import UpdatePassword from '../auth/UpdatePassword';
 import  { AdminLayout } from '../layout/AdminLayout';
-import { StaffLayout } from '../layout/StaffLayout';
 import Layout from '../layout/Layout';
+import StaffLayout from '../layout/StaffLayout';
 
 
 const AppRoutes = () => {
@@ -35,3 +35,9 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
+
+
+
+
+
+

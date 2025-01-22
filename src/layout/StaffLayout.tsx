@@ -1,31 +1,23 @@
-import { Grid, Box, Card, Button } from "@mui/material";
-// import { useNavigate } from "react-router-dom";
-
-
-
-export const StaffLayout = () => {
-    // const navigate = useNavigate();
-    // const handleLogout = () => {
-    //     localStorage.removeItem('userRole'); // Clear role from localStorage
-    //     navigate('/'); // Redirect to login page
-    // };
+import { Grid, Box, Card } from "@mui/material";
+import StaffDashBoard from "../pages/StaffDashBoard";
+import Header from "../components/Header";
+const StaffLayout = () => {  
   return (
     <Box sx={{ height: "100vh",  overflow: { md: "hidden"}, }}>
-      <Grid container spacing={1} sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
-        <Grid item xs={12} md={8} sx={{ height: "100vh" }}>
+      <Grid container spacing={0}  sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
+        <Grid item xs={12} md={9} sx={{ height: "100vh" }}>
           <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
-                height: {md:"190px", sm:"50px"},
-                backgroundColor: "#F0F0F0",
-                padding: "8px",
-                borderBottom: "1px solid #ccc",
-                flexShrink: 0,
+                // height:"200px",
+                // backgroundColor: "#F0F0F0",
+                // padding: "8px",
+                // borderBottom: "1px solid #ccc",
+                flexShrink: 0
               }}
             >
-              Header Content (Fixed)
+              < Header/>
             </Box>
-            {/* <Button onClick={handleLogout}>Logout</Button> */}
             <Box
               sx={{
                 flex: 1,
@@ -34,13 +26,11 @@ export const StaffLayout = () => {
                 scrollbarWidth: "thin",
               }}
             >
-              {Array.from({ length: 50 }, (_, index) => (
-                <p key={index}>Content {index + 1}</p>
-              ))}
+             < StaffDashBoard/>
             </Box>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4} sx={{ height: "100vh" }}>
+        <Grid item xs={12} md={3} sx={{ height: "100vh" }}>
         <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <Box
               sx={{
@@ -84,3 +74,4 @@ export const StaffLayout = () => {
     </Box>
   );
 };
+export default StaffLayout;
