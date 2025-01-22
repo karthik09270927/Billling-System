@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import { LoginPage } from '../auth/AdminLogin';
 import ForgotPassword from '../auth/ForgotPassword';
 import UpdatePassword from '../auth/UpdatePassword';
+import { AdminLayout } from '../layout/AdminLayout';
+import { StaffLayout } from '../layout/StaffLayout';
 
 
 const AppRoutes = () => {
@@ -19,6 +21,8 @@ const AppRoutes = () => {
         {/* <Route path="/Register" element={<Register />} /> */}
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/UpdatePassword" element={<UpdatePassword />} />
+        <Route path="/admin-dashboard" element={<AdminLayout />} />
+        <Route path="/staff-dashboard" element={<StaffLayout />} />
 
         {/* <Route path="/Layout" element={<ProtectedRoute element={<Layout />} />} />
         <Route path="/dashboard" element={<ProtectedRoute element={<WeatherApp />} />} />

@@ -10,12 +10,14 @@ import {
 } from '../../src/styles/home.style';
 import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { Inputtextcomponent } from '../centralizedComponents/forms/InputText.Component';
-// import { loginUser } from '../utils/api-collections';
 import { toast } from 'react-toastify';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import WeatherLoader from '../centralizedComponents/forms/WeatherLoader';
 import logo from '../assets/weblogo.png';
+import { loginUser } from '../utils/api-collection';
+import { jwtDecode } from "jwt-decode";
+import Loader from '../centralizedComponents/forms/Loader';
 
 
 
@@ -31,7 +33,7 @@ export const LoginPage: React.FC = () => {
 
   const buttonLabel = "Sign in";
   const head = "Log in";
-  const subhead1 = "Email address*";
+  const subhead1 = "UseName*";
   const subhead2 = "Password*";
   const subhead3 = "Forgot Password?";
   const subhead4 = "Don't have an account?";
@@ -61,27 +63,75 @@ export const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-
-    // try {
-    //   const result = await loginUser(formValues.userMail, formValues.password);
-    //   console.log('Login Successful:', result);
-    //   toast.success('Login Successful');
-    //   // Show splash screen
-    //   setShowSplash(true);
-
-    //   // Hide splash screen and navigate after 5 seconds
-    //   setTimeout(() => {
-    //     setShowSplash(false);
-    //     navigate('/Layout');
-    //   }, 5000);
-
-    //   setIsLoggedIn(true);
-    // } catch (error: any) {
-    //   console.error('Login Failed:', error);
-    //   toast.error('Login Failed');
-    //   setErrorMessage(error || 'Login failed. Please try again.');
-    // }
+  
+    try {
+      const result = await loginUser(formValues.userMail, formValues.password);
+      console.log('Login Successful:', result);
+      toast.success('Login Successful');
+  
+      const { accessToken } = result.data;
+  
+      if (accessToken) {
+        // Decode the accessToken to extract role
+        const decodedToken: { role: string } = jwtDecode(accessToken);
+        console.log('Decoded Token:', decodedToken);
+  
+        // Show splash screen
+        setShowSplash(true);
+  
+        // Hide splash screen and navigate after 5 seconds
+        setTimeout(() => {
+          setShowSplash(false);
+  
+          // Navigate based on role
+          if (decodedToken.role === 'admin') {
+            navigate('/admin-dashboard');
+          } else if (decodedToken.role === 'staff') {
+            navigate('/staff-dashboard');
+          } else {
+            toast.error('Unauthorized role');
+          }
+        }, 5000);
+  
+        setIsLoggedIn(true);
+      }
+    } catch (error: any) {
+      console.error('Login Failed:', error);
+      toast.error('Login Failed');
+      setErrorMessage(error || 'Login failed. Please try again.');
+    }
   };
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setErrorMessage(null);
+
+  //   // Mock role-based authentication
+  //   const mockUserDatabase = [
+  //     { email: 'admin@gmail.com', password: 'admin', role: 'Admin' },
+  //     { email: 'staff@gmail.com', password: 'staf', role: 'Staff' },
+  //   ];
+
+  //   const user = mockUserDatabase.find(
+  //     (u) => u.email === formValues.userMail && u.password === formValues.password
+  //   );
+
+  //   if (user) {
+  //     // Store role in localStorage
+  //     localStorage.setItem('userRole', user.role);
+
+  //     setIsLoggedIn(true);
+  //     if (user.role === 'Admin') {
+  //       navigate('/admin-dashboard'); // Navigate to Admin page
+  //     } else if (user.role === 'Staff') {
+  //       navigate('/staff-dashboard'); // Navigate to Staff page
+  //     }
+  //   } else {
+  //     setErrorMessage('Invalid email or password. Please try again.');
+  //   }
+  // };
+
+
 
   const handleForgotPasswordClick = () => {
     navigate('/ForgotPassword', { state: { userMail: formValues.userMail } });
@@ -111,10 +161,13 @@ export const LoginPage: React.FC = () => {
               color: 'linear-gradient(90deg, hsla(59, 86%, 68%, 1) 0%, hsla(134, 36%, 53%, 1) 100%)',
             }}
           >
-            Welcome to Weather Dashboard
+            Fresh SuperMarket Billing System
           </Typography>
         </motion.div>
-        <WeatherLoader />
+        <Typography sx={{mt:2}}>
+        <Loader />
+        </Typography>
+        
       </SplashScreen>
     );
   }
@@ -131,7 +184,7 @@ export const LoginPage: React.FC = () => {
           </Grid>
 
         )}
-        <Grid item xs={12} md={6} sx={loginMaingrid}>
+        <Grid item xs={12} md={6} sx={loginMaingrid} mt={4}>
           <Box sx={loginCard}>
             <Typography variant="h5" sx={signIn}>{head}</Typography>
             <Box component="form" onSubmit={handleSubmit} sx={{ marginTop: 4 }}>
@@ -142,7 +195,7 @@ export const LoginPage: React.FC = () => {
                 id={'userMail'}
                 value={formValues.userMail}
                 onChange={handleInputChange}
-                type="email"
+                type="text"
                 sx={userNamefield}
                 height="46px"
               />

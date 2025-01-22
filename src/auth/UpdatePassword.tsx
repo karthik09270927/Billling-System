@@ -77,9 +77,8 @@ const UpdatePassword: React.FC = () => {
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
             <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%" }}>
-            <img src={logo} alt="login" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={logo} alt="login" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </Box>
-
           </Grid>
         )}
 
