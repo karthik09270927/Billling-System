@@ -60,7 +60,7 @@ export default function Header() {
           >
             <ShoppingCartIcon sx={{ fontSize: "40px" }}/> FRESH SUPERMARKET
           </Typography>
-
+     
           <Box sx={{ flexGrow: 2, display: "block" }}>
             {navItems.map((item) => (
               <Button
