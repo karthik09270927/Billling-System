@@ -3,7 +3,6 @@ import {
     Box,
     Grid,
     Typography,
-    Button,
     IconButton,
     TextField,
     InputAdornment,
@@ -13,11 +12,11 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import QrCodeIcon from "@mui/icons-material/QrCode";
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate } from "react-router-dom";
 
 const Header: React.FC = () => {
 
@@ -33,6 +32,12 @@ const Header: React.FC = () => {
             });
         }
     };
+
+    const navigate = useNavigate();
+    const handleLogout = () => {
+        localStorage.removeItem('userRole'); // Clear role from localStorage
+        navigate('/'); // Redirect to login page
+      };
 
     const categories = [
         { name: "All Menu", image: "/src/assets/croissant.png", items: 20 },
@@ -75,15 +80,19 @@ const Header: React.FC = () => {
                     {/* Date and Time */}
                     <Grid item>
                         <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666" }}>
-                            Wed. 29 May 2024
+                        {new Date().toLocaleString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                         </Typography>
                     </Grid>
                     
                     
 
                     {/* Search Bar */}
-                    <Grid item xs={6}>
-                        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+                   
+
+                    {/* QR Code and Logout Icons */}
+                    <Grid item xs>
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                        <Box>
                             <TextField
                                 placeholder="Search something sweet on your mind..."
                                 variant="outlined"
@@ -96,30 +105,23 @@ const Header: React.FC = () => {
                                 }}
                                 sx={{
                                     width: "100%",
-                                    height: "32px", 
                                     backgroundColor: "#fbfbe5",
-                                    borderRadius: "8px",
+                                    borderRadius: "20px",
                                     "& .MuiOutlinedInput-root": {
                                         "& fieldset": {
                                             border: "none",
                                         },
                                         "& .MuiInputBase-input": {
-                                            padding: "6px 12px",
                                         },
                                     },
                                 }}
                             />
                         </Box>
-                    </Grid>
-
-                    {/* QR Code and Logout Icons */}
-                    <Grid item xs>
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                             <IconButton>
                                 <QrCodeIcon sx={{ fontSize: 28, color: "#333" }} />
                             </IconButton>
                             <IconButton>
-                                <PowerSettingsNewIcon sx={{ fontSize: 28, color: "#f00" }} />
+                                <LogoutIcon sx={{ fontSize: 28 , color:'red'}} onClick={handleLogout} />
                             </IconButton>
                         </Box>
                     </Grid>
