@@ -4,10 +4,8 @@ const Layout = () => {
   return (
     <Box sx={{ height: "100vh",  overflow: { md: "hidden"}, }}> 
       <Grid container spacing={1} sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
-        
         <Grid item xs={12} md={8} sx={{ height: "100vh" }}>
           <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-       
             <Box
               sx={{
                 height: {md:"190px", sm:"50px"}, 
@@ -35,8 +33,6 @@ const Layout = () => {
             </Box>
           </Card>
         </Grid>
-
-        
         <Grid item xs={12} md={4} sx={{ height: "100vh" }}>
         <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <Box
