@@ -2,14 +2,13 @@ import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import { LoginPage } from '../auth/AdminLogin';
 import ForgotPassword from '../auth/ForgotPassword';
 import UpdatePassword from '../auth/UpdatePassword';
+import StaffLayout from '../layout/StaffLayout';
+import AdminLayout from '../layout/AdminLayout';
+import ProductManagement from '../pages/productmanagement';
+import UserHistory from '../pages/userhistory';
 
 
 const AppRoutes = () => {
-
-//   const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
-//     const isAuth = !!localStorage.getItem('accessToken');
-//     return isAuth ? element : <Navigate to="/" />;
-//   };
 
 
   return (
@@ -19,10 +18,22 @@ const AppRoutes = () => {
         {/* <Route path="/Register" element={<Register />} /> */}
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/UpdatePassword" element={<UpdatePassword />} />
+        
 
         {/* <Route path="/Layout" element={<ProtectedRoute element={<Layout />} />} />
         <Route path="/dashboard" element={<ProtectedRoute element={<WeatherApp />} />} />
         <Route path="/favourites" element={<ProtectedRoute element={<FavouritePage />} />} /> */}
+
+        
+        <Route path="/StaffLayout"  element={<StaffLayout />}  >
+       
+        </Route>
+
+        <Route path="/AdminLayout"  element={<AdminLayout />}  >
+        <Route path="productmanagement"  element={<ProductManagement />}  />
+        <Route path="userhistory"  element={<UserHistory />}  />
+        </Route>
+
       </Routes>
     </Router>
   );

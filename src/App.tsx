@@ -5,9 +5,6 @@ import { useState } from 'react';
 import { darkTheme, lightTheme } from './themes/theme';
 import ThemeSwitcher from '../../Billling-System/src/themes/ThemeSwitcher';
 
-
-
-
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -21,6 +18,7 @@ function App() {
       <CssBaseline />
       <ThemeSwitcher isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       <AppRoutes />
+      
     </ThemeProvider>
 
   )

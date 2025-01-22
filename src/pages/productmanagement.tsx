@@ -1,9 +1,10 @@
+
 import { Grid, Box, Card } from "@mui/material";
-const Layout = () => {
+const ProductManagement = () => {
   return (
     <Box sx={{ height: "100vh",  overflow: { md: "hidden"}, }}>
       <Grid container spacing={1} sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
-        <Grid item xs={12} md={8} sx={{ height: "100vh" }}>
+        <Grid item xs={12} md={9} sx={{ height: "100vh" }}>
           <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
@@ -30,7 +31,7 @@ const Layout = () => {
             </Box>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4} sx={{ height: "100vh" }}>
+        <Grid item xs={12} md={3} sx={{ height: "100vh" }}>
         <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <Box
               sx={{
@@ -74,4 +75,4 @@ const Layout = () => {
     </Box>
   );
 };
-export default Layout;
+export default ProductManagement;
