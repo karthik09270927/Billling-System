@@ -75,7 +75,7 @@ const UpdatePassword: React.FC = () => {
     <Box>
       <Grid container sx={loginGrid}>
         {!isMobile && (
-          <Grid item xs={12} md={4} sx={{ height: '100vh' }}>
+          <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
             <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%" }}>
             <img src={logo} alt="login" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </Box>
@@ -83,7 +83,7 @@ const UpdatePassword: React.FC = () => {
           </Grid>
         )}
 
-        <Grid item xs={12} md={8} sx={loginMaingrid}>
+        <Grid item xs={12} md={6} sx={loginMaingrid}>
           <Box component="form" sx={{ textAlign: 'center', p: 4 }}>
             <Typography variant="h5" mb={1}>
               Update Password

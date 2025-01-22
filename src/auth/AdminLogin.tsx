@@ -185,7 +185,7 @@ export const LoginPage: React.FC = () => {
                 size="large"
                 sx={BtnSignIn}
               />
-              <Box display="flex" alignItems="center" mt={3} mb={3} gap={2}>
+              {/* <Box display="flex" alignItems="center" mt={3} mb={3} gap={2}>
                 <Divider sx={{ flexGrow: 1 }} />
                 <Typography sx={{ ...OrTypo, color: theme.palette.text.primary }}>{subhead4}</Typography>
                 <Divider sx={{ flexGrow: 1 }} />
@@ -196,7 +196,7 @@ export const LoginPage: React.FC = () => {
                 variant="outlined"
                 onClick={() => navigate('/Register')}
                 sx={{ color: theme.palette.text.primary }}
-              />
+              /> */}
             </Box>
           </Box>
         </Grid>
