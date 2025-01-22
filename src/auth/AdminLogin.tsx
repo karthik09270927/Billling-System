@@ -6,7 +6,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
-  loginCard, loginGrid, loginMaingrid, userNamefield, PasswordField, signIn, BtnSignIn,  checkBoxForgotBox
+  loginCard, loginGrid, loginMaingrid, userNamefield, PasswordField, signIn, BtnSignIn, checkBoxForgotBox
 } from '../../src/styles/home.style';
 import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { Inputtextcomponent } from '../centralizedComponents/forms/InputText.Component';
@@ -61,41 +61,43 @@ export const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-  
+
     try {
       const result = await loginUser(formValues.userMail, formValues.password);
       console.log('Login Successful:', result);
-      Toasts({ message: 'Login Successfully', type: 'success'})
-  
+      Toasts({ message: 'Login Successfully', type: 'success' })
+
       const { accessToken } = result.data;
-  
+
       if (accessToken) {
         // Decode the accessToken to extract role
         const decodedToken: { role: string } = jwtDecode(accessToken);
         console.log('Decoded Token:', decodedToken);
-  
+        localStorage.setItem('userRole', decodedToken.role);
+
+
         // Show splash screen
         setShowSplash(true);
-  
+
         // Hide splash screen and navigate after 5 seconds
         setTimeout(() => {
           setShowSplash(false);
-  
+
           // Navigate based on role
           if (decodedToken.role === 'admin') {
             navigate('/admin-dashboard');
           } else if (decodedToken.role === 'staff') {
             navigate('/staff-dashboard');
           } else {
-            Toasts({ message: 'Invalid Role', type: 'error'})
+            Toasts({ message: 'Invalid Role', type: 'error' })
           }
         }, 5000);
-  
+
         setIsLoggedIn(true);
       }
     } catch (error: any) {
       console.error('Login Failed:', error);
-      Toasts({ message: 'Login Failed', type: 'error'})
+      Toasts({ message: 'Login Failed', type: 'error' })
       setErrorMessage(error || 'Login failed. Please try again.');
     }
   };
@@ -131,10 +133,10 @@ export const LoginPage: React.FC = () => {
             Fresh SuperMarket Billing System
           </Typography>
         </motion.div>
-        <Typography sx={{mt:2}}>
-        <Loader />
+        <Typography sx={{ mt: 2 }}>
+          <Loader />
         </Typography>
-        
+
       </SplashScreen>
     );
   }

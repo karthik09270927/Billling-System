@@ -1,5 +1,8 @@
+
 import { Grid, Box, Card } from "@mui/material";
-const Layout = () => {
+
+const ProductManagement = () => {
+
   return (
     <Box sx={{ height: "100vh", overflow: { md: "hidden" }, }}>
       <Grid container spacing={1} sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
@@ -74,4 +77,4 @@ const Layout = () => {
     </Box>
   );
 };
-export default Layout;
+export default ProductManagement;
