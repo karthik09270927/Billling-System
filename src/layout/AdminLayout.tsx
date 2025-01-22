@@ -1,24 +1,26 @@
-import { Button, Grid, Typography } from '@mui/material'
-import { useNavigate } from 'react-router-dom';
-
-export const AdminLayout = () => {
-
-    // const navigate = useNavigate();
-    // const handleLogout = () => {
-    //     localStorage.removeItem('userRole'); // Clear role from localStorage
-    //     navigate('/'); // Redirect to login page
-    //   };
-
+import * as React from 'react';
+import Toolbar from '@mui/material/Toolbar';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import { Outlet } from 'react-router-dom';
+import Header from './Header';
+const AdminLayout = () => {
     return (
-        <Grid container>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mt: 2 }}>
-                    Admin Dashboard
-                </Typography>
-                <Typography variant="h6" component="h2" sx={{ textAlign: 'center', mt: 2 }}>
-                    {/* <Button onClick={handleLogout}>Logout</Button> */}
-                </Typography>
-            </Grid>
-        </Grid>
-    )
+        <>
+            <React.Fragment>
+                <CssBaseline />
+                <Box sx={{ bgcolor: '#C8E0EC' }}>
+                    <Header />
+                </Box>
+                <Toolbar id="back-to-top-anchor" />
+                <Container maxWidth={false} disableGutters sx={{ padding: "0px" }}>
+                    <Box sx={{ mt: 3 }}>
+                        <Outlet />
+                    </Box>
+                </Container>
+            </React.Fragment>
+        </>
+    );
 }
+export default AdminLayout;

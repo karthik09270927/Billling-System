@@ -65,6 +65,7 @@ export const lightTheme = createTheme({
         },
       },
     },
+    
     MuiButton: {
       styleOverrides: {
         root: {
@@ -90,19 +91,20 @@ export const lightTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#ffffff',
+          backgroundColor: '#74D52B',
           color: '#ffffff',
+          
         },
       },
     },
-    MuiToolbar: {
-      styleOverrides: {
-        root: {
-          background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9a7 100%)',
-          color: '#ffffff',
-        },
-      },
-    },
+    // MuiToolbar: {
+    //   styleOverrides: {
+    //     root: {
+    //       background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9a7 100%)',
+    //       color: '#ffffff',
+    //     },
+    //   },
+    // },
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -193,14 +195,14 @@ export const darkTheme = createTheme({
         },
       },
     },
-    MuiToolbar: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#333333',
-          color: '#ffffff',
-        },
-      },
-    },
+    // MuiToolbar: {
+    //   styleOverrides: {
+    //     root: {
+    //       backgroundColor: '#333333',
+    //       color: '#ffffff',
+    //     },
+    //   },
+    // },
     MuiTextField: {
       styleOverrides: {
         root: {
