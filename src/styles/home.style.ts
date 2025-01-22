@@ -108,7 +108,7 @@ export const loginlogo = { width: '80px', height: '86px', justifyContent: 'flex-
 
 export const signIn = { fontSize: '2rem', fontWeight: 'bolder',  marginBottom: '1.9rem' }
 
-export const userNamefield = { width: '100%', mb: 4, justifyContent: 'flex-end', }
+export const userNamefield = { width: '100%', mb: 4, justifyContent: 'flex-end' }
 
 export const PasswordField = { width: '100%', mb: 4, justifyContent: 'flex-end' }
 

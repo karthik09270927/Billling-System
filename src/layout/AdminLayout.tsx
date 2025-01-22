@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 export const AdminLayout = () => {
 
-    const navigate = useNavigate();
-    const handleLogout = () => {
-        localStorage.removeItem('userRole'); // Clear role from localStorage
-        navigate('/'); // Redirect to login page
-      };
+    // const navigate = useNavigate();
+    // const handleLogout = () => {
+    //     localStorage.removeItem('userRole'); // Clear role from localStorage
+    //     navigate('/'); // Redirect to login page
+    //   };
 
     return (
         <Grid container>
@@ -16,7 +16,7 @@ export const AdminLayout = () => {
                     Admin Dashboard
                 </Typography>
                 <Typography variant="h6" component="h2" sx={{ textAlign: 'center', mt: 2 }}>
-                    <Button onClick={handleLogout}>Logout</Button>
+                    {/* <Button onClick={handleLogout}>Logout</Button> */}
                 </Typography>
             </Grid>
         </Grid>
