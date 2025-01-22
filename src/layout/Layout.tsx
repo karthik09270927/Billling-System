@@ -15,7 +15,7 @@ const Layout = () => {
               }}
             >
               Header Content (Fixed)
-            </Box>
+            </Box   >  
             <Box
               sx={{
                 flex: 1,
