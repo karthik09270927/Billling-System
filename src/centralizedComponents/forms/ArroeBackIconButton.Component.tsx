@@ -13,7 +13,7 @@ interface BackArrowIconButtonProps {
 const BackArrowIconButton: React.FC<BackArrowIconButtonProps> = ({ onClick }) => {
   const theme = useTheme(); 
   const ArrowIcons = {
-    color: theme.palette.mode === "dark" ? "#ffffff" : "#ffffff",
+    color: theme.palette.mode === "dark" ? "#000000" : "#000000",
 };
 
   return (
@@ -52,7 +52,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
     borderRadius: '50%',
     inset: '7px',
     border: `3px solid ${
-        theme.palette.mode === 'dark' ? '#ffffff' : '#ffffff'
+        theme.palette.mode === 'dark' ? '#000000' : '#000000'
       }`,
     transition:
       'opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1) 80ms, transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) 80ms',
@@ -63,7 +63,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
     position: 'absolute',
     borderRadius: '50%',
     inset: '7px',
-    border: '4px solid #599a53',
+    border: '4px solid #74d52b',
     transform: 'scale(1.3)',
     transition:
       'opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
