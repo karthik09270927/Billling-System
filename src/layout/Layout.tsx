@@ -71,7 +71,7 @@ const Layout = () => {
                 bottom: 0
               }}
             >
-              bottom Content (Fixed)
+              bottom Contents (Fixed)
             </Box>
           </Card>
         </Grid>
