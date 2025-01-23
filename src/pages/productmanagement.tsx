@@ -1,5 +1,6 @@
-
 import { Grid, Box, Card } from "@mui/material";
+import AdminHeader from "../components/AdminHeader";
+import AdminDashboard from "./AdminDashBoard";
 
 const ProductManagement = () => {
 
@@ -17,8 +18,8 @@ const ProductManagement = () => {
                 flexShrink: 0,
               }}
             >
-              Header Content (Fixed)
-            </Box   >
+              < AdminHeader/>
+            </Box>
             <Box
               sx={{
                 flex: 1,
@@ -27,9 +28,7 @@ const ProductManagement = () => {
                 scrollbarWidth: "thin",
               }}
             >
-              {Array.from({ length: 50 }, (_, index) => (
-                <p key={index}>Content {index + 1}</p>
-              ))}
+             < AdminDashboard/>
             </Box>
           </Card>
         </Grid>
