@@ -9,10 +9,10 @@ interface OrderItem {
 }
 
 interface RightPanelProps {
-  customerName: string;
-  orderNumber: string;
+  customerName?: string;
+  orderNumber?: string;
   selectedItems: OrderItem[];
-  onPlaceOrder: () => void;
+  onPlaceOrder?: () => void;
 }
 
 const RightPanel: React.FC<RightPanelProps> = ({
@@ -52,8 +52,8 @@ const RightPanel: React.FC<RightPanelProps> = ({
         {/* Content Section */}
         <Box
           sx={{
-            flex: 1,
-            overflowY: "auto",
+            flex: 1, // Ensures the content area takes available space
+            overflowY: "auto", // Scrollable content area
             padding: 2,
             scrollbarWidth: "thin",
           }}
@@ -82,11 +82,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               No items selected.
             </Typography>
           )}
-          <Box sx={{ marginTop: 2 }}>
-            <Typography variant="h6" sx={{ textAlign: "right", fontWeight: "bold" }}>
-              Total: ${calculateTotal()}
-            </Typography>
-          </Box>
         </Box>
 
         {/* Footer Section */}
