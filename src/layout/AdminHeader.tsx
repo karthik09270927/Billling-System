@@ -18,7 +18,7 @@ const navItems = [
 ];
 
 
-export default function Header() {
+export default function AdminHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const [refreshToken, setRefreshToken] = useState<string | null>(
@@ -50,7 +50,7 @@ export default function Header() {
               display: { xs: "none", sm: "block", md: "flex" }
             }}
           >
-            <ShoppingCartIcon sx={{ fontSize: "40px" }}/> FRESH SUPERMARKET
+            <ShoppingCartIcon sx={{ fontSize: "40px" }}/> HYPERMARKET
           </Typography>
      
           <Box sx={{ flexGrow: 2, display: "block" }}>
@@ -60,6 +60,7 @@ export default function Header() {
                 sx={{
                   fontWeight: isActive(item.path) ? 800 : "inherit",
                   textTransform: "none",
+                  color: "inherit",
                 }}
                 onClick={() => navigate(item.path)}
               >
@@ -69,7 +70,7 @@ export default function Header() {
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             {refreshToken ? (
-              <IconButton onClick={handleLogout} sx={{}}>
+              <IconButton onClick={handleLogout} sx={{color: "inherit"}}>
                 <LoginIcon />
               </IconButton>
             ) : null}
