@@ -51,6 +51,7 @@ const ProductManagement = () => {
                 overflowY: "auto",
                 padding: 1,
                 scrollbarWidth: "thin",
+                
               }}
             >
               Right Side Content
