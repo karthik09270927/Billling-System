@@ -51,7 +51,7 @@ const AdminHeader = () => {
     ];
 
     return (
-        <Box sx={{pt:1}}>
+        <Box sx={{pt:0}}>
             {/* Floating Menu Icon */}
             {!isHeaderOpen && (
                 <IconButton
