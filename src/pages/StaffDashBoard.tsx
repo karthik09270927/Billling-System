@@ -20,8 +20,8 @@ const items = [
 
 const StaffDashboard: React.FC = () => {
   return (
-    <Box sx={{ display: "flex", height: "100vh", flexDirection: "column", bgcolor: "#f9f9f9", p: 2 }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+    <Box sx={{ display: "flex", height: "auto", flexDirection: "column", bgcolor: "#ffffff"}}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <TextField
           placeholder="Search something sweet on your mind..."
           variant="outlined"
@@ -33,35 +33,32 @@ const StaffDashboard: React.FC = () => {
             ),
           }}
           sx={{
-            width: "100%",
-            height: "36px",
             backgroundColor: "#fbfbe5",
-            borderRadius: "8px",
+            borderRadius: "20px",
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
                 border: "none",
               },
               "& .MuiInputBase-input": {
-                padding: "8px 12px",
               },
             },
           }}
         />
       </Box>
 
-      <Grid container spacing={3} mt={2}>
+      <Grid container spacing={3} p={1}>
         {items.map((item) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
             <Card
               sx={{
                 backgroundColor: "#ffffff",
-                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+                boxShadow: "2px 2px 4px 4px rgba(0, 0, 0, 0.1)",
                 borderRadius: "12px",
                 padding: 1,
                 transition: "transform 0.3s, box-shadow 0.3s",
                 "&:hover": {
                   transform: "translateY(-5px)",
-                  boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
+                  boxShadow: "4px 4px 6px 6px rgba(0, 0, 0, 0.1)",
                 },
               }}
             >
