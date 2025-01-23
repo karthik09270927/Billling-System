@@ -11,7 +11,7 @@ import { useState } from "react";
 import { mainAppBarStyle, appBarTypographyStyle } from "../style/header.Style";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
-const adminNavItems = [
+const navItems = [
   //   { name: "Dashboard", path: "/layout/dashboard" },
   { name: "Product Management", path: "/admin-dashboard/productmanagement" },
   { name: "User History", path: "/admin-dashboard/userhistory" },
@@ -24,22 +24,14 @@ export default function Header() {
   const [refreshToken, setRefreshToken] = useState<string | null>(
     localStorage.getItem("refreshToken")
   );
-  const [role, setRole] = useState<string | null>(
-    localStorage.getItem("userRole")
-  );
-
-
 
   const handleLogout = () => {
     localStorage.clear();
     setRefreshToken(null);
-    setRole(null);
     navigate("/");
   };
 
-
   const isActive = (path: string) => location.pathname === path;
-  const navItems = role === "admin" ? adminNavItems : [];
 
   return (
     <Box sx={{ display: "flex" }}>
