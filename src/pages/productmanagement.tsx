@@ -12,7 +12,7 @@ const ProductManagement = () => {
             <Box
               sx={{
                 height: { md: "190px", sm: "50px" },
-                backgroundColor: "#F0F0F0",
+                backgroundColor:  "#F0F0F0",
                 padding: "8px",
                 borderBottom: "1px solid #ccc",
                 flexShrink: 0,
