@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import { LoginPage } from '../auth/AdminLogin';
 import ForgotPassword from '../auth/ForgotPassword';
 import UpdatePassword from '../auth/UpdatePassword';
@@ -25,10 +25,10 @@ const AppRoutes = () => {
         <Route path="/favourites" element={<ProtectedRoute element={<FavouritePage />} />} /> */}
 
         <Route path="/admin-dashboard"  element={<AdminLayout />}  >
+        <Route index element={<Navigate to="productmanagement" />} />
         <Route path="productmanagement"  element={<ProductManagement />}  />
         <Route path="userhistory"  element={<UserHistory />}  />
         </Route>
-
       </Routes>
     </Router>
   );
