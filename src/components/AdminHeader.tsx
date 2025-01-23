@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     Box,
     Grid,
@@ -16,14 +16,36 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { useNavigate } from "react-router-dom";
+import { fetchCategories } from "../utils/api-collection";
+import LogoutIcon from "@mui/icons-material/Logout";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+
+
 
 const AdminHeader = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
+    const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const { selectedCategory, setSelectedCategory } = useCategory();
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        const getCategories = async () => {
+            try {
+                const data = await fetchCategories();
+                setCategories(data); // Set the fetched categories
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
+        getCategories();
+    }, []);
 
     const toggleHeader = () => {
-        setIsHeaderOpen((prev) => !prev); 
+        setIsHeaderOpen((prev) => !prev);
     };
 
     const scrollHorizontally = (direction: "left" | "right") => {
@@ -36,22 +58,16 @@ const AdminHeader = () => {
         }
     };
 
-    const categories = [
-        { name: "All Menu", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Electronics", image: "/src/assets/Electronics.png", items: 20 },
-        { name: "Grocery", image: "/src/assets/Grocery.jpg", items: 20 },
-        { name: "Mobiles", image: "/src/assets/Phones.jpg", items: 20 },
-        { name: "Fashion", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Furniture", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Appliances", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Tea", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Ice Cream", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Fresh Juices", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Vegetables", image: "/src/assets/croissant.png", items: 20 },
-    ];
+    const handleLogout = () => {
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        navigate('/');
+    };
+
 
     return (
-        <Box sx={{pt:0}}>
+        <Box sx={{ pt: 0 }}>
             {/* Floating Menu Icon */}
             {!isHeaderOpen && (
                 <IconButton
@@ -85,14 +101,14 @@ const AdminHeader = () => {
                         {/* Close Icon */}
                         <Grid item>
                             <IconButton onClick={toggleHeader}
-                              sx={{
-                                position: "fixed",
-                                top: 90,
-                                left: 16,
-                                backgroundColor: "#fff",
-                                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                                zIndex: 1000,
-                            }}
+                                sx={{
+                                    position: "fixed",
+                                    top: 90,
+                                    left: 16,
+                                    backgroundColor: "#fff",
+                                    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                                    zIndex: 1000,
+                                }}
                             >
                                 <ExpandLessIcon sx={{ fontSize: 20, color: "#333" }} />
                             </IconButton>
@@ -100,7 +116,7 @@ const AdminHeader = () => {
 
                         {/* Date and Time */}
                         <Grid item>
-                            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666",ml:4 }}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666", ml: 4 }}>
                                 {new Date().toLocaleString("en-US", {
                                     weekday: "short",
                                     day: "numeric",
@@ -134,7 +150,12 @@ const AdminHeader = () => {
                                         },
                                     }}
                                 />
-                             
+                                <IconButton>
+                                    <QrCodeScannerIcon sx={{ fontSize: 28, color: "#333" }} />
+                                </IconButton>
+                                <IconButton>
+                                    <LogoutIcon sx={{ fontSize: 28, color: "red" }} onClick={handleLogout} />
+                                </IconButton>
                             </Box>
                         </Grid>
                     </Grid>
@@ -174,10 +195,10 @@ const AdminHeader = () => {
                                         height: "150px",
                                         borderRadius: "12px",
                                         boxShadow:
-                                            selectedCategory === category.name
+                                            selectedCategory === category.categoryName
                                                 ? "0 2px 5px #74d52b"
                                                 : "0 2px 5px rgba(0, 0, 0, 0.1)",
-                                        backgroundColor: selectedCategory === category.name ? "rgb(238, 255, 226)" : "#F9F9F9",
+                                        backgroundColor: selectedCategory === category.categoryName ? "rgb(238, 255, 226)" : "#F9F9F9",
                                         cursor: "pointer",
                                         transition: "box-shadow 0.3s",
                                     }}
@@ -185,7 +206,7 @@ const AdminHeader = () => {
                                     <CardMedia
                                         component="img"
                                         height="70"
-                                        image={category.image}
+                                        image={`data:image/jpeg;base64,${category.image}`}
                                         alt={category.name}
                                         sx={{ borderRadius: "12px 12px 0 0" }}
                                     />
@@ -194,7 +215,7 @@ const AdminHeader = () => {
                                             variant="body2"
                                             sx={{
                                                 fontWeight: "bold",
-                                                color: selectedCategory === category.name ? "#74d52b" : "#333",
+                                                color: selectedCategory === category.categoryName ? "#74d52b" : "#333",
                                             }}
                                         >
                                             {category.name}
@@ -215,7 +236,7 @@ const AdminHeader = () => {
                 )}
             </Box>
 
-            
+
         </Box>
     );
 };
