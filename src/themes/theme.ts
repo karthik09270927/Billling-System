@@ -91,8 +91,8 @@ export const lightTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#74D52B',
-          color: '#ffffff',
+          backgroundColor: '#fbfbe5',
+          color: '#000',
           
         },
       },

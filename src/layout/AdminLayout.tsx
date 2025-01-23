@@ -4,18 +4,18 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { Outlet } from 'react-router-dom';
-import Header from './Header';
+import AdminHeader from './AdminHeader';
 const AdminLayout = () => {
     return (
         <>
             <React.Fragment>
                 <CssBaseline />
                 <Box sx={{ bgcolor: '#C8E0EC' }}>
-                    <Header />
+                    <AdminHeader />
                 </Box>
                 <Toolbar id="back-to-top-anchor" />
                 <Container maxWidth={false} disableGutters sx={{ padding: "0px" }}>
-                    <Box sx={{ mt: 3 }}>
+                    <Box sx={{ mt: 0 }}>
                         <Outlet />
                     </Box>
                 </Container>

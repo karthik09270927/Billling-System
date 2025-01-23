@@ -1,9 +1,8 @@
-import React, { useRef } from "react";
+import { useRef, useState } from "react";
 import {
     Box,
     Grid,
     Typography,
-    Button,
     IconButton,
     TextField,
     InputAdornment,
@@ -11,18 +10,21 @@ import {
     CardContent,
     CardMedia,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import QrCodeIcon from "@mui/icons-material/QrCode";
+import { useCategory } from "../Hooks/useContext";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
-const AdminHeader: React.FC = () => {
-
+const AdminHeader = () => {
+    const [isHeaderOpen, setIsHeaderOpen] = useState(true);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const { selectedCategory, setSelectedCategory } = useCategory();
 
+    const toggleHeader = () => {
+        setIsHeaderOpen((prev) => !prev); 
+    };
 
     const scrollHorizontally = (direction: "left" | "right") => {
         if (scrollContainerRef.current) {
@@ -36,170 +38,184 @@ const AdminHeader: React.FC = () => {
 
     const categories = [
         { name: "All Menu", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Breads", image: "/src/assets/puffs.png", items: 20 },
-        { name: "Cakes", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Donuts", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Pastries", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Sandwich", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Mani", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Sakthi", image: "/src/assets/croissant.png", items: 20 },
-        { name: "Karthi", image: "/src/assets/croissant.png", items: 20 },
+        { name: "Electronics", image: "/src/assets/Electronics.png", items: 20 },
+        { name: "Grocery", image: "/src/assets/Grocery.jpg", items: 20 },
+        { name: "Mobiles", image: "/src/assets/Phones.jpg", items: 20 },
+        { name: "Fashion", image: "/src/assets/croissant.png", items: 20 },
+        { name: "Furniture", image: "/src/assets/croissant.png", items: 20 },
+        { name: "Appliances", image: "/src/assets/croissant.png", items: 20 },
+        { name: "Tea", image: "/src/assets/croissant.png", items: 20 },
+        { name: "Ice Cream", image: "/src/assets/croissant.png", items: 20 },
+        { name: "Fresh Juices", image: "/src/assets/croissant.png", items: 20 },
+        { name: "Vegetables", image: "/src/assets/croissant.png", items: 20 },
     ];
+
     return (
-        <Box
-            sx={{
-                backgroundColor: "#fff",
-                borderBottom: "1px solid #ddd",
-                padding: "10px",
-                boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                marginBottom: "10px"
-            }}
-        >
-            {/* Top Section */}
+        <Box sx={{pt:1}}>
+            {/* Floating Menu Icon */}
+            {!isHeaderOpen && (
+                <IconButton
+                    onClick={toggleHeader}
+                    sx={{
+                        position: "fixed",
+                        top: 90,
+                        left: 16,
+                        backgroundColor: "#fff",
+                        boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                        zIndex: 1000,
+                    }}
+                >
+                    <ExpandMoreIcon sx={{ fontSize: 20, color: "#333" }} />
+                </IconButton>
+            )}
+            {/* Header Section */}
             <Box
                 sx={{
                     backgroundColor: "#fff",
                     borderBottom: "1px solid #ddd",
-                    padding: "8px 16px",
+                    padding: isHeaderOpen ? "8px 16px" : "0 16px",
                     boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                    height: isHeaderOpen ? "auto" : 0,
+                    overflow: "hidden",
+                    transition: "height 0.4s ease, padding 0.4s ease",
                 }}
             >
-                <Grid container alignItems="center" spacing={2}>
-                    {/* Menu Icon */}
-                    <Grid item>
-                        <IconButton>
-                            <MenuIcon sx={{ fontSize: 28, color: "#333" }} />
+                {isHeaderOpen && (
+                    <Grid container alignItems="center" spacing={2}>
+                        {/* Close Icon */}
+                        <Grid item>
+                            <IconButton onClick={toggleHeader}
+                              sx={{
+                                position: "fixed",
+                                top: 90,
+                                left: 16,
+                                backgroundColor: "#fff",
+                                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                                zIndex: 1000,
+                            }}
+                            >
+                                <ExpandLessIcon sx={{ fontSize: 20, color: "#333" }} />
+                            </IconButton>
+                        </Grid>
+
+                        {/* Date and Time */}
+                        <Grid item>
+                            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666",ml:4 }}>
+                                {new Date().toLocaleString("en-US", {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                })}
+                            </Typography>
+                        </Grid>
+
+                        {/* Search Bar, QR Code, and Logout Icons */}
+                        <Grid item xs>
+                            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                                <TextField
+                                    placeholder="Search something sweet on your mind..."
+                                    variant="outlined"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon sx={{ color: "#999" }} />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{
+                                        width: "100%",
+                                        backgroundColor: "rgb(238, 255, 226)",
+                                        borderRadius: "20px",
+                                        "& .MuiOutlinedInput-root": {
+                                            "& fieldset": {
+                                                border: "none",
+                                            },
+                                        },
+                                    }}
+                                />
+                             
+                            </Box>
+                        </Grid>
+                    </Grid>
+                )}
+
+                {/* Category Tabs */}
+                {isHeaderOpen && (
+                    <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+                        {/* Left Arrow Icon */}
+                        <IconButton onClick={() => scrollHorizontally("left")} sx={{ color: "#333" }}>
+                            <ArrowBackIosIcon sx={{ fontSize: "20px" }} />
                         </IconButton>
-                    </Grid>
 
-                    {/* Date and Time */}
-                    <Grid item>
-                        <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666" }}>
-                            Wed. 29 May 2024
-                        </Typography>
-                    </Grid>
-                    
-                    
-
-                    {/* Search Bar */}
-                    <Grid item xs={6}>
-                        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-                            <TextField
-                                placeholder="Search something sweet on your mind..."
-                                variant="outlined"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon sx={{ color: "#999" }} />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{
-                                    width: "100%",
-                                    height: "32px", 
-                                    backgroundColor: "#fbfbe5",
-                                    borderRadius: "8px",
-                                    "& .MuiOutlinedInput-root": {
-                                        "& fieldset": {
-                                            border: "none",
-                                        },
-                                        "& .MuiInputBase-input": {
-                                            padding: "6px 12px",
-                                        },
-                                    },
-                                }}
-                            />
-                        </Box>
-                    </Grid>
-
-                    {/* QR Code and Logout Icons */}
-                    <Grid item xs>
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-                            <IconButton>
-                                <QrCodeIcon sx={{ fontSize: 28, color: "#333" }} />
-                            </IconButton>
-                            <IconButton>
-                                <PowerSettingsNewIcon sx={{ fontSize: 28, color: "#f00" }} />
-                            </IconButton>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </Box>
-
-            {/* Category Tabs */}
-            <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                {/* Left Arrow Icon */}
-                <IconButton onClick={() => scrollHorizontally("left")} sx={{ color: "#333" }}>
-                    <ArrowBackIosIcon />
-                </IconButton>
-
-                {/* Scrollable Category Cards */}
-                <Box
-                    ref={scrollContainerRef}
-                    sx={{
-                        display: "flex",
-                        gap: 2,
-                        overflowX: "auto",
-                        whiteSpace: "nowrap",
-                        p: 1,
-                        scrollbarWidth: "none",
-                        "&::-webkit-scrollbar": {
-                            display: "none",
-                        },
-                        flex: 1,
-                    }}
-                >
-                    {categories.map((category, index) => (
-                        <Card
-                            key={index}
+                        {/* Scrollable Category Cards */}
+                        <Box
+                            ref={scrollContainerRef}
                             sx={{
-                                minWidth: "100px",
-                                maxWidth: "120px",
-                                Height: '150px',
-                                borderRadius: "12px",
-                                boxShadow: index === 0 ? "0 2px 5px rgba(0, 123, 255, 0.2)" : "none",
-                                backgroundColor: index === 0 ? "#EAF4FF" : "#F9F9F9",
+                                display: "flex",
+                                gap: 2,
+                                overflowX: "auto",
+                                whiteSpace: "nowrap",
+                                p: 1,
+                                scrollbarWidth: "none",
+                                "&::-webkit-scrollbar": {
+                                    display: "none",
+                                },
+                                flex: 1,
                             }}
                         >
-                            {/* Image */}
-                            <CardMedia
-                                component="img"
-                                height="70"
-                                width="30"
-                                image={category.image}
-                                alt={category.name}
-                                sx={{ borderRadius: "12px 12px 0 0" }}
-                            />
-                            {/* Content */}
-                            <CardContent sx={{ textAlign: "center", "&:last-child": { paddingBottom: 0, paddingTop: 0 }, }}>
-                                <Typography
-                                    variant="body2"
+                            {categories.map((category, index) => (
+                                <Card
+                                    key={index}
+                                    onClick={() => setSelectedCategory(category.name)}
                                     sx={{
-                                        fontWeight: "bold",
-                                        color: index === 0 ? "#007BFF" : "#333",
+                                        minWidth: "100px",
+                                        maxWidth: "120px",
+                                        height: "150px",
+                                        borderRadius: "12px",
+                                        boxShadow:
+                                            selectedCategory === category.name
+                                                ? "0 2px 5px #74d52b"
+                                                : "0 2px 5px rgba(0, 0, 0, 0.1)",
+                                        backgroundColor: selectedCategory === category.name ? "rgb(238, 255, 226)" : "#F9F9F9",
+                                        cursor: "pointer",
+                                        transition: "box-shadow 0.3s",
                                     }}
                                 >
-                                    {category.name}
-                                </Typography>
-                                <Typography
-                                    variant="caption"
-                                    sx={{ color: "#999", fontSize: "12px" }}
-                                >
-                                    {category.items} Items
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </Box>
+                                    <CardMedia
+                                        component="img"
+                                        height="70"
+                                        image={category.image}
+                                        alt={category.name}
+                                        sx={{ borderRadius: "12px 12px 0 0" }}
+                                    />
+                                    <CardContent sx={{ textAlign: "center", padding: "8px 0" }}>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                fontWeight: "bold",
+                                                color: selectedCategory === category.name ? "#74d52b" : "#333",
+                                            }}
+                                        >
+                                            {category.name}
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: "#999", fontSize: "12px" }}>
+                                            {category.items} Items
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </Box>
 
-                {/* Right Arrow Icon */}
-                <IconButton onClick={() => scrollHorizontally("right")} sx={{ color: "#333" }}>
-                    <ArrowForwardIosIcon />
-                </IconButton>
+                        {/* Right Arrow Icon */}
+                        <IconButton onClick={() => scrollHorizontally("right")} sx={{ color: "#333" }}>
+                            <ArrowForwardIosIcon sx={{ fontSize: "20px" }} />
+                        </IconButton>
+                    </Box>
+                )}
             </Box>
 
-            {/* Search Bar */}
-
+            
         </Box>
     );
 };
