@@ -35,8 +35,10 @@ const Header: React.FC = () => {
 
     const navigate = useNavigate();
     const handleLogout = () => {
-        localStorage.removeItem('userRole'); // Clear role from localStorage
-        navigate('/'); // Redirect to login page
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        navigate('/'); 
       };
 
     const categories = [

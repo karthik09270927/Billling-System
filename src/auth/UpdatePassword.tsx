@@ -9,7 +9,7 @@ import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { BtnSignIn, loginGrid, loginMaingrid, userNamefield } from '../../src/styles/home.style';
 // import { updatePassword } from '../utils/api-collections';
 import { toast } from 'react-toastify';
-import logo from '../assets/weblogo.png';
+import logo from '../assets/BrandLogo.png';
 import BackArrowIconButton from '../centralizedComponents/forms/ArroeBackIconButton.Component';
 
 
@@ -71,21 +71,30 @@ const UpdatePassword: React.FC = () => {
     // }
   };
 
+  const handleClick = () => {
+    navigate('/');
+  }
+
 
   return (
     <Box>
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
-            <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)' }}>
-              <img src={logo} alt="login" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)', background: '#ffffff' }}>
+              <img src={logo} alt="login"
+                style={{
+                  width: "100%",
+                  height: "90%",
+                  objectFit: "cover"
+                }} />
             </Box>
           </Grid>
         )}
 
         <Grid item xs={12} md={6} sx={loginMaingrid} mt={4}>
           <Box component="form" sx={{ textAlign: 'center', p: 4 }}>
-            <IconButton onClick={() => navigate("/")}>
+            <IconButton onClick={handleClick}>
               <BackArrowIconButton onClick={() => { }} />
             </IconButton>
             <Typography variant="h5" mb={1}>
