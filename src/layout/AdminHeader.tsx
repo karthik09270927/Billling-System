@@ -10,6 +10,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import { useState } from "react";
 import { mainAppBarStyle, appBarTypographyStyle } from "../style/header.Style";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 
 const navItems = [
   //   { name: "Dashboard", path: "/layout/dashboard" },
@@ -50,9 +51,9 @@ export default function AdminHeader() {
               display: { xs: "none", sm: "block", md: "flex" }
             }}
           >
-            <ShoppingCartIcon sx={{ fontSize: "40px" }}/> HYPERMARKET
+            <ShoppingCartIcon sx={{ fontSize: "40px" }} /> HYPERMARKET
           </Typography>
-     
+
           <Box sx={{ flexGrow: 2, display: "block" }}>
             {navItems.map((item) => (
               <Button
@@ -69,8 +70,11 @@ export default function AdminHeader() {
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
+            <IconButton>
+              <QrCodeScannerIcon sx={{ fontSize: 28, color: "#333" }} />
+            </IconButton>
             {refreshToken ? (
-              <IconButton onClick={handleLogout} sx={{color: "inherit"}}>
+              <IconButton onClick={handleLogout} sx={{ color: "inherit" }}>
                 <LoginIcon />
               </IconButton>
             ) : null}

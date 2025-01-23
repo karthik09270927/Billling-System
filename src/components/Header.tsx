@@ -63,7 +63,7 @@ const Header = () => {
 
     return (
         <Box>
-            {/* Floating Menu Icon */}
+            {/* Floating Menu Icon */} 
             {!isHeaderOpen && (
                 <IconButton
                     onClick={toggleHeader}
@@ -213,6 +213,7 @@ const Header = () => {
                                 </Card>
                             ))}
                         </Box>
+
 
                         {/* Right Arrow Icon */}
                         <IconButton onClick={() => scrollHorizontally("right")} sx={{ color: "#333" }}>
