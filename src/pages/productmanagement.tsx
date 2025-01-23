@@ -1,6 +1,6 @@
-import StaffDashBoard from "../pages/StaffDashBoard";
-import Header from "../components/Header";
 import { Grid, Box, Card } from "@mui/material";
+import AdminHeader from "../components/AdminHeader";
+import AdminDashboard from "./AdminDashBoard";
 
 const ProductManagement = () => {
 
@@ -18,7 +18,7 @@ const ProductManagement = () => {
                 flexShrink: 0
               }}
             >
-              < Header/>
+              < AdminHeader/>
             </Box>
             <Box
               sx={{
@@ -28,7 +28,7 @@ const ProductManagement = () => {
                 scrollbarWidth: "thin",
               }}
             >
-             < StaffDashBoard/>
+             < AdminDashboard/>
             </Box>
           </Card>
         </Grid>
