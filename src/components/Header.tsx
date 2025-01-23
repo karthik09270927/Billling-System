@@ -41,9 +41,11 @@ const Header = () => {
 
     const navigate = useNavigate();
     const handleLogout = () => {
-        localStorage.removeItem("userRole");
-        navigate("/");
-    };
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        navigate('/'); 
+      };
 
     const categories = [
         { name: "All Menu", image: "/src/assets/croissant.png", items: 20 },
