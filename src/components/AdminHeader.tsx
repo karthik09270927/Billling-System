@@ -188,7 +188,7 @@ const AdminHeader = () => {
                             {categories.map((category, index) => (
                                 <Card
                                     key={index}
-                                    onClick={() => setSelectedCategory(category.name)}
+                                    onClick={() => setSelectedCategory(category.categoryName)}
                                     sx={{
                                         minWidth: "100px",
                                         maxWidth: "120px",
@@ -207,7 +207,7 @@ const AdminHeader = () => {
                                         component="img"
                                         height="70"
                                         image={`data:image/jpeg;base64,${category.image}`}
-                                        alt={category.name}
+                                        alt={category.categoryName}
                                         sx={{ borderRadius: "12px 12px 0 0" }}
                                     />
                                     <CardContent sx={{ textAlign: "center", padding: "8px 0" }}>
@@ -218,7 +218,7 @@ const AdminHeader = () => {
                                                 color: selectedCategory === category.categoryName ? "#74d52b" : "#333",
                                             }}
                                         >
-                                            {category.name}
+                                            {category.categoryName}
                                         </Typography>
                                         <Typography variant="caption" sx={{ color: "#999", fontSize: "12px" }}>
                                             {category.items} Items
