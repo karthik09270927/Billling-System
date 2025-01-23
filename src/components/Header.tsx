@@ -26,7 +26,7 @@ const Header = () => {
     const { selectedCategory, setSelectedCategory } = useCategory();
 
     const toggleHeader = () => {
-        setIsHeaderOpen((prev) => !prev); 
+        setIsHeaderOpen((prev) => !prev);
     };
 
     const scrollHorizontally = (direction: "left" | "right") => {
@@ -44,8 +44,8 @@ const Header = () => {
         localStorage.removeItem('userRole');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        navigate('/'); 
-      };
+        navigate('/');
+    };
 
     const categories = [
         { name: "All Menu", image: "/src/assets/croissant.png", items: 20 },
@@ -69,7 +69,7 @@ const Header = () => {
                     onClick={toggleHeader}
                     sx={{
                         position: "fixed",
-                        top: 24,
+                        top: 18,
                         left: 16,
                         backgroundColor: "#fff",
                         boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
@@ -95,14 +95,22 @@ const Header = () => {
                     <Grid container alignItems="center" spacing={2}>
                         {/* Close Icon */}
                         <Grid item>
-                            <IconButton onClick={toggleHeader}>
-                                <ExpandLessIcon sx={{ fontSize: 28, color: "#333" }} />
+                            <IconButton onClick={toggleHeader}
+                                sx={{
+                                    position: "fixed",
+                                    top: 18,
+                                    left: 16,
+                                    backgroundColor: "#fff",
+                                    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                                    zIndex: 1000,
+                                }}>
+                                <ExpandLessIcon sx={{ fontSize: 20, color: "#333" }} />
                             </IconButton>
                         </Grid>
 
                         {/* Date and Time */}
                         <Grid item>
-                            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666" }}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666", ml: 4 }}>
                                 {new Date().toLocaleString("en-US", {
                                     weekday: "short",
                                     day: "numeric",
@@ -222,7 +230,7 @@ const Header = () => {
                 )}
             </Box>
 
-            
+
         </Box>
     );
 };
