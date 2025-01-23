@@ -43,7 +43,7 @@ API.interceptors.request.use(
     const token = localStorage.getItem('accessToken');
     if (
       token && 
-      !["/auth/login", "/auth/refreshToken"].some((url) => config.url?.includes(url))
+      !["/auth/authenticate", "/auth/refreshToken"].some((url) => config.url?.includes(url))
     ) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -104,6 +104,20 @@ export const loginUser = async (employeeCode: string, password: string): Promise
     throw error.response?.data?.message || 'Something went wrong';
   }
 };
+
+
+
+export const fetchCategories = async (): Promise<any> => {
+  try {
+    const response = await API.get('/billing/productcategoryList'); 
+    return (response.data as any).data;
+  } catch (error: any) {
+    console.error('Error fetching categories:', error);
+    showErrorToast(error.response?.data?.message || 'Something went wrong');
+    throw (error.response?.data as { message: string })?.message || 'Something went wrong';
+  }
+};
+
 
 // export const registerUser = async (userName: string, age: string, userMail: string, password: string): Promise<any> => {
 //   try {
