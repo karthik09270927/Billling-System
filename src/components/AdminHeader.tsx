@@ -59,18 +59,13 @@ const AdminHeader: React.FC = () => {
             <Box
                 sx={{
                     backgroundColor: "#fff",
-                    borderBottom: "1px solid #ddd",
+                    // borderBottom: "1px solid #ddd",
                     padding: "8px 16px",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                    // boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
                 }}
             >
                 <Grid container alignItems="center" spacing={2}>
-                    {/* Menu Icon */}
-                    <Grid item>
-                        <IconButton>
-                            <MenuIcon sx={{ fontSize: 28, color: "#333" }} />
-                        </IconButton>
-                    </Grid>
+                
 
                     {/* Date and Time */}
                     <Grid item>
@@ -114,14 +109,14 @@ const AdminHeader: React.FC = () => {
 
                     {/* QR Code and Logout Icons */}
                     <Grid item xs>
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                        {/* <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                             <IconButton>
                                 <QrCodeIcon sx={{ fontSize: 28, color: "#333" }} />
                             </IconButton>
                             <IconButton>
                                 <PowerSettingsNewIcon sx={{ fontSize: 28, color: "#f00" }} />
                             </IconButton>
-                        </Box>
+                        </Box> */}
                     </Grid>
                 </Grid>
             </Box>
