@@ -12,11 +12,11 @@ import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { Inputtextcomponent } from '../centralizedComponents/forms/InputText.Component';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import logo from '../assets/weblogo.png';
+import logo from '../assets/BrandLogo.png';
 import { loginUser } from '../utils/api-collection';
 import { jwtDecode } from "jwt-decode";
-import Loader from '../centralizedComponents/forms/Loader';
 import { Toasts } from '../centralizedComponents/forms/Toast';
+import { WashingLoader } from '../centralizedComponents/forms/WashingLoader';
 
 
 
@@ -43,7 +43,7 @@ export const LoginPage: React.FC = () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: ${theme.palette.mode === "dark" ? "#333333" : "#ffffff"}; 
+  background-color: ${theme.palette.mode === "dark" ? "#333333" : "#fbfbe5"}; 
   color: ${theme.palette.mode === "dark" ? "#ffffff" : "#333333"};
   text-align: center;
   `;
@@ -130,11 +130,11 @@ export const LoginPage: React.FC = () => {
               color: 'linear-gradient(90deg, hsla(59, 86%, 68%, 1) 0%, hsla(134, 36%, 53%, 1) 100%)',
             }}
           >
-            Fresh SuperMarket Billing System
+            Fresh HyperMarket Billing System
           </Typography>
         </motion.div>
         <Typography sx={{ mt: 2 }}>
-          <Loader />
+          <WashingLoader />
         </Typography>
 
       </SplashScreen>
@@ -146,10 +146,14 @@ export const LoginPage: React.FC = () => {
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
-            <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)' }}>
-              <img src={logo} alt="login" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)', background: '#ffffff' }}>
+              <img src={logo} alt="login"
+                style={{
+                  width: "100%",
+                  height: "90%",
+                  objectFit: "cover",
+                }} />
             </Box>
-
           </Grid>
 
         )}
