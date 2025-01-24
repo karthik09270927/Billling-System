@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_ENDPOINTS } from './endpoint';
 import {  showErrorToast } from './toast';
-import { toast } from 'react-toastify';
+import { ErrorResponse } from 'react-router-dom';
 
 
 const API = axios.create({
@@ -14,28 +14,28 @@ const API = axios.create({
 
 const refreshToken = async (): Promise<string | null> => {
   try {
-    const tokenData = localStorage.getItem("refreshToken");
-    console.log(tokenData);
+    const tokenData = localStorage.getItem('refreshToken');
+    const userId = JSON.parse(atob(tokenData?.split('.')[1] || '')).id; // Extract userId from JWT token
+    if (!tokenData || !userId) throw new Error('Invalid refreshToken or userId');
 
-    const response= await API.post('/auth/refreshToken', {
+    const response = await API.post('/auth/refreshToken', {
       refreshToken: tokenData,
+      userId,
     });
-    console.log(response);
 
-    const token = (response.data as { accessToken: string; refreshToken: string }).accessToken;
-    const refreshToken = (response.data as { accessToken: string; refreshToken: string }).refreshToken;
+    const { accessToken, refreshToken } = (response.data as any).data || {};
 
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.setItem("accessToken", token);
-    localStorage.setItem("refreshToken", refreshToken);
+    // Save new tokens
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
 
-    return token;
+    return accessToken;
   } catch (error) {
-    console.error("Failed to refresh token:", error);
+    console.error('Failed to refresh token:', error); // Redirect to login
     return null;
   }
 };
+
 
 // Request Interceptor
 API.interceptors.request.use(
@@ -65,7 +65,7 @@ API.interceptors.response.use(
     const originalRequest = error.config;
     console.log(error.response);
 
-    if (error.response?.status === 403) {
+    if (error.response?.status === 405) {
       const newToken = await refreshToken();
       if (newToken && originalRequest) {
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
@@ -88,7 +88,7 @@ export const loginUser = async (employeeCode: string, password: string): Promise
   try {
     const response = await API.post(API_ENDPOINTS.LOGIN, { employeeCode, password });
     console.log('API Response:', response);
-    const { accessToken, refreshToken } = (response.data as { data: { accessToken: string; refreshToken: string } }).data || {};
+    const { accessToken, refreshToken } = (response.data as any).data || {};
     if (accessToken && refreshToken) {
       localStorage.setItem('accessToken', accessToken);
       console.log('Access Token:', accessToken);
@@ -109,7 +109,7 @@ export const loginUser = async (employeeCode: string, password: string): Promise
 
 export const fetchCategories = async (): Promise<any> => {
   try {
-    const response = await API.get('/billing/productcategoryList'); 
+    const response = await API.get('/billing/productCategoryListDropDown'); 
     return (response.data as any).data;
   } catch (error: any) {
     console.error('Error fetching categories:', error);
@@ -119,43 +119,39 @@ export const fetchCategories = async (): Promise<any> => {
 };
 
 
-// export const registerUser = async (userName: string, age: string, userMail: string, password: string): Promise<any> => {
-//   try {
-//     const response = await API.post(API_ENDPOINTS.REGISTER, { userName, age, userMail, password });
-//     return response.data;
-//   } catch (error: any) {
-//     throw error.response?.data?.message || 'Registration failed';
-//   }
-// };
-
-// export const forgotPassword = async (userMail: string): Promise<any> => {
-//   try {
-//     const response = await API.post(API_ENDPOINTS.FORGOT_PASSWORD, { userMail });
-//     return response.data;
-//   } catch (error: any) {
-//     console.error('Error sending OTP:', error.response?.data || error);
-//     throw error.response?.data?.message || 'Something went wrong';
-//   }
-// };
-
-// export const updatePassword = async (userMail: string, password: string): Promise<any> => {
-//   try {
-//     const response = await API.post(API_ENDPOINTS.UPDATE_PASSWORD, { userMail, password });
-//     return response.data;
-//   } catch (error: any) {
-//     console.error('Error updating password:', error.response?.data || error);
-//     throw error.response?.data?.message || 'Failed to update password';
-//   }
-// };
-
-// export const verifyOTP = async (userMail: string, otp: string): Promise<any> => {
-//   try {
-//     const response = await API.post(API_ENDPOINTS.VERIFY_OTP, { userMail, otp });
-//     return response.data;
-//   } catch (error: any) {
-//     console.error("Error verifying OTP:", error.response?.data || error);
-//     throw error.response?.data || { message: "An unknown error occurred" };
-//   }
-// };
+export const fetchSubCategories = async (categoryId: number) => {
+  const response = await API.get<{ data : any}>(`/billing/productSubCategoryListDropDown?id=${categoryId}`);
+  if (response.status !== 200) throw new Error("Failed to fetch subcategories");
+  return response.data;
+};
 
 
+export const forgotPassword = async (userEmail: string): Promise<any> => {
+  try {
+    const response = await API.post(API_ENDPOINTS.FORGOT_PASSWORD, { userEmail });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error sending OTP:', error.response?.data || error);
+    throw error.response?.data?.message || 'Something went wrong';
+  }
+};
+
+export const updatePassword = async (mail: string, password: string): Promise<any> => {
+  try {
+    const response = await API.post(API_ENDPOINTS.UPDATE_PASSWORD, { mail, password });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error updating password:', error.response?.data || error);
+    throw error.response?.data?.message || 'Failed to update password';
+  }
+};
+
+export const verifyOTP = async (userEmail: string, otp: string): Promise<any> => {
+  try {
+    const response = await API.post(API_ENDPOINTS.VERIFY_OTP, { userEmail, otp });
+    return response.data;
+  } catch (error: any) {
+    console.error("Error verifying OTP:", error.response?.data || error);
+    throw error.response?.data || { message: "An unknown error occurred" };
+  }
+};

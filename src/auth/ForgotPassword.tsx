@@ -6,10 +6,10 @@ import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { forgotPasswordHeading, loginGrid, PasswordField, userNamefield, loginMaingrid, BtnSignIn } from '../../src/styles/home.style';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/system';
-// import { forgotPassword, verifyOTP } from '../../src/utils/api-collections';
 import { toast } from 'react-toastify';
 import logo from '../assets/BrandLogo.png';
 import BackArrowIconButton from '../centralizedComponents/forms/ArroeBackIconButton.Component';
+import { forgotPassword, verifyOTP } from '../utils/api-collection';
 
 
 const ForgotPassword: React.FC = () => {
@@ -38,35 +38,36 @@ const ForgotPassword: React.FC = () => {
         setErrorMessage(null);
         setSuccessMessage(null);
 
-        // try {
-        //     await forgotPassword(formValues.userMail);
-        //     setSuccessMessage('OTP has been sent to your email address.');
-        //     toast.success('OTP sent to your email');
-        //     setIsOTPVisible(true);
-        //     toast.success('OTP sent to your email');
-        // } catch (error: any) {
-        //     console.error('Error sending OTP:', error);
-        //     toast.error('Failed to send OTP. Please try again.');
-        // }
+        console.log('Email sent to forgotPassword API:', formValues.userMail);
+
+        try {
+            await forgotPassword(formValues.userMail);
+            setSuccessMessage('OTP has been sent to your email address.');
+            setIsOTPVisible(true);
+            toast.success('OTP sent to your email');
+        } catch (error: any) {
+            console.error('Error sending OTP:', error);
+            toast.error('Failed to send OTP. Please try again.');
+        }
     };
 
     const handleSubmitOTP = async () => {
         setErrorMessage(null);
         setSuccessMessage(null);
 
-        // try {
-        //     console.log("Submitting OTP with payload:", { userMail: formValues.userMail, otp: formValues.otp });
-        //     await verifyOTP(formValues.userMail, formValues.otp);
-        //     toast.success("OTP verified successfully");
-        //     localStorage.setItem("userEmail", formValues.userMail);
-        //     toast.success("OTP verified. Redirecting...");
-        //     navigate("/UpdatePassword");
-        // } catch (error: any) {
-        //     console.error("Error verifying OTP:", error.response?.data || error);
-        //     const serverError = error.response?.data;
-        //     setErrorMessage(serverError?.message || "Invalid OTP. Please try again.");
-        //     toast.error("Invalid OTP. Please try again.");
-        // }
+        try {
+            console.log("Submitting OTP with payload:", { userMail: formValues.userMail, otp: formValues.otp });
+            await verifyOTP(formValues.userMail, formValues.otp);
+            toast.success("OTP verified successfully");
+            localStorage.setItem("userEmail", formValues.userMail);
+            toast.success("OTP verified. Redirecting...");
+            navigate("/UpdatePassword");
+        } catch (error: any) {
+            console.error("Error verifying OTP:", error.response?.data || error);
+            const serverError = error.response?.data;
+            setErrorMessage(serverError?.message || "Invalid OTP. Please try again.");
+            toast.error("Invalid OTP. Please try again.");
+        }
     };
 
     const handleClick = () => {
@@ -90,7 +91,7 @@ const ForgotPassword: React.FC = () => {
                 )}
 
                 <Grid item xs={12} md={6} sx={loginMaingrid} mt={4}>
-                    <Box component="form" sx={{ textAlign: 'center', p: 4 }}>
+                    <Box component="form" onSubmit={(e) => e.preventDefault()} sx={{ textAlign: 'center', p: 4 }}>
                         <IconButton onClick={handleClick}>
                             <BackArrowIconButton onClick={() => { }} />
                         </IconButton>

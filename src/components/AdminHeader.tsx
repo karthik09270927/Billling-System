@@ -17,7 +17,7 @@ import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useNavigate } from "react-router-dom";
-import { fetchCategories } from "../utils/api-collection";
+import { fetchCategories, fetchSubCategories } from "../utils/api-collection";
 import LogoutIcon from "@mui/icons-material/Logout";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 
@@ -27,7 +27,7 @@ const AdminHeader = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const { selectedCategory, setSelectedCategory } = useCategory();
+    const { selectedCategory, setSelectedCategory, setSubCategories } = useCategory();
     const navigate = useNavigate();
 
 
@@ -63,6 +63,16 @@ const AdminHeader = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         navigate('/');
+    };
+
+    const handleCategoryClick = async (categoryId: number, categoryName: string) => {
+        try {
+            setSelectedCategory(categoryName); // Set selected category
+            const response = await fetchSubCategories(categoryId); // Call SubCategoryList API
+            setSubCategories(response.data); // Update subcategories in context
+        } catch (error) {
+            console.error("Error fetching subcategories:", error);
+        }
     };
 
 
@@ -103,7 +113,7 @@ const AdminHeader = () => {
                             <IconButton onClick={toggleHeader}
                                 sx={{
                                     position: "fixed",
-                                    top: 90,
+                                    top: 80,
                                     left: 16,
                                     backgroundColor: "#fff",
                                     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
@@ -140,8 +150,7 @@ const AdminHeader = () => {
                                         ),
                                     }}
                                     sx={{
-                                        width: "100%",
-                                        backgroundColor: "rgb(238, 255, 226)",
+                                            backgroundColor: "rgb(238, 255, 226)",
                                         borderRadius: "20px",
                                         "& .MuiOutlinedInput-root": {
                                             "& fieldset": {
@@ -188,10 +197,10 @@ const AdminHeader = () => {
                             {categories.map((category, index) => (
                                 <Card
                                     key={index}
-                                    onClick={() => setSelectedCategory(category.categoryName)}
+                                    onClick={() => handleCategoryClick(category.id, category.categoryName)}
                                     sx={{
-                                        minWidth: "100px",
-                                        maxWidth: "120px",
+                                        minWidth: "120px",
+                                        maxWidth: "140px",
                                         height: "150px",
                                         borderRadius: "12px",
                                         boxShadow:
@@ -205,7 +214,7 @@ const AdminHeader = () => {
                                 >
                                     <CardMedia
                                         component="img"
-                                        height="70"
+                                        height="90"
                                         image={`data:image/jpeg;base64,${category.image}`}
                                         alt={category.categoryName}
                                         sx={{ borderRadius: "12px 12px 0 0" }}
@@ -221,7 +230,7 @@ const AdminHeader = () => {
                                             {category.categoryName}
                                         </Typography>
                                         <Typography variant="caption" sx={{ color: "#999", fontSize: "12px" }}>
-                                            {category.items} Items
+                                            {category.count} Items
                                         </Typography>
                                     </CardContent>
                                 </Card>
