@@ -236,7 +236,6 @@ const AdminHeader = () => {
                                 </Card>
                             ))}
                         </Box>
-
                         {/* Right Arrow Icon */}
                         <IconButton onClick={() => scrollHorizontally("right")} sx={{ color: "#333" }}>
                             <ArrowForwardIosIcon sx={{ fontSize: "20px" }} />
