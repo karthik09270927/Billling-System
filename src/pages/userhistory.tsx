@@ -51,41 +51,12 @@ const orders = [
 ];
 
 // Define columns for the DataGrid
-const columns: GridColDef[] = [
-  { field: "id", headerName: "#", width: 100 },
-  { field: "date", headerName: "Date", flex: 1 },
-  { field: "customer", headerName: "Customer Name", flex: 1 },
-  { field: "status", headerName: "Order Status", flex: 1 },
-  { field: "payment", headerName: "Total Payment", flex: 1 },
-  {
-    field: "paymentStatus",
-    headerName: "Payment Status",
-    flex: 1,
-    renderCell: (params: any) => (
-      <Chip
-        label={params.value}
-        color={params.value === "Paid" ? "success" : "error"}
-        size="small"
-      />
-    ),
-  },
-  {
-    field: "actions",
-    headerName: "Orders",
-    flex: 1,
-    sortable: false,
-    renderCell: () => (
-      <Button variant="text" color="primary" size="small">
-        Detail
-      </Button>
-    ),
-  },
-];
+
 
 const UserHistory: React.FC = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
-  const [_formData, setFormData] = React.useState({
+  const [_formData, _setFormData] = React.useState({
 
     startdate: "",
     enddate: "",
@@ -103,6 +74,51 @@ const UserHistory: React.FC = () => {
     setIsFilterVisible((prev) => !prev);
   };
 
+  const handleDetailClick = (id: string) => {
+    
+  };
+
+
+  const columns: GridColDef[] = [
+    { field: "id", headerName: "#", width: 100 },
+    { field: "date", headerName: "Date", flex: 1 },
+    { field: "customer", headerName: "Customer Name", flex: 1 },
+    { field: "status", headerName: "Order Status", flex: 1 },
+    { field: "payment", headerName: "Total Payment", flex: 1 },
+    {
+      field: "paymentStatus",
+      headerName: "Payment Status",
+      flex: 1,
+      renderCell: (params: any) => (
+        <Chip
+          label={params.value}
+          size="small"
+          sx={{
+            backgroundColor: params.value === "Paid" ? "rgba(116, 213, 43, 0.2)" : "#ffd7cf",
+            color: params.value === "Paid" ? "#74D52B" : "error.main", 
+          }}
+        />
+  
+      ),
+    },
+    {
+      field: "actions",
+      headerName: "Orders",
+      flex: 1,
+      sortable: false,
+      renderCell: (params: any) => (
+        <Button
+        variant="text"
+        color="primary"
+        size="small"
+        onClick={() => handleDetailClick(params.row.id)} // Pass the id on click
+      >
+        Detail
+      </Button>
+      ),
+    },
+  ];
+
   useEffect(() => {
 
     reset({
@@ -114,7 +130,7 @@ const UserHistory: React.FC = () => {
   }, [reset]);
 
   return (
-    <Box sx={{ padding: "16px", height: "100vh"  }}>
+    <Box sx={{ padding: "16px", height: "100vh" }}>
       {/* Header Section */}
       <Box
         sx={{
@@ -122,11 +138,11 @@ const UserHistory: React.FC = () => {
           flexDirection: "column",
           gap: "24px",
           marginBottom: "24px",
-     
+
         }}
       >
         {/* Actions Row */}
-        <Box sx={{ display: "flex", justifyContent: "space-between" , alignItems:"center"}}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           {/* Left Section (Buttons) */}
           <Box sx={{ display: "flex", gap: "16px" }}>
             <IconButton
@@ -156,21 +172,22 @@ const UserHistory: React.FC = () => {
               <Download />
             </IconButton>
             <IconButton color="primary" onClick={toggleFilter}>
-              <FilterAlt />
+              <FilterAlt sx={{ color: isFilterVisible ? "#74D52B" : "#333" }} />
+
             </IconButton>
             <Collapse in={isFilterVisible} timeout="auto" unmountOnExit>
               <Box
-              sx={{
-                display: "flex",
-                gap: "8px",
-                position: "absolute",
-                backgroundColor: "#fff",
-                padding: "8px",
-                transition: "transform 0.100s ease-in-out, opacity 0.100s ease-in-out",
-                transform: isFilterVisible ? "translateX(0)" : "translateX(-100%)",
-                opacity: isFilterVisible ? 1 : 0,
-                alignItems:"center"
-              }}
+                sx={{
+                  display: "flex",
+                  gap: "8px",
+                  position: "absolute",
+                  backgroundColor: "#fff",
+                  padding: "8px",
+                  transition: "transform 0.100s ease-in-out, opacity 0.100s ease-in-out",
+                  transform: isFilterVisible ? "translateX(0)" : "translateX(-100%)",
+                  opacity: isFilterVisible ? 1 : 0,
+                  alignItems: "center"
+                }}
               >
                 <Typography>Date:</Typography>
                 <CentralizeDatePicker

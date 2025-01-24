@@ -129,7 +129,7 @@ const AdminDashboard: React.FC = () => {
           sx={{
             width: "100%",
             height: "30px",
-            backgroundColor: "rgb(238, 255, 226)",
+            backgroundColor: "#FBFBE5",
             borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
