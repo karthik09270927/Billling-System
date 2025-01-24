@@ -14,23 +14,23 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
 
 
-const items = [
-  { id: 1, name: "Croissant", price: 4.0, image: "/src/assets/croissant.png", category: "Electronics", subcategory: "Laptops" },
-  { id: 2, name: "Black Forest", price: 5.0, image: "/src/assets/blackforest.png", category: "Electronics", subcategory: "Laptops" },
-  { id: 3, name: "Butter Croissant", price: 4.0, image: "/src/assets/buttercroissant.png", category: "Electronics", subcategory: "Laptops" },
+// const items = [
+//   { id: 1, name: "Croissant", price: 4.0, image: "/src/assets/croissant.png", category: "Electronics", subcategory: "Laptops" },
+//   { id: 2, name: "Black Forest", price: 5.0, image: "/src/assets/blackforest.png", category: "Electronics", subcategory: "Laptops" },
+//   { id: 3, name: "Butter Croissant", price: 4.0, image: "/src/assets/buttercroissant.png", category: "Electronics", subcategory: "Laptops" },
 
-  { id: 4, name: "TV", price: 2.45, image: "/src/assets/puffs.png", category: "Electronics", subcategory: "Home Appliances" },
-  { id: 5, name: "Fridge", price: 3.75, image: "/src/assets/biscuits.png", category: "Electronics", subcategory: "Home Appliances" },
-  { id: 6, name: "Sound Bar", price: 4.5, image: "/src/assets/biscuts.jpg", category: "Electronics", subcategory: "Home Appliances" },
+//   { id: 4, name: "TV", price: 2.45, image: "/src/assets/puffs.png", category: "Electronics", subcategory: "Home Appliances" },
+//   { id: 5, name: "Fridge", price: 3.75, image: "/src/assets/biscuits.png", category: "Electronics", subcategory: "Home Appliances" },
+//   { id: 6, name: "Sound Bar", price: 4.5, image: "/src/assets/biscuts.jpg", category: "Electronics", subcategory: "Home Appliances" },
 
-  { id: 7, name: "Cereal Cream Donut", price: 2.45, image: "/src/assets/cerealcream.png", category: "Fashion", subcategory: "Accessories" },
-  { id: 8, name: "Chocolate Donut", price: 3.5, image: "/src/assets/chocolatedonut.png", category: "Fashion", subcategory: "Accessories" },
-  { id: 9, name: "Glazed Donut", price: 3.0, image: "/src/assets/glazeddonut.png", category: "Fashion", subcategory: "Accessories" },
+//   { id: 7, name: "Cereal Cream Donut", price: 2.45, image: "/src/assets/cerealcream.png", category: "Fashion", subcategory: "Accessories" },
+//   { id: 8, name: "Chocolate Donut", price: 3.5, image: "/src/assets/chocolatedonut.png", category: "Fashion", subcategory: "Accessories" },
+//   { id: 9, name: "Glazed Donut", price: 3.0, image: "/src/assets/glazeddonut.png", category: "Fashion", subcategory: "Accessories" },
 
-  { id: 10, name: "Egg Tart", price: 3.25, image: "/src/assets/eggtart.png", category: "Fashion", subcategory: "Clothing" },
-  { id: 11, name: "Spinchoco Roll", price: 4.0, image: "/src/assets/spinchoco.png", category: "Fashion", subcategory: "Clothing" },
-  { id: 12, name: "Zaguma Pan", price: 4.5, image: "/src/assets/zaguma.png", category: "Fashion", subcategory: "Clothing" },
-];
+//   { id: 10, name: "Egg Tart", price: 3.25, image: "/src/assets/eggtart.png", category: "Fashion", subcategory: "Clothing" },
+//   { id: 11, name: "Spinchoco Roll", price: 4.0, image: "/src/assets/spinchoco.png", category: "Fashion", subcategory: "Clothing" },
+//   { id: 12, name: "Zaguma Pan", price: 4.5, image: "/src/assets/zaguma.png", category: "Fashion", subcategory: "Clothing" },
+// ];
 
 
 const groupItemsBySubcategory = (items: any) => {
@@ -47,20 +47,21 @@ const AdminDashboard: React.FC = () => {
   const { selectedCategory } = useCategory();
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const { subCategories } = useCategory(); 
 
   
-  const filteredItems =
-    selectedCategory === "All Menu"
-      ? items
-      : items.filter((item) => item.category === selectedCategory);
+  // const filteredItems =
+  //   selectedCategory === "All Menu"
+  //     ? items
+  //     : items.filter((item) => item.category === selectedCategory);
 
   
-  const groupedItems = groupItemsBySubcategory(filteredItems);
+  // const groupedItems = groupItemsBySubcategory(filteredItems);
 
   
-  const filteredBySubcategory = selectedSubcategory
-    ? filteredItems.filter((item) => item.subcategory === selectedSubcategory)
-    : filteredItems;
+  // const filteredBySubcategory = selectedSubcategory
+  //   ? filteredItems.filter((item) => item.subcategory === selectedSubcategory)
+  //   : filteredItems;
 
   
   const handleItemClick = (item: any) => {
@@ -84,9 +85,9 @@ const AdminDashboard: React.FC = () => {
       <Box sx={{ flex: 1, p: 2 }}>
         <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 2, ml: 4 }}>
           {/* Render Subcategory buttons */}  
-          {Object.keys(groupedItems).map((subcategory) => (
+          {subCategories.map((subcategory: any) => (
             <Button
-              key={subcategory}
+              key={subcategory.id}
               onClick={() => setSelectedSubcategory(subcategory)}
               sx={{
                 margin: "0 8px",
@@ -109,7 +110,7 @@ const AdminDashboard: React.FC = () => {
                 },
               }}
             >
-              {subcategory}
+              {subcategory.subCategoryName} ({subcategory.count})
             </Button>
 
           ))}
@@ -128,7 +129,7 @@ const AdminDashboard: React.FC = () => {
           sx={{
             width: "100%",
             height: "30px",
-            backgroundColor: "rgb(238, 255, 226)",
+            backgroundColor: "#FBFBE5",
             borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
@@ -142,7 +143,7 @@ const AdminDashboard: React.FC = () => {
         />
 
         {/* Display filtered items based on selected subcategory */}
-        <Grid container spacing={3} mt={3}>
+        {/* <Grid container spacing={3} mt={3}>
           {filteredBySubcategory.map((item: any) => (
             <Grid item xs={12} sm={6} md={4} lg={2.4} key={item.id}>
               <Card
@@ -213,7 +214,7 @@ const AdminDashboard: React.FC = () => {
               </Card>
             </Grid>
           ))}
-        </Grid>
+        </Grid> */}
       </Box>
 
      
