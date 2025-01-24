@@ -1,6 +1,7 @@
 import { Grid, Box, Card } from "@mui/material";
 import StaffDashBoard from "../pages/StaffDashBoard";
 import Header from "../components/Header";
+import BillPanel from "../pages/BillPanel";
 const StaffLayout = () => {
   return (
     <Box sx={{ height: "100vh", overflow: { md: "hidden" }, }}>
@@ -31,7 +32,7 @@ const StaffLayout = () => {
           </Card>
         </Grid>
         <Grid item xs={12} md={3} sx={{ height: "100vh" }}>
-          <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+          {/* <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
                 height: { md: "50px", sm: "20px" },
@@ -68,7 +69,9 @@ const StaffLayout = () => {
             >
               bottom Content (Fixed)
             </Box>
-          </Card>
+          </Card> */}
+
+          <BillPanel />
         </Grid>
       </Grid>
     </Box>
