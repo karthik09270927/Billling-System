@@ -27,7 +27,7 @@ const CentralizeDatePicker: React.FC<CentralizeDatePickerProps> = ({
   readonly = false,
   size = "medium",
   disableFuture = false,
-  iconColor = "#74D52B",
+  iconColor = "#bfbf7c",
   ...props
 }) => {
   return (
