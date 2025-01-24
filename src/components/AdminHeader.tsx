@@ -125,7 +125,7 @@ const AdminHeader = () => {
                                     }}
                                     sx={{
                                         width: "100%",
-                                        backgroundColor: "rgb(238, 255, 226)",
+                                        backgroundColor: "#FBFBE5",
                                         borderRadius: "20px",
                                         "& .MuiOutlinedInput-root": {
                                             "& fieldset": {
