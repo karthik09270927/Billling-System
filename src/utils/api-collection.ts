@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { API_ENDPOINTS } from './endpoint';
-import {  showErrorToast } from './toast';
-import { ErrorResponse } from 'react-router-dom';
+import { Toasts } from '../centralizedComponents/forms/Toast';
 
 
 const API = axios.create({
@@ -15,7 +14,7 @@ const API = axios.create({
 const refreshToken = async (): Promise<string | null> => {
   try {
     const tokenData = localStorage.getItem('refreshToken');
-    const userId = JSON.parse(atob(tokenData?.split('.')[1] || '')).id; // Extract userId from JWT token
+    const userId = JSON.parse(atob(tokenData?.split('.')[1] || '')).id;
     if (!tokenData || !userId) throw new Error('Invalid refreshToken or userId');
 
     const response = await API.post('/auth/refreshToken', {
@@ -31,7 +30,7 @@ const refreshToken = async (): Promise<string | null> => {
 
     return accessToken;
   } catch (error) {
-    console.error('Failed to refresh token:', error); // Redirect to login
+    console.error('Failed to refresh token:', error); 
     return null;
   }
 };
@@ -65,7 +64,7 @@ API.interceptors.response.use(
     const originalRequest = error.config;
     console.log(error.response);
 
-    if (error.response?.status === 405) {
+    if (error.response?.status === 403) {
       const newToken = await refreshToken();
       if (newToken && originalRequest) {
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
@@ -76,7 +75,7 @@ API.interceptors.response.use(
         window.location.reload();
       }
     }
-    showErrorToast((error.response?.data as any).message || 'Something went wrong');
+    Toasts((error.response?.data as any).message || 'Something went wrong');
     return Promise.reject(error);
   }
 );
@@ -113,7 +112,6 @@ export const fetchCategories = async (): Promise<any> => {
     return (response.data as any).data;
   } catch (error: any) {
     console.error('Error fetching categories:', error);
-    showErrorToast(error.response?.data?.message || 'Something went wrong');
     throw (error.response?.data as { message: string })?.message || 'Something went wrong';
   }
 };
@@ -129,7 +127,11 @@ export const fetchSubCategories = async (categoryId: number) => {
 export const forgotPassword = async (userEmail: string): Promise<any> => {
   try {
     const response = await API.post(API_ENDPOINTS.FORGOT_PASSWORD, { userEmail });
-    return response.data;
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(`Request failed with status code ${response.status}`);
+    }
   } catch (error: any) {
     console.error('Error sending OTP:', error.response?.data || error);
     throw error.response?.data?.message || 'Something went wrong';

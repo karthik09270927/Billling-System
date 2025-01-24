@@ -7,10 +7,10 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { Inputtextcomponent } from '../centralizedComponents/forms/InputText.Component';
 import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { BtnSignIn, loginGrid, loginMaingrid, userNamefield } from '../../src/styles/home.style';
-// import { updatePassword } from '../utils/api-collections';
-import { toast } from 'react-toastify';
 import logo from '../assets/BrandLogo.png';
 import BackArrowIconButton from '../centralizedComponents/forms/ArroeBackIconButton.Component';
+import { updatePassword } from '../utils/api-collection';
+import { Toasts } from '../centralizedComponents/forms/Toast';
 
 
 
@@ -46,29 +46,29 @@ const UpdatePassword: React.FC = () => {
   const handleUpdatePassword = async () => {
     if (formValues.newPassword !== formValues.confirmPassword) {
       setErrorMessage('Passwords do not match');
-      toast.error('Passwords do not match');
+      Toasts({ message: 'Passwords do not match', type: 'error' });
       return;
     }
 
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    // try {
-    //   const email = localStorage.getItem('userEmail');
-    //   if (!email) {
-    //     setErrorMessage('Email not found. Please try again.');
-    //     toast.error('Email not found. Please try again.');
-    //     return;
-    //   }
+    try {
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
+        setErrorMessage('Email not found. Please try again.');
+        Toasts({ message: 'Email not found. Please try again.', type: 'error' });
+        return;
+      }
 
-    //   await updatePassword(email, formValues.newPassword);
-    //   toast.success('Password updated successfully');
-    //   localStorage.removeItem('userEmail');
-    //   setTimeout(() => navigate('/'), 2000);
-    // } catch (error: any) {
-    //   toast.error('Failed to update password. Please try again.');
-    //   setErrorMessage(error || 'Failed to update password. Please try again.');
-    // }
+      await updatePassword(email, formValues.newPassword);
+      Toasts({ message: 'Password updated successfully', type: 'success' });
+      localStorage.removeItem('userEmail');
+      setTimeout(() => navigate('/'), 2000);
+    } catch (error: any) {
+      Toasts({ message: 'Failed to update password. Please try again.', type: 'error' });
+      setErrorMessage(error || 'Failed to update password. Please try again.');
+    }
   };
 
   const handleClick = () => {
@@ -97,7 +97,7 @@ const UpdatePassword: React.FC = () => {
             <IconButton onClick={handleClick}>
               <BackArrowIconButton onClick={() => { }} />
             </IconButton>
-            <Typography variant="h5" mb={1}>
+            <Typography variant="h5" mb={1} sx={{ color:'#62c034' }}>
               Update Password
             </Typography>
             <Box component="form" onSubmit={(e) => e.preventDefault()} sx={{ marginTop: 4 }}>
