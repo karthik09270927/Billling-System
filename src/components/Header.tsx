@@ -23,7 +23,7 @@ import { fetchCategories } from "../utils/api-collection";
 
 const Header = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
-    const [categories, setCategories] = useState<any[]>([]); // Dynamic category data
+    const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const { selectedCategory, setSelectedCategory } = useCategory();
     const navigate = useNavigate();
@@ -33,14 +33,14 @@ const Header = () => {
         const getCategories = async () => {
             try {
                 const data = await fetchCategories();
-                setCategories(data); // Set the fetched categories
+                setCategories(data);
             } catch (error) {
                 console.error("Error fetching categories:", error);
             }
         };
 
         getCategories();
-    }, []); // Empty dependency array means this effect runs only once, after the initial render
+    }, []);
 
     const toggleHeader = () => {
         setIsHeaderOpen((prev) => !prev);

@@ -12,6 +12,9 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
+import { useSelectedItems } from "../Hooks/productContext";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 
 const items = [
@@ -30,6 +33,7 @@ const items = [
   { id: 10, name: "Egg Tart", price: 3.25, image: "/src/assets/eggtart.png", category: "Fashion", subcategory: "Clothing" },
   { id: 11, name: "Spinchoco Roll", price: 4.0, image: "/src/assets/spinchoco.png", category: "Fashion", subcategory: "Clothing" },
   { id: 12, name: "Zaguma Pan", price: 4.5, image: "/src/assets/zaguma.png", category: "Fashion", subcategory: "Clothing" },
+
 ];
 
 
@@ -45,24 +49,26 @@ const groupItemsBySubcategory = (items: any) => {
 
 const StaffDashboard: React.FC = () => {
   const { selectedCategory } = useCategory();
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+  const { selectedItems, setSelectedItems } = useSelectedItems();
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
-  
+
+
+
   const filteredItems =
     selectedCategory === "All Menu"
       ? items
       : items.filter((item) => item.category === selectedCategory);
 
-  
+
   const groupedItems = groupItemsBySubcategory(filteredItems);
 
-  
+
   const filteredBySubcategory = selectedSubcategory
     ? filteredItems.filter((item) => item.subcategory === selectedSubcategory)
     : filteredItems;
 
-  
+
   const handleItemClick = (item: any) => {
     setSelectedItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
@@ -76,36 +82,76 @@ const StaffDashboard: React.FC = () => {
     });
   };
 
+  const handleLeftArrowClick = () => {
+    const container = document.querySelector(".scrollable-container");
+    if (container) container.scrollBy({ left: -100, behavior: "smooth" });
+  };
+
+  const handleRightArrowClick = () => {
+    const container = document.querySelector(".scrollable-container");
+    if (container) container.scrollBy({ left: 100, behavior: "smooth" });
+  };
+
 
 
   return (
     <Box sx={{ display: "flex", height: "100vh", flexDirection: "row", bgcolor: "#f9f9f9" }}>
       {/* Left Section */}
       <Box sx={{ flex: 1, p: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 2, ml: 4 }}>
-          {/* Render Subcategory buttons */}  
+
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 2, ml: 4 }}>
+
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              mr: 2,
+            }}
+            onClick={handleLeftArrowClick} 
+          >
+            <Button
+              sx={{
+                minWidth: 0,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                alignItems: "center",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                backgroundColor: "#f0f0f0",
+                "&:hover": {
+                  backgroundColor: "#74D52B",
+                  color: "white",
+                },
+              }}
+            >
+              <ArrowBackIosIcon sx={{ fontSize: "12px" }} />
+            </Button>
+          </Box>
+          {/* Render Subcategory buttons */}
           {Object.keys(groupedItems).map((subcategory) => (
             <Button
               key={subcategory}
               onClick={() => setSelectedSubcategory(subcategory)}
               sx={{
                 margin: "0 8px",
-                padding: "6px 16px", 
-                borderRadius: "30px", 
+                padding: "6px 16px",
+                borderRadius: "30px",
                 backgroundColor: selectedSubcategory === subcategory ? "#74D52B" : "#f0f0f0",
                 color: selectedSubcategory === subcategory ? "white" : "#333",
-                fontSize: "12px", 
-                fontWeight: 600, 
-                transition: "all 0.3s ease", 
-                boxShadow: selectedSubcategory === subcategory ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)", 
+                fontSize: "12px",
+                fontWeight: 600,
+                transition: "all 0.3s ease",
+                boxShadow: selectedSubcategory === subcategory ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)",
                 "&:hover": {
-                  backgroundColor: "#74D52B", 
+                  backgroundColor: "#74D52B",
                   color: "white",
-                  transform: "translateY(-3px)", 
-                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)", 
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
                 },
                 "&:focus": {
-                  outline: "none", 
+                  outline: "none",
                 },
               }}
             >
@@ -113,7 +159,35 @@ const StaffDashboard: React.FC = () => {
             </Button>
 
           ))}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              ml: 2,
+            }}
+            onClick={handleRightArrowClick} 
+          >
+            <Button
+              sx={{
+                minWidth: 0,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                backgroundColor: "#f0f0f0",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                "&:hover": {
+                  backgroundColor: "#74D52B",
+                  color: "white",
+                },
+              }}
+            >
+              <ArrowForwardIosIcon sx={{ fontSize: "12px" }} />
+            </Button>
+          </Box>
         </Box>
+
 
         <TextField
           placeholder="Search something sweet on your mind..."
@@ -215,8 +289,6 @@ const StaffDashboard: React.FC = () => {
           ))}
         </Grid>
       </Box>
-
-     
     </Box>
   );
 };

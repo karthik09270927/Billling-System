@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Box, Typography, Card, Button, Grid } from "@mui/material";
+import { useSelectedItems } from "../Hooks/productContext";
 
 interface OrderItem {
   id: number;
@@ -11,22 +12,26 @@ interface OrderItem {
 interface RightPanelProps {
   customerName?: string;
   orderNumber?: string;
-  selectedItems: OrderItem[];
   onPlaceOrder?: () => void;
+  calculateTotal?: () => void;
+  totalPrice?: number;
+
 }
 
 const RightPanel: React.FC<RightPanelProps> = ({
   customerName,
   orderNumber,
-  selectedItems,
   onPlaceOrder,
+  totalPrice,
 }) => {
+  const { selectedItems, setSelectedItems } = useSelectedItems();
   const calculateTotal = () => {
-    return selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
+    return selectedItems?.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
+    
   };
 
   return (
-    <Grid item xs={12} md={4} sx={{ height: "100vh" }}>
+    <Grid item sx={{ height: "100vh", }}>
       <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
         {/* Header Section */}
         <Box
@@ -58,8 +63,8 @@ const RightPanel: React.FC<RightPanelProps> = ({
             scrollbarWidth: "thin",
           }}
         >
-          {selectedItems.length > 0 ? (
-            selectedItems.map((item) => (
+          {(selectedItems ?? []).length > 0 ? (
+            (selectedItems ?? []).map((item) => (
               <Box
                 key={item.id}
                 sx={{
@@ -82,6 +87,7 @@ const RightPanel: React.FC<RightPanelProps> = ({
               No items selected.
             </Typography>
           )}
+
         </Box>
 
         {/* Footer Section */}
