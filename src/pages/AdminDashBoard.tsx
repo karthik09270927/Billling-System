@@ -150,21 +150,21 @@ const AdminDashboard: React.FC = () => {
               sx={{
                 margin: "0 8px",
                 padding: "6px 16px", 
-                borderRadius: "30px", 
+                borderRadius: "30px",
                 backgroundColor: selectedSubcategory === subcategory ? "#74D52B" : "#f0f0f0",
                 color: selectedSubcategory === subcategory ? "white" : "#333",
                 fontSize: "12px", 
                 fontWeight: 600, 
                 transition: "all 0.3s ease", 
-                boxShadow: selectedSubcategory === subcategory ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)", 
+                boxShadow: selectedSubcategory === subcategory ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)",
                 "&:hover": {
-                  backgroundColor: "#74D52B", 
+                  backgroundColor: "#74D52B",
                   color: "white",
                   transform: "translateY(-3px)", 
-                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)", 
+                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
                 },
                 "&:focus": {
-                  outline: "none", 
+                  outline: "none",
                 },
               }}
             >
@@ -173,6 +173,7 @@ const AdminDashboard: React.FC = () => {
             </Button>
 
           ))}
+
            <Box
             sx={{
               display: "flex",
