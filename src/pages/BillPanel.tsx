@@ -84,9 +84,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
         <Box
           sx={{
             height: "50px",
-            backgroundColor: "#F0F0F0",
+            backgroundColor: "#fbfbe5",
             padding: "8px",
-            borderBottom: "1px solid #ccc",
             flexShrink: 0,
             display: "flex",
             justifyContent: "space-between",
@@ -140,9 +139,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
         <Box
           sx={{
             height: "80px",
-            backgroundColor: "#F0F0F0",
+            backgroundColor: "#fbfbe5",
             padding: 2,
-            borderTop: "1px solid #ccc",
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
@@ -151,10 +149,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
         >
           <Button
             variant="contained"
-            color="primary"
+            
             fullWidth
             sx={{
               height: "50px",
+              backgroundColor: "#4CAF50",
               fontSize: "16px",
               fontWeight: "bold",
               borderRadius: "8px",
@@ -174,19 +173,20 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           <Box sx={{ marginBottom: 2 }}>
             <Typography variant="h6">Billing Details</Typography>
             <TextField
-              label="Customer Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
               label="Phone Number"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               fullWidth
               margin="normal"
             />
+            <TextField
+              label="Customer Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            
           </Box>
 
           {/* Payment Mode Buttons */}

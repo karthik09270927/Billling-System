@@ -1,277 +1,152 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Typography,
-  IconButton,
-  Chip,
-  Box,
-  InputAdornment,
-  TextField,
-  Collapse,
-} from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Download, FilterAlt } from "@mui/icons-material";
-import { useForm } from "react-hook-form";
-import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
-import { dateStyle } from "../style/header.Style";
-import SearchIcon from "@mui/icons-material/Search";
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-interface FormValues {
-  startdate: string | null;
-  enddate: string | null;
+// Function to create product data
+function createProduct(
+  category: string,
+  subcategory: string,
+  name: string,
+  price: number,
+  stock: number,
+  details: { brand: string; description: string }[]
+) {
+  return { category, subcategory, name, price, stock, details };
 }
 
-const orders = [
-
-  {
-    id: "001",
-    date: "25/05/2024",
-    customer: "George",
-    status: "Done",
-    payment: "USD 35.00",
-    paymentStatus: "Paid",
-  },
-  {
-    id: "002",
-    date: "25/05/2024",
-    customer: "Charlie",
-    status: "Done",
-    payment: "USD 12.50",
-    paymentStatus: "Paid",
-  },
-  {
-    id: "005",
-    date: "25/05/2024",
-    customer: "Eliza",
-    status: "Canceled",
-    payment: "USD 12.25",
-    paymentStatus: "Unpaid",
-  },
-
-];
-
-// Define columns for the DataGrid
-
-
-const UserHistory: React.FC = () => {
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
-
-  const [_formData, _setFormData] = React.useState({
-
-    startdate: "",
-    enddate: "",
-
-  });
-
-  const { control, reset } = useForm<FormValues>({
-    defaultValues: {
-      startdate: "",
-      enddate: "",
-    },
-  });
-
-  const toggleFilter = () => {
-    setIsFilterVisible((prev) => !prev);
-  };
-
-  const handleDetailClick = (id: string) => {
-    
-  };
-
-
-  const columns: GridColDef[] = [
-    { field: "id", headerName: "#", width: 100 },
-    { field: "date", headerName: "Date", flex: 1 },
-    { field: "customer", headerName: "Customer Name", flex: 1 },
-    { field: "status", headerName: "Order Status", flex: 1 },
-    { field: "payment", headerName: "Total Payment", flex: 1 },
-    {
-      field: "paymentStatus",
-      headerName: "Payment Status",
-      flex: 1,
-      renderCell: (params: any) => (
-        <Chip
-          label={params.value}
-          size="small"
-          sx={{
-            backgroundColor: params.value === "Paid" ? "rgba(116, 213, 43, 0.2)" : "#ffd7cf",
-            color: params.value === "Paid" ? "#74D52B" : "error.main", 
-          }}
-        />
-  
-      ),
-    },
-    {
-      field: "actions",
-      headerName: "Orders",
-      flex: 1,
-      sortable: false,
-      renderCell: (params: any) => (
-        <Button
-        variant="text"
-        color="primary"
-        size="small"
-        onClick={() => handleDetailClick(params.row.id)} // Pass the id on click
-      >
-        Detail
-      </Button>
-      ),
-    },
-  ];
-
-  useEffect(() => {
-
-    reset({
-      startdate: "",
-      enddate: "",
-
-    });
-
-  }, [reset]);
+// Row component for each product
+function Row(props: { row: ReturnType<typeof createProduct> }) {
+  const { row } = props;
+  const [open, setOpen] = React.useState(false);
 
   return (
-    <Box sx={{ padding: "16px", height: "100vh" }}>
-      {/* Header Section */}
-      <Box
+    <React.Fragment>
+      <TableRow
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "24px",
-          marginBottom: "24px",
-
+          '& > *': { borderBottom: 'unset' },
+          '&:hover': { backgroundColor: '#f7f7f7' },
         }}
       >
-        {/* Actions Row */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {/* Left Section (Buttons) */}
-          <Box sx={{ display: "flex", gap: "16px" }}>
-            <IconButton
-
-              color="primary"
-              sx={{
-                margin: "0 8px",
-                padding: "6px 16px",
-                borderRadius: "30px",
-                backgroundColor: "#74D52B",
-                color: "#fff",
-                fontSize: "12px",
-                fontWeight: 600,
-                transition: "all 0.3s ease",
-                boxShadow: "0 4px 12px rgba(116, 213, 43, 0.2)",
-                "&:hover": {
-                  backgroundColor: "#74D52B",
-                  color: "white",
-                  transform: "translateY(-3px)",
-                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
-                },
-                "&:focus": {
-                  outline: "none",
-                },
-              }}
-            >
-              <Download />
-            </IconButton>
-            <IconButton color="primary" onClick={toggleFilter}>
-              <FilterAlt sx={{ color: isFilterVisible ? "#74D52B" : "#333" }} />
-
-            </IconButton>
-            <Collapse in={isFilterVisible} timeout="auto" unmountOnExit>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: "8px",
-                  position: "absolute",
-                  backgroundColor: "#fff",
-                  padding: "8px",
-                  transition: "transform 0.100s ease-in-out, opacity 0.100s ease-in-out",
-                  transform: isFilterVisible ? "translateX(0)" : "translateX(-100%)",
-                  opacity: isFilterVisible ? 1 : 0,
-                  alignItems: "center"
-                }}
-              >
-                <Typography>Date:</Typography>
-                <CentralizeDatePicker
-                  name="startdate"
-                  control={control}
-                  defaultValue=""
-                  format="DD-MM-YYYY"
-                  size="small"
-                  sx={dateStyle}
-                  disableFuture={true}
-                />
-                <Typography>-</Typography>
-                <CentralizeDatePicker
-                  name="enddate"
-                  control={control}
-                  defaultValue=""
-                  format="DD-MM-YYYY"
-                  size="small"
-                  disableFuture={true}
-                  sx={dateStyle}
-                />
-              </Box>
-            </Collapse>
-
-
-          </Box>
-
-          {/* Right Section (Search Bar) */}
-          <Box sx={{ flex: 1, maxWidth: "300px" }}>
-            <TextField
-              placeholder="Search something sweet on your mind..."
-              variant="outlined"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ color: "#999" }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                width: "100%",
-                backgroundColor: "#fbfbe5",
-                borderRadius: "10px",
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    border: "none",
-                  },
-                  "& .MuiInputBase-input": {
-                    padding: "8px 12px",
-                  },
-                },
-              }}
-            />
-          </Box>
-        </Box>
-
-
-
-      </Box>
-
-      {/* DataGrid Section */}
-      <Box sx={{ height: "75vh" }}>
-        <DataGrid
-          rows={orders}
-          columns={columns}
-          paginationMode="server"
-          rowCount={5}
-          pageSizeOptions={[5, 10, 20]}
-          checkboxSelection={false}
-          disableRowSelectionOnClick
-          sx={{
-
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: "#fbfbe5", // Header background color
-            },
-            "& .MuiDataGrid-root .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-root .MuiDataGrid-cell:focus": {
-              outline: "none", // Removes focus outline
-            },
-          }}
-        />
-      </Box>
-    </Box>
-
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+            sx={{
+              transition: 'transform 0.3s',
+              transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            }}
+          >
+            <KeyboardArrowDownIcon />
+          </IconButton>
+        </TableCell>
+        <TableCell>{row.category}</TableCell>
+        <TableCell>{row.subcategory}</TableCell>
+        <TableCell>{row.name}</TableCell>
+        <TableCell align="right">${row.price.toFixed(2)}</TableCell>
+        <TableCell align="right">{row.stock}</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1, padding: 1, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Product Details
+              </Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Brand</TableCell>
+                    <TableCell>Description</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {row.details.map((detail, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{detail.brand}</TableCell>
+                      <TableCell>{detail.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
   );
-};
+}
 
-export default UserHistory;
+// Sample product data
+const products = [
+  createProduct('Beverages', 'Soft Drinks', 'Coca Cola', 1.5, 200, [
+    { brand: 'Coca Cola', description: '500ml Bottle' },
+    { brand: 'Coca Cola', description: 'Available in packs of 6' },
+  ]),
+  createProduct('Beverages', 'Juices', 'Orange Juice', 2.5, 150, [
+    { brand: 'Tropicana', description: '1L Carton' },
+    { brand: 'Tropicana', description: 'No added sugar' },
+  ]),
+  createProduct('Snacks', 'Chips', 'Potato Chips', 1.2, 300, [
+    { brand: 'Lays', description: 'Classic Salted' },
+    { brand: 'Lays', description: 'Available in 150g packs' },
+  ]),
+  createProduct('Dairy', 'Milk', 'Full Cream Milk', 1.0, 100, [
+    { brand: 'Amul', description: '500ml Pouch' },
+    { brand: 'Amul', description: 'Rich and creamy texture' },
+  ]),
+];
+
+export default function HypermarketTable() {
+  return (
+    
+    <TableContainer
+      component={Paper}
+      sx={{
+        maxHeight: 600,
+        boxShadow: 3,
+        borderRadius: 3,
+        mt: 5
+      }}
+    >
+      <Table
+        stickyHeader
+        aria-label="hypermarket product table"
+        sx={{
+          '& .MuiTableCell-head': {
+            backgroundColor: '#fbfbe5',
+            color: '#000',
+            fontWeight: 'bold',
+          },
+        }}
+      >
+        <TableHead>
+          <TableRow>
+            <TableCell />
+            <TableCell>Category</TableCell>
+            <TableCell>Subcategory</TableCell>
+            <TableCell>Product Name</TableCell>
+            <TableCell align="right">Price ($)</TableCell>
+            <TableCell align="right">Stock</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {products.map((product, index) => (
+            <Row key={index} row={product} />
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
