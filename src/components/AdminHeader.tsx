@@ -24,7 +24,7 @@ import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useNavigate } from "react-router-dom";
-import { fetchCategories, fetchSubCategories } from "../utils/api-collection";
+import { fetchCategories, fetchSubCategories, postProductCategory } from "../utils/api-collection";
 import EditIcon from '@mui/icons-material/Edit'
 import {
 
@@ -44,7 +44,7 @@ const AdminHeader = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { selectedCategory, setSelectedCategory, setSubCategories } = useCategory();
     const navigate = useNavigate();
-    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+    const [uploadedImage, setUploadedImage] = useState<any | null>(null);
     const [itemName, setItemName] = useState("");
     const [subCategoryName, setSubCategoryName] = useState("");
     const [subCategory, setSubCategory] = useState<string[]>([]);
@@ -52,18 +52,16 @@ const AdminHeader = () => {
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
 
-    useEffect(() => {
-        const getCategories = async () => {
-            try {
-                const data = await fetchCategories();
-                setCategories(data); // Set the fetched categories
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
+    const getCategories = async () => {
+        try {
+            const data = await fetchCategories();
+            setCategories(data); // Set the fetched categories
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
 
-        getCategories();
-    }, []);
+   
 
     const toggleHeader = () => {
         setIsHeaderOpen((prev) => !prev);
@@ -178,19 +176,39 @@ const AdminHeader = () => {
     
 
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         console.log("Category Name:", itemName);
         console.log("Uploaded Image:", uploadedImage);
         console.log("Sub Categories:", subCategory);
+      
+        try {
+          const taskProject = {
+            id: null,
+            categoryName: itemName,
+            subCategoryName: subCategory,
+          };
+      
+          if (!uploadedImage) {
+            throw new Error("Please upload an image before submitting.");
+          }
+      
+          const response = await postProductCategory(taskProject, uploadedImage);
+          console.log("Submission successful:", response);
+          getCategories();
+       
+          setIsModalOpen(false);
+          setUploadedImage(null);
+          setItemName("");
+          setSubCategoryName("");
+          setSubCategory([]);
+          setStep(1);
 
-        // Reset all values
-        setIsModalOpen(false);
-        setUploadedImage(null);
-        setItemName("");
-        setSubCategoryName("");
-        setSubCategory([]);
-        setStep(1);
-    };
+        } catch (error) {
+          console.error("Error during submission:", error);
+        }
+      };
+      
+      
 
     const handleNext = () => {
         if (step === 1) {
@@ -198,7 +216,9 @@ const AdminHeader = () => {
         }
     };
 
-
+    useEffect(() => {
+        getCategories();
+    }, []);
 
 
 
