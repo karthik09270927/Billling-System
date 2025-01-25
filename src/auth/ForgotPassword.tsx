@@ -6,10 +6,10 @@ import ButtonComponents from '../centralizedComponents/forms/Button.Component';
 import { forgotPasswordHeading, loginGrid, PasswordField, userNamefield, loginMaingrid, BtnSignIn } from '../../src/styles/home.style';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/system';
-import { toast } from 'react-toastify';
 import logo from '../assets/BrandLogo.png';
 import BackArrowIconButton from '../centralizedComponents/forms/ArroeBackIconButton.Component';
 import { forgotPassword, verifyOTP } from '../utils/api-collection';
+import { Toasts } from '../centralizedComponents/forms/Toast';
 
 
 const ForgotPassword: React.FC = () => {
@@ -44,10 +44,10 @@ const ForgotPassword: React.FC = () => {
             await forgotPassword(formValues.userMail);
             setSuccessMessage('OTP has been sent to your email address.');
             setIsOTPVisible(true);
-            toast.success('OTP sent to your email');
+            Toasts({ message: 'OTP sent to your email', type: 'success' });
         } catch (error: any) {
             console.error('Error sending OTP:', error);
-            toast.error('Failed to send OTP. Please try again.');
+            Toasts({ message: 'Error sending OTP', type: 'error' });
         }
     };
 
@@ -58,15 +58,15 @@ const ForgotPassword: React.FC = () => {
         try {
             console.log("Submitting OTP with payload:", { userMail: formValues.userMail, otp: formValues.otp });
             await verifyOTP(formValues.userMail, formValues.otp);
-            toast.success("OTP verified successfully");
+            Toasts({ message: 'OTP verified successfully', type: 'success' });
             localStorage.setItem("userEmail", formValues.userMail);
-            toast.success("OTP verified. Redirecting...");
+            Toasts({ message: 'OTP verified successfully', type: 'success' });
             navigate("/UpdatePassword");
         } catch (error: any) {
             console.error("Error verifying OTP:", error.response?.data || error);
             const serverError = error.response?.data;
             setErrorMessage(serverError?.message || "Invalid OTP. Please try again.");
-            toast.error("Invalid OTP. Please try again.");
+            Toasts({ message: 'Invalid OTP. Please try again.', type: 'error' });
         }
     };
 

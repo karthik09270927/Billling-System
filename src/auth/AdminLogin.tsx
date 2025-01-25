@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Grid, Box, InputAdornment, IconButton, Typography } from '@mui/material';
+import { Grid, Box, InputAdornment, IconButton, Typography, Divider } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -34,7 +34,7 @@ export const LoginPage: React.FC = () => {
   const head = "Log in";
   const subhead1 = "UseName*";
   const subhead2 = "Password*";
-  const subhead3 = "Forgot Password?";
+  const subhead3 = "Forgot Password ?";
 
 
   const SplashScreen = styled.div`
@@ -162,7 +162,7 @@ export const LoginPage: React.FC = () => {
             <Typography variant="h5" sx={signIn}>{head}</Typography>
             <Box component="form" onSubmit={handleSubmit} sx={{ marginTop: 4 }}>
               {errorMessage && <Typography color="error">{errorMessage}</Typography>}
-              <Typography variant="subtitle2" mb={1}>{subhead1}</Typography>
+              <Typography variant="subtitle1" mb={1}>{subhead1}</Typography>
               <Inputtextcomponent
                 label=""
                 id={'userMail'}
@@ -172,7 +172,7 @@ export const LoginPage: React.FC = () => {
                 sx={userNamefield}
                 height="46px"
               />
-              <Typography variant="subtitle2" mb={1}>{subhead2}</Typography>
+              <Typography variant="subtitle1" mb={1}>{subhead2}</Typography>
               <Inputtextcomponent
                 label=""
                 id="password"
@@ -196,11 +196,13 @@ export const LoginPage: React.FC = () => {
                   label="Remember me"
                   sx={loginCheckbox}
                 /> */}
-                <Link style={{ flex: '2 2 auto', textAlign: 'right', }} to='/ForgotPassword' onClick={handleForgotPasswordClick}>
-                  <Typography variant="subtitle2">
+                <Divider sx={{ flexGrow: 2 }} />
+                <Link style={{ flex: '2 2 auto', textAlign: 'center', color: theme.palette.text.primary, textDecoration: 'none' }} to='/ForgotPassword' onClick={handleForgotPasswordClick}>
+                  <Typography sx={{ '&:hover': { cursor: 'pointer', color: "#63be33" } }}>
                     {subhead3}
                   </Typography>
                 </Link>
+                <Divider sx={{ flexGrow: 2 }} />
               </Box>
 
 
