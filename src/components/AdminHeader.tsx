@@ -49,6 +49,8 @@ const AdminHeader = () => {
     const [subCategoryName, setSubCategoryName] = useState("");
     const [subCategory, setSubCategory] = useState<string[]>([]);
     const [step, setStep] = useState(1); // Step tracker
+    const [editIndex, setEditIndex] = useState<number | null>(null);
+
 
     useEffect(() => {
         const getCategories = async () => {
@@ -112,9 +114,9 @@ const AdminHeader = () => {
 
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
-            setSelectedCategory(categoryName); // Set selected category
-            const response = await fetchSubCategories(categoryId); // Call SubCategoryList API
-            setSubCategories(response.data); // Update subcategories in context
+            setSelectedCategory(categoryName); 
+            const response = await fetchSubCategories(categoryId); 
+            setSubCategories(response.data); 
         } catch (error) {
             console.error("Error fetching subcategories:", error);
         }
@@ -147,16 +149,34 @@ const AdminHeader = () => {
     };
 
     const handleAddSubCategory = () => {
-        if (subCategoryName) {
-            setSubCategory([...subCategory, subCategoryName]);
-            setSubCategoryName("");
+        if (subCategoryName.trim()) {
+            if (editIndex !== null) {
+                const updatedSubCategories = [...subCategory];
+                updatedSubCategories[editIndex] = subCategoryName;
+                setSubCategory(updatedSubCategories);
+                setEditIndex(null); 
+            } else {
+                setSubCategory([...subCategory, subCategoryName]);
+            }
+            setSubCategoryName(''); 
+        } else {
+            alert("Subcategory name cannot be empty."); 
         }
     };
+    
+    
 
 
     const handleRemoveSubCategory = (index: number) => {
         setSubCategory(subCategory.filter((_, i) => i !== index));
     };
+
+    const handleEditSubCategory = (index: number) => {
+        setSubCategoryName(subCategory[index]);
+        setEditIndex(index);
+    };
+    
+
 
     const handleSubmit = () => {
         console.log("Category Name:", itemName);
@@ -441,7 +461,7 @@ const AdminHeader = () => {
                             </Typography>
 
                             {/* Image Upload */}
-                            <Box
+                         <Box
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
@@ -488,7 +508,7 @@ const AdminHeader = () => {
                                         Upload Category Image
                                     </Typography>
                                 )}
-                            </Box>
+                            </Box>   
 
                             {/* Item Name Input */}
                             <TextField
@@ -524,17 +544,23 @@ const AdminHeader = () => {
 
                             {/* Sub Category Input */}
                             <Box sx={{ display: "flex", mb: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Sub Category Name"
-                                    variant="outlined"
-                                    value={subCategoryName}
-                                    onChange={(e) => setSubCategoryName(e.target.value)}
-                                    sx={{ mr: 2 }}
-                                />
-                                <Button variant="contained" color="primary" onClick={handleAddSubCategory}>
-                                    Add
-                                </Button>
+                            <TextField
+                                fullWidth
+                                label="Sub Category Name"
+                                variant="outlined"
+                                value={subCategoryName}
+                                onChange={(e) => setSubCategoryName(e.target.value)}
+                                sx={{ mr: 2 }}
+                            />
+
+                            {/* Next Button */}
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleAddSubCategory}
+                            >
+                                {editIndex !== null ? 'Update' : 'Add'}
+                            </Button>
                             </Box>
 
                             {/* Sub Category List */}
@@ -543,6 +569,13 @@ const AdminHeader = () => {
                                     <ListItem key={index} sx={{ borderBottom: "1px solid #ddd" }}>
                                         <ListItemText primary={subCategory} />
                                         <ListItemSecondaryAction>
+                                        <IconButton
+                                                edge="end"
+                                                aria-label="delete"
+                                                onClick={() => handleEditSubCategory(index)}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
                                             <IconButton
                                                 edge="end"
                                                 aria-label="delete"
