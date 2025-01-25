@@ -3,13 +3,27 @@ import { createContext, PropsWithChildren, useContext, useState } from "react";
 const CategoryContext = createContext<any>(null);
 
 export const CategoryProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // Category name
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null); // Category ID
   const [subCategories, setSubCategories] = useState<any[]>([]);
 
+  console.log("Selected Category Name:", selectedCategory);
+  console.log("Selected Category ID:", selectedCategoryId);
+  console.log("Subcategories:", subCategories);
+
   return (
-      <CategoryContext.Provider value={{ selectedCategory, setSelectedCategory, subCategories, setSubCategories }}>
-          {children}
-      </CategoryContext.Provider>
+    <CategoryContext.Provider
+      value={{
+        selectedCategory,
+        setSelectedCategory,
+        selectedCategoryId,
+        setSelectedCategoryId,
+        subCategories,
+        setSubCategories,
+      }}
+    >
+      {children}
+    </CategoryContext.Provider>
   );
 };
 

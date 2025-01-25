@@ -3,7 +3,7 @@
 * {
   font-family: 'Lexend', sans-serif !important;
   min-height: 0;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   scrollbar-color: #7cc323 transparent;
   -ms-overflow-style: none;
 

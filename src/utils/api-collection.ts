@@ -30,7 +30,7 @@ const refreshToken = async (): Promise<string | null> => {
 
     return accessToken;
   } catch (error) {
-    console.error('Failed to refresh token:', error); 
+    console.error('Failed to refresh token:', error);
     return null;
   }
 };
@@ -41,7 +41,7 @@ API.interceptors.request.use(
   (config: any) => {
     const token = localStorage.getItem('accessToken');
     if (
-      token && 
+      token &&
       !["/auth/authenticate", "/auth/refreshToken"].some((url) => config.url?.includes(url))
     ) {
       config.headers['Authorization'] = `Bearer ${token}`;
@@ -108,7 +108,7 @@ export const loginUser = async (employeeCode: string, password: string): Promise
 
 export const fetchCategories = async (): Promise<any> => {
   try {
-    const response = await API.get('/billing/productCategoryListDropDown'); 
+    const response = await API.get('/billing/productCategoryListDropDown');
     return (response.data as any).data;
   } catch (error: any) {
     console.error('Error fetching categories:', error);
@@ -118,10 +118,32 @@ export const fetchCategories = async (): Promise<any> => {
 
 
 export const fetchSubCategories = async (categoryId: number) => {
-  const response = await API.get<{ data : any}>(`/billing/productSubCategoryListDropDown?id=${categoryId}`);
+  const response = await API.get<{ data: any }>(`/billing/productSubCategoryListDropDown?id=${categoryId}`);
   if (response.status !== 200) throw new Error("Failed to fetch subcategories");
   return response.data;
 };
+
+export const fetchProductList = async (
+  productCategoryId: number,
+  subProductCategoryId: number,
+  pageNo: number,
+  pageSize: number
+) => {
+  try {
+    const response = await API.get(
+      `/billing/productsList?pageNo=${pageNo}&pageSize=${pageSize}&productCategoryId=${productCategoryId}&subProductCategoryId=${subProductCategoryId}`
+    );
+    const data = response.data as { data: any; totalCount: number };
+    return {
+      products: data.data,
+      totalCount: data.totalCount, 
+    };
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  }
+};
+
 
 
 export const forgotPassword = async (userEmail: string): Promise<any> => {

@@ -25,7 +25,7 @@ const Header = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const { selectedCategory, setSelectedCategory, setSubCategories } = useCategory();
+    const { selectedCategory, setSelectedCategory, setSubCategories, setSelectedCategoryId } = useCategory();
     const navigate = useNavigate();
 
     // Fetch categories from the API on component mount
@@ -62,16 +62,17 @@ const Header = () => {
         localStorage.removeItem('refreshToken');
         navigate('/');
     };
-
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
-            setSelectedCategory(categoryName); // Set selected category
-            const response = await fetchSubCategories(categoryId); // Call SubCategoryList API
-            setSubCategories(response.data); // Update subcategories in context
+          setSelectedCategory(categoryName); // Set selected category name
+          setSelectedCategoryId(categoryId); // Set selected category ID
+          const response = await fetchSubCategories(categoryId); // Call SubCategoryList API
+          setSubCategories(response.data); // Update subcategories in context
         } catch (error) {
-            console.error("Error fetching subcategories:", error);
+          console.error("Error fetching subcategories:", error);
         }
-    };
+      };
+      
 
     return (
         <Box>

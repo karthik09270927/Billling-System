@@ -24,7 +24,7 @@ const StaffLayout = () => {
                 flex: 1,
                 overflowY: "auto", 
                 padding: 1,
-                scrollbarWidth: "thin",
+                scrollbarWidth: "none",
               }}
             >
               <StaffDashBoard />
