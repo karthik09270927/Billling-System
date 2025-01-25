@@ -7,7 +7,7 @@ const ProductManagement = () => {
   return (
     <Box sx={{ height: "100vh", overflow: { md: "hidden" }, }}>
       <Grid container spacing={1} sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
-        <Grid item xs={12} md={9} sx={{ height: "100vh" }}>
+        <Grid item xs={12} md={12} sx={{ height: "100vh" }}>
           <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
@@ -28,7 +28,7 @@ const ProductManagement = () => {
             </Box>
           </Card>
         </Grid>
-        <Grid item xs={12} md={3} sx={{ height: "100vh" }}>
+        {/* <Grid item xs={12} md={3} sx={{ height: "100vh" }}>
           <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
@@ -68,7 +68,7 @@ const ProductManagement = () => {
               bottom Content (Fixed)
             </Box>
           </Card>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Box>
   );

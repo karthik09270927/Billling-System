@@ -12,7 +12,11 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
-
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 
 // const items = [
 //   { id: 1, name: "Croissant", price: 4.0, image: "/src/assets/croissant.png", category: "Electronics", subcategory: "Laptops" },
@@ -48,6 +52,7 @@ const AdminDashboard: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const { subCategories } = useCategory(); 
+  const [deleteSubCategory, setdeleteSubCategory] = useState(false);
 
   
   // const filteredItems =
@@ -79,12 +84,65 @@ const AdminDashboard: React.FC = () => {
 
 
 
+  const handleLeftArrowClick = () => {
+    const container = document.querySelector(".scrollable-container");
+    if (container) container.scrollBy({ left: -100, behavior: "smooth" });
+  };
+
+  const handleRightArrowClick = () => {
+    const container = document.querySelector(".scrollable-container");
+    if (container) container.scrollBy({ left: 100, behavior: "smooth" });
+  };
+
+  const handleDeleteSubCategoryList = () => {
+    setdeleteSubCategory((prev) => !prev);
+    console.log(deleteSubCategory);
+  };
+
+  const handleAddSubCategory = () => {
+   
+  };
+
+  const handleDeleteSubCategory = () => {
+
+  };
+
+
   return (
     <Box sx={{ display: "flex", height: "100vh", flexDirection: "row", bgcolor: "#f9f9f9" }}>
       {/* Left Section */}
       <Box sx={{ flex: 1, p: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 2, ml: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 2, ml: 4 }}>
           {/* Render Subcategory buttons */}  
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              mr: 2,
+            }}
+            onClick={handleLeftArrowClick} 
+          >
+            <Button
+              sx={{
+                minWidth: 0,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                alignItems: "center",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                backgroundColor: "#f0f0f0",
+                "&:hover": {
+                  backgroundColor: "#74D52B",
+                  color: "white",
+                },
+              }}
+            >
+              <ArrowBackIosIcon sx={{ fontSize: "12px" }} />
+            </Button>
+          </Box>
+
           {subCategories.map((subcategory: any) => (
             <Button
               key={subcategory.id}
@@ -111,9 +169,91 @@ const AdminDashboard: React.FC = () => {
               }}
             >
               {subcategory.subCategoryName} ({subcategory.count})
+             { deleteSubCategory && (<CloseIcon sx={{ fontSize: "18px", ml: 1 ,color: "red"}} onClick={handleDeleteSubCategory}/>)}
             </Button>
 
           ))}
+           <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              ml: 2,
+            }}
+            onClick={handleRightArrowClick} 
+          >
+            <Button
+              sx={{
+                minWidth: 0,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                backgroundColor: "#f0f0f0",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                "&:hover": {
+                  backgroundColor: "#74D52B",
+                  color: "white",
+                },
+              }}
+            >
+              <ArrowForwardIosIcon sx={{ fontSize: "12px" }} />
+            </Button>
+          </Box>
+             <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "end",
+              cursor: "pointer",
+              ml: 2,
+            }}
+            onClick={handleAddSubCategory} 
+          >
+            <Button
+              sx={{
+                minWidth: 0,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                backgroundColor: "#f0f0f0",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                "&:hover": {
+                  backgroundColor: "#74D52B",
+                  color: "white",
+                },
+              }}
+            >
+              <AddIcon sx={{ fontSize: "20px",  }} />
+            </Button>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "end",
+              cursor: "pointer",
+              ml: 2,
+            }}
+            onClick={handleDeleteSubCategoryList} 
+          >
+            <Button
+              sx={{
+                minWidth: 0,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                backgroundColor: "#f0f0f0",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                "&:hover": {
+                  backgroundColor: "#74D52B",
+                  color: "white",
+                },
+              }}
+            >
+              <DeleteIcon sx={{ fontSize: "18px",  }} />
+            </Button>
+          </Box>
         </Box>
 
         <TextField
