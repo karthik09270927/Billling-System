@@ -1,28 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&display=swap');
 
 * {
-    font-family: 'Lexend', sans-serif !important;
-    min-height: 0;
-    
+  font-family: 'Lexend', sans-serif !important;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #7cc323 transparent;
+  -ms-overflow-style: none;
+
 }
 
 
-* {
-    scrollbar-width: thin;
-    scrollbar-color: #eeffe2 #ffffff;
-  }
+/* 
+*::-webkit-scrollbar {
+  width: 3px;
+}
 
- 
-  *::-webkit-scrollbar {
-    width: 12px;
-  }
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-  *::-webkit-scrollbar-track {
-    background: #ffffff;
-  }
+*::-webkit-scrollbar-thumb {
+  background-color: #eeffe2;
+  border: 3px solid #ffffff;
+}
 
-  *::-webkit-scrollbar-thumb {
-    background-color: #eeffe2;
-    border-radius: 10px;
-    border: 3px solid #ffffff;
-  }
+*::-webkit-scrollbar-button {
+  display: none;
+} */

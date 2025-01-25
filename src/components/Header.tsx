@@ -11,7 +11,7 @@ import {
     CardMedia,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import QrCode2Icon from '@mui/icons-material/QrCode2';
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -19,13 +19,13 @@ import { useNavigate } from "react-router-dom";
 import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { fetchCategories } from "../utils/api-collection";
+import { fetchCategories, fetchSubCategories } from "../utils/api-collection";
 
 const Header = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const { selectedCategory, setSelectedCategory } = useCategory();
+    const { selectedCategory, setSelectedCategory, setSubCategories } = useCategory();
     const navigate = useNavigate();
 
     // Fetch categories from the API on component mount
@@ -60,19 +60,29 @@ const Header = () => {
         localStorage.removeItem('userRole');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        navigate('/'); 
+        navigate('/');
+    };
+
+    const handleCategoryClick = async (categoryId: number, categoryName: string) => {
+        try {
+            setSelectedCategory(categoryName); // Set selected category
+            const response = await fetchSubCategories(categoryId); // Call SubCategoryList API
+            setSubCategories(response.data); // Update subcategories in context
+        } catch (error) {
+            console.error("Error fetching subcategories:", error);
+        }
     };
 
     return (
         <Box>
-            {/* Floating Menu Icon */} 
+            {/* Floating Menu Icon */}
             {!isHeaderOpen && (
                 <IconButton
                     onClick={toggleHeader}
                     sx={{
                         position: "fixed",
-                        top: 18,
-                        left: 16,
+                        top: 10,
+                        left: 10,
                         backgroundColor: "#fff",
                         boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                         zIndex: 1000,
@@ -90,7 +100,7 @@ const Header = () => {
                     boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
                     height: isHeaderOpen ? "auto" : 0,
                     overflow: "hidden",
-                    transition: "height 0.4s ease, padding 0.4s ease",
+                    transition: "height 0.6s ease, padding 0.4s ease",
                 }}
             >
                 {isHeaderOpen && (
@@ -136,7 +146,6 @@ const Header = () => {
                                         ),
                                     }}
                                     sx={{
-                                        width: "100%",
                                         backgroundColor: "#fbfbe5",
                                         borderRadius: "20px",
                                         "& .MuiOutlinedInput-root": {
@@ -147,7 +156,7 @@ const Header = () => {
                                     }}
                                 />
                                 <IconButton>
-                                    <QrCodeScannerIcon sx={{ fontSize: 28, color: "#333" }} />
+                                    <QrCode2Icon sx={{ fontSize: 28, color: "#333" }} />
                                 </IconButton>
                                 <IconButton>
                                     <LogoutIcon sx={{ fontSize: 28, color: "red" }} onClick={handleLogout} />
@@ -184,11 +193,10 @@ const Header = () => {
                             {categories.map((category, index) => (
                                 <Card
                                     key={index}
-                                    onClick={() => setSelectedCategory(category.categoryName)}
-                                    sx={{
+                                    onClick={() => handleCategoryClick(category.id, category.categoryName)} sx={{
                                         minWidth: "120px",
                                         maxWidth: "140px",
-                                        height: "150px",
+                                        height: "160px",
                                         borderRadius: "12px",
                                         boxShadow:
                                             selectedCategory === category.categoryName
@@ -201,7 +209,7 @@ const Header = () => {
                                 >
                                     <CardMedia
                                         component="img"
-                                        height="90"
+                                        height="100"
                                         image={`data:image/jpeg;base64,${category.image}`} // Decode and use base64 image
                                         alt={category.categoryName}
                                         sx={{ borderRadius: "12px 12px 0 0" }}
@@ -210,14 +218,14 @@ const Header = () => {
                                         <Typography
                                             variant="body2"
                                             sx={{
-                                                fontWeight: "bold",
+                                                fontWeight: "bolder",
                                                 color: selectedCategory === category.categoryName ? "#74d52b" : "#333",
                                             }}
                                         >
                                             {category.categoryName}
                                         </Typography>
-                                        <Typography variant="caption" sx={{ color: "#999", fontSize: "12px" }}>
-                                            {category.count} Items
+                                        <Typography variant="caption" sx={{ color: "#333", fontSize: "12px" }}>
+                                            {category.count} Category
                                         </Typography>
                                     </CardContent>
                                 </Card>

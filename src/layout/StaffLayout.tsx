@@ -4,77 +4,39 @@ import Header from "../components/Header";
 import BillPanel from "../pages/BillPanel";
 const StaffLayout = () => {
   return (
-    <Box sx={{ height: "100vh", overflow: { md: "hidden" }, }}>
+    <Box sx={{ height: "100vh", overflow: { md: "hidden" } }}>
       <Grid container spacing={0} sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
         <Grid item xs={12} md={9} sx={{ height: "100vh" }}>
           <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
-                // height:"200px",
-                // backgroundColor: "#F0F0F0",
-                // padding: "8px",
-                // borderBottom: "1px solid #ccc",
-                flexShrink: 0
+                flexShrink: 0, 
+                position: "sticky", 
+                top: 0, 
+                zIndex: 1, 
+                backgroundColor: "#fff", 
               }}
             >
-              < Header />
+              <Header />
             </Box>
             <Box
               sx={{
                 flex: 1,
-                overflowY: "auto",
+                overflowY: "auto", 
                 padding: 1,
                 scrollbarWidth: "thin",
               }}
             >
-              < StaffDashBoard />
+              <StaffDashBoard />
             </Box>
           </Card>
         </Grid>
-        <Grid item xs={12} md={3} sx={{ height: "100vh" }}>
-          {/* <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            <Box
-              sx={{
-                height: { md: "50px", sm: "20px" },
-                backgroundColor: "#F0F0F0",
-                padding: "8px",
-                borderBottom: "1px solid #ccc",
-                flexShrink: 0,
-              }}
-            >
-              Header Content (Fixed)
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                overflowY: "auto",
-                padding: 1,
-                scrollbarWidth: "thin",
-              }}
-            >
-              Right Side Content
-              {Array.from({ length: 50 }, (_, index) => (
-                <p key={index}>Content {index + 1}</p>
-              ))}
-            </Box>
-            <Box
-              sx={{
-                height: { md: "140px", sm: "50px" },
-                backgroundColor: "#F0F0F0",
-                padding: "8px",
-                borderBottom: "1px solid #ccc",
-                flexShrink: 0,
-                bottom: 0
-              }}
-            >
-              bottom Content (Fixed)
-            </Box>
-          </Card> */}
-
+        <Grid item xs={12} md={3} sx={{ height: "100%" }}>
           <BillPanel />
         </Grid>
       </Grid>
     </Box>
+
   );
 };
 export default StaffLayout;

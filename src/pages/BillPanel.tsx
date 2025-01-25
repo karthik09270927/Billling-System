@@ -153,7 +153,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             fullWidth
             sx={{
               height: "50px",
-              backgroundColor: "#4CAF50",
+              backgroundColor: "#74D52B",
               fontSize: "16px",
               fontWeight: "bold",
               borderRadius: "8px",
