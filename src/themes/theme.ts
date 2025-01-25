@@ -29,7 +29,7 @@ export const lightTheme = createTheme({
     error: {
       main: '#f44336',
     },
-    divider: '#e0e0e0',
+    divider: '#000000',
     background: {
       default: '#ffffff',
       paper: '#fbfbe5',

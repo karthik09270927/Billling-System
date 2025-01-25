@@ -98,7 +98,7 @@ export const loginBox = { height: '100%', display: 'flex', justifyContent: 'cent
 
 export const loginLightBox = { height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background:'#ffffff' }
 
-export const loginGrid = { justifyContent: 'space-between' }
+export const loginGrid = { justifyContent: 'space-between', background :'#fbfbe5' }
 
 export const loginCard = { boxShadow: 'none', maxWidth: 350 }
 
@@ -106,7 +106,7 @@ export const loginFormbox = { justifyContent: 'flex-start', marginBottom: 4, dis
 
 export const loginlogo = { width: '80px', height: '86px', justifyContent: 'flex-start', marginBottom:'1rem', }
 
-export const signIn = { fontSize: '2rem', fontWeight: 'bolder',  marginBottom: '1.9rem' }
+export const signIn = { fontSize: '2.5rem', fontWeight: 'bolder',  marginBottom: '1.9rem', color:'#62c034' }
 
 export const userNamefield = { width: '100%', mb: 4, justifyContent: 'flex-end' }
 
@@ -114,7 +114,7 @@ export const PasswordField = { width: '100%', mb: 4, justifyContent: 'flex-end' 
 
 export const loginCheckbox = { flex: '2 2 auto', justifyContent: 'flex-start', fontSize: '0.8rem', '& .MuiTypography-root': { fontSize: '0.8rem' } }
 
-export const BtnSignIn = { background: '#74d52b', color: '#fff', marginTop: '2rem' }
+export const BtnSignIn = { background: '#74d52b', color: '#fff', marginTop: '2rem', fontSize:'1rem' }
 
 export const BtnSignup = { background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9a7 100%)', color: '#fff', marginTop: '0.5rem' }
 
@@ -122,7 +122,7 @@ export const BtnSignup = { background: 'linear-gradient(90deg, #1c3e35 0%, #f0f9
 export const OrTypo = { marginY: '1rem', fontSize: '1rem', color: '#aaa', textDecoration: 'none' }
 
 
-export const checkBoxForgotBox = { mb: 2, justifyContent: 'space-between', alignItems: 'center', display: 'flex', '& .MuiTypography-root': { fontSize: '0.8rem' } }
+export const checkBoxForgotBox = { mb: 2, justifyContent: 'space-between', alignItems: 'center', display: 'flex', '& .MuiTypography-root': { fontSize: '1rem' } }
 
 export const loginBackgroundImg = {
   // backgroundImage: `url(${loginback})`,
@@ -197,7 +197,9 @@ export const modalsubInputStyle={
 
 export const forgotPasswordHeading: SxProps<Theme> = {
   fontWeight: 'bold',
-  fontSize: '24px',
+  fontSize: '28px',
+  color:'#62c034'
+
 };
 
 export const favouriteLocationsAnimation = {
