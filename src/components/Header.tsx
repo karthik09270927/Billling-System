@@ -171,8 +171,8 @@ const Header = () => {
                 {isHeaderOpen && (
                     <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
                         {/* Left Arrow Icon */}
-                        <IconButton onClick={() => scrollHorizontally("left")} sx={{ color: "#333" }}>
-                            <ArrowBackIosIcon sx={{ fontSize: "20px" }} />
+                        <IconButton onClick={() => scrollHorizontally("left")} sx={{ color: "#74d52b" }}>
+                            <ArrowBackIosIcon sx={{ fontSize: "24px" }} />
                         </IconButton>
 
                         {/* Scrollable Category Cards */}
@@ -195,8 +195,8 @@ const Header = () => {
                                 <Card
                                     key={index}
                                     onClick={() => handleCategoryClick(category.id, category.categoryName)} sx={{
-                                        minWidth: "120px",
-                                        maxWidth: "140px",
+                                        minWidth: "130px",
+                                        maxWidth: "150px",
                                         height: "160px",
                                         borderRadius: "12px",
                                         boxShadow:
@@ -235,8 +235,8 @@ const Header = () => {
 
 
                         {/* Right Arrow Icon */}
-                        <IconButton onClick={() => scrollHorizontally("right")} sx={{ color: "#333" }}>
-                            <ArrowForwardIosIcon sx={{ fontSize: "20px" }} />
+                        <IconButton onClick={() => scrollHorizontally("right")} sx={{ color: "#74d52b" }}>
+                            <ArrowForwardIosIcon sx={{ fontSize: "24px" }} />
                         </IconButton>
                     </Box>
                 )}
