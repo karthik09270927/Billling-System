@@ -17,6 +17,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
 import { useSelectedItems } from "../Hooks/productContext";
 import { fetchProductList } from "../utils/api-collection";
+import nodata from '../assets/no-data.png';
+
 
 const StaffDashboard: React.FC = () => {
   const { subCategories, selectedCategoryId } = useCategory();
@@ -28,7 +30,9 @@ const StaffDashboard: React.FC = () => {
   const [totalItems, setTotalItems] = useState<number>(0);
   const [isSubCategoriesLoading, setIsSubCategoriesLoading] = useState<boolean>(true);
   const [isProductsLoading, setIsProductsLoading] = useState<boolean>(false);
-  
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
 
   const fetchProducts = async () => {
     try {
@@ -71,6 +75,16 @@ const StaffDashboard: React.FC = () => {
         return [...prevItems, { ...item, quantity: 1 }];
       }
     });
+  };
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value.toLowerCase();
+    setSearchTerm(term);
+
+    const filtered = filteredBySubcategory.filter((item: any) =>
+      item.productName.toLowerCase().includes(term)
+    );
+    setSearchResults(filtered);
   };
 
   useEffect(() => {
@@ -193,7 +207,7 @@ const StaffDashboard: React.FC = () => {
       {/* Right Section: Filtered Items Grid */}
       <Grid item xs={12} sm={12} md={10} lg={10}
         sx={{
-          
+
           display: "flex",
           flexDirection: "column",
           p: 2,
@@ -204,6 +218,8 @@ const StaffDashboard: React.FC = () => {
         <TextField
           placeholder="Search something sweet on your mind..."
           variant="outlined"
+          value={searchTerm}
+          onChange={handleSearch}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -234,72 +250,105 @@ const StaffDashboard: React.FC = () => {
         ) : (
           <>
             <Grid container spacing={3} mt={1}>
-              {filteredBySubcategory.map((item: any) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-                  <Card
-                    sx={{
-                      backgroundColor: "#ffffff",
-                      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-                      borderRadius: "12px",
-                      padding: 1,
-                      width: "200px",
-                      height: "300px",
-                      transition: "transform 0.3s, box-shadow 0.3s",
-                      "&:hover": {
-                        transform: "translateY(-5px)",
-                        boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
-                      },
-                    }}
-                    onClick={() => handleItemClick(item)}
-                  >
-                    <Box
+              {(searchTerm ? searchResults : filteredBySubcategory).length > 0 ? (
+                (searchTerm ? searchResults : filteredBySubcategory).map((item: any) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
+                    <Card
                       sx={{
-                        backgroundColor: "#f9f9f9",
-                        borderRadius: "10px",
-                        overflow: "hidden",
-                        mb: 2,
-                        height: "120px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        backgroundColor: "#ffffff",
+                        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+                        borderRadius: "12px",
+                        padding: 1,
+                        width: "200px",
+                        height: "300px",
+                        transition: "transform 0.3s, box-shadow 0.3s",
+                        "&:hover": {
+                          transform: "translateY(-5px)",
+                          boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
+                        },
                       }}
+                      onClick={() => handleItemClick(item)}
                     >
-                      <CardMedia
-                        component="img"
+                      <Box
                         sx={{
-                          maxHeight: "100%",
-                          maxWidth: "100%",
-                          objectFit: "contain",
-                        }}
-                        image={`data:image/jpeg;base64,${item.image}`}
-                        alt={item.productName}
-                      />
-                    </Box>
-                    <CardContent sx={{ textAlign: "start", "&:last-child": { paddingBottom: 0 } }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          color: "#333",
-                          mb: 0.5,
+                          backgroundColor: "#f9f9f9",
+                          borderRadius: "10px",
+                          overflow: "hidden",
+                          mb: 2,
+                          height: "120px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        {item.productName}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontSize: "16px",
-                          color: "#777",
-                        }}
-                      >
-                        ${item.mrpPrice ? item.mrpPrice.toFixed(2) : "N/A"}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
+                        <CardMedia
+                          component="img"
+                          sx={{
+                            maxHeight: "100%",
+                            maxWidth: "100%",
+                            objectFit: "contain",
+                          }}
+                          image={`data:image/jpeg;base64,${item.image}`}
+                          alt={item.productName}
+                        />
+                      </Box>
+                      <CardContent sx={{ textAlign: "start", "&:last-child": { paddingBottom: 0 } }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            color: "#333",
+                            mb: 0.5,
+                          }}
+                        >
+                          {item.productName}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: "16px",
+                            color: "#777",
+                          }}
+                        >
+                          ₹ {item.mrpPrice ? item.mrpPrice.toFixed(2) : "N/A"}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))
+              ) : (
+                <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: "50vh",
+                    gap: 2
+                  }}
+                >
+                  <img
+                    src={nodata}
+                    alt="No products found"
+                    style={{
+                      width: "250px",
+                      height: "250px",
+                      objectFit: "contain"
+                    }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#666",
+                      textAlign: "center"
+                    }}
+                  >
+                    {searchTerm ? "No products found matching your search" : "No products available"}
+                  </Typography>
+                </Box>
+              )}
             </Grid>
             <Box
               sx={{

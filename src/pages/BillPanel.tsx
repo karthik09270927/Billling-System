@@ -124,7 +124,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                   {item.name} x{item.quantity}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#777" }}>
-                  ${(item.price * item.quantity).toFixed(2)}
+                  ₹ {(item.price * item.quantity).toFixed(2)}
                 </Typography>
               </Box>
             ))
@@ -149,7 +149,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
         >
           <Button
             variant="contained"
-            
+
             fullWidth
             sx={{
               height: "50px",
@@ -167,9 +167,31 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
 
       {/* Modal for Billing Details */}
 
-      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Confirm Order</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: 10,
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+          }
+        }}
+      >        <DialogTitle
+        sx={{
+          textAlign: 'center',
+          padding: '20px',
+          color: '#333',
+          fontWeight: 800,
+          '& .MuiTypography-root': {
+            fontSize: '1.8rem'
+          }
+        }}
+      >
+          Confirm Order
+        </DialogTitle>        <DialogContent>
           <Box sx={{ marginBottom: 2 }}>
             <Typography variant="h6">Billing Details</Typography>
             <TextField
@@ -186,7 +208,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
               fullWidth
               margin="normal"
             />
-            
+
           </Box>
 
           {/* Payment Mode Buttons */}
@@ -196,6 +218,14 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 variant={paymentMode === "Cash" ? "contained" : "outlined"}
                 onClick={() => setPaymentMode("Cash")}
                 fullWidth
+                sx={{
+                  bgcolor: paymentMode === "Cash" ? "#74D52B" : "transparent",
+                  color: paymentMode === "Cash" ? "white" : "#74D52B",
+                  borderColor: "#74D52B",
+                  '&:hover': {
+                    bgcolor: paymentMode === "Cash" ? "#65BA25" : "#74D52B10",
+                  }
+                }}
               >
                 Cash
               </Button>
@@ -203,6 +233,14 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 variant={paymentMode === "Card" ? "contained" : "outlined"}
                 onClick={() => setPaymentMode("Card")}
                 fullWidth
+                sx={{
+                  bgcolor: paymentMode === "Card" ? "#74D52B" : "transparent",
+                  color: paymentMode === "Card" ? "white" : "#74D52B",
+                  borderColor: "#74D52B",
+                  '&:hover': {
+                    bgcolor: paymentMode === "Card" ? "#65BA25" : "#74D52B10",
+                  }
+                }}
               >
                 Card
               </Button>
@@ -210,8 +248,16 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 variant={paymentMode === "Online" ? "contained" : "outlined"}
                 onClick={() => setPaymentMode("Online")}
                 fullWidth
+                sx={{
+                  bgcolor: paymentMode === "Online" ? "#74D52B" : "transparent",
+                  color: paymentMode === "Online" ? "white" : "#74D52B",
+                  borderColor: "#74D52B",
+                  '&:hover': {
+                    bgcolor: paymentMode === "Online" ? "#65BA25" : "#74D52B10",
+                  }
+                }}
               >
-                Online
+                UPI
               </Button>
             </Box>
           </Box>
@@ -221,14 +267,21 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           {selectedItems.map((item) => (
             <Box key={item.id} sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
               <Typography>{item.name} x{item.quantity}</Typography>
-              <Typography>${(item.price * item.quantity).toFixed(2)}</Typography>
+              <Typography>₹ {(item.price * item.quantity).toFixed(2)}</Typography>  
             </Box>
           ))}
           <Box sx={{ mt: 2, textAlign: "right" }}>
-            <Typography variant="h6">Total: ${calculateTotal()}</Typography>
+            <Typography variant="h6">Total: ₹ {calculateTotal()}</Typography>
           </Box>
         </DialogContent>
-        <DialogActions>
+        <DialogActions
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 2,
+            padding: '20px',
+          }}
+        >
           <Button onClick={() => setIsModalOpen(false)} color="secondary">
             Cancel
           </Button>
@@ -237,6 +290,12 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             color="primary"
             variant="contained"
             disabled={isPlacingOrder}
+            sx={{
+              bgcolor: "#74D52B",
+              '&:hover': {
+                bgcolor: "#65BA25",
+              },
+            }}
           >
             {isPlacingOrder ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Place Order"}
           </Button>
