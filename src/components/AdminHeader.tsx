@@ -24,7 +24,7 @@ import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useNavigate } from "react-router-dom";
-import { fetchCategories, fetchSubCategories } from "../utils/api-collection";
+import { fetchCategories, fetchSubCategories, fetchUpdateProductCategory, postProductCategory } from "../utils/api-collection";
 import EditIcon from '@mui/icons-material/Edit'
 import {
 
@@ -42,9 +42,8 @@ const AdminHeader = () => {
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { selectedCategory, setSelectedCategory, setSubCategories } = useCategory();
-    const navigate = useNavigate();
-    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+    const { selectedCategory, setSelectedCategory, setSubCategories, setSelectedCategoryId } = useCategory();
+    const [uploadedImage, setUploadedImage] = useState<any | null>(null);
     const [itemName, setItemName] = useState("");
     const [subCategoryName, setSubCategoryName] = useState("");
     const [subCategory, setSubCategory] = useState<string[]>([]);
@@ -52,18 +51,16 @@ const AdminHeader = () => {
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
 
-    useEffect(() => {
-        const getCategories = async () => {
-            try {
-                const data = await fetchCategories();
-                setCategories(data); // Set the fetched categories
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
+    const getCategories = async () => {
+        try {
+            const data = await fetchCategories();
+            setCategories(data); // Set the fetched categories
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
 
-        getCategories();
-    }, []);
+
 
     const toggleHeader = () => {
         setIsHeaderOpen((prev) => !prev);
@@ -100,9 +97,24 @@ const AdminHeader = () => {
 
     };
 
-    const handleEdit = () => {
+    const getUpdateProductCategory = async (categoryId: number) => {
+        try {
+            const data = await fetchUpdateProductCategory(categoryId);
+            console.log("updateGet",data);
+            setItemName(data.data.categoryName);
+            setUploadedImage(`data:image/jpeg;base64,${data.data.image}`);
+            setSubCategory([...data.data.subCategory]);
+            
+        } catch (error) {
+            console.error("Error fetching subcategories:", error);
+        }
+    };
+
+    const handleEdit = (categoryId: number) => {
+        getUpdateProductCategory(categoryId);
         setIsModalOpen(true);
         console.log("edit");
+
 
     };
 
@@ -114,25 +126,13 @@ const AdminHeader = () => {
 
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
-            setSelectedCategory(categoryName); 
-            const response = await fetchSubCategories(categoryId); 
-            setSubCategories(response.data); 
+            setSelectedCategory(categoryName);
+            setSelectedCategoryId(categoryId);
+            const response = await fetchSubCategories(categoryId);
+            setSubCategories(response.data);
         } catch (error) {
             console.error("Error fetching subcategories:", error);
         }
-    };
-
-
-
-    const handleSave = () => {
-        console.log("Item Name:", itemName);
-        console.log("Uploaded Image:", uploadedImage);
-        console.log("Category:", subCategoryName);
-        setIsModalOpen(false);
-        setUploadedImage(null);
-        setItemName("");
-        setSubCategoryName("");
-
     };
 
 
@@ -154,17 +154,17 @@ const AdminHeader = () => {
                 const updatedSubCategories = [...subCategory];
                 updatedSubCategories[editIndex] = subCategoryName;
                 setSubCategory(updatedSubCategories);
-                setEditIndex(null); 
+                setEditIndex(null);
             } else {
                 setSubCategory([...subCategory, subCategoryName]);
             }
-            setSubCategoryName(''); 
+            setSubCategoryName('');
         } else {
-            alert("Subcategory name cannot be empty."); 
+            alert("Subcategory name cannot be empty.");
         }
     };
-    
-    
+
+
 
 
     const handleRemoveSubCategory = (index: number) => {
@@ -175,22 +175,42 @@ const AdminHeader = () => {
         setSubCategoryName(subCategory[index]);
         setEditIndex(index);
     };
-    
 
 
-    const handleSubmit = () => {
+
+    const handleSubmit = async () => {
         console.log("Category Name:", itemName);
         console.log("Uploaded Image:", uploadedImage);
         console.log("Sub Categories:", subCategory);
 
-        // Reset all values
-        setIsModalOpen(false);
-        setUploadedImage(null);
-        setItemName("");
-        setSubCategoryName("");
-        setSubCategory([]);
-        setStep(1);
+        try {
+            const taskProject = {
+                id: null,
+                categoryName: itemName,
+                subCategoryName: subCategory,
+            };
+
+            if (!uploadedImage) {
+                throw new Error("Please upload an image before submitting.");
+            }
+
+            const response = await postProductCategory(taskProject, uploadedImage);
+            console.log("Submission successful:", response);
+            getCategories();
+
+            setIsModalOpen(false);
+            setUploadedImage(null);
+            setItemName("");
+            setSubCategoryName("");
+            setSubCategory([]);
+            setStep(1);
+
+        } catch (error) {
+            console.error("Error during submission:", error);
+        }
     };
+
+
 
     const handleNext = () => {
         if (step === 1) {
@@ -198,7 +218,9 @@ const AdminHeader = () => {
         }
     };
 
-
+    useEffect(() => {
+        getCategories();
+    }, []);
 
 
 
@@ -221,6 +243,7 @@ const AdminHeader = () => {
                     <ExpandMoreIcon sx={{ fontSize: 20, color: "#333" }} />
                 </IconButton>
             )}
+
             {/* Header Section */}
             <Box
                 sx={{
@@ -352,7 +375,7 @@ const AdminHeader = () => {
 
                                     {editProduct && (
                                         <IconButton
-                                            onClick={handleEdit}
+                                            onClick={() => handleEdit(category.id)}
                                             sx={{
                                                 position: "absolute",
                                                 borderRadius: "0% 30% 0% 70%",
@@ -461,7 +484,7 @@ const AdminHeader = () => {
                             </Typography>
 
                             {/* Image Upload */}
-                         <Box
+                            <Box
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
@@ -508,7 +531,12 @@ const AdminHeader = () => {
                                         Upload Category Image
                                     </Typography>
                                 )}
-                            </Box>   
+                                {editProduct && (
+                                    <Typography variant="body2" sx={{ mt: 1, color: "#555" }}>
+                                        Update Category Image
+                                    </Typography>
+                                )}
+                            </Box>
 
                             {/* Item Name Input */}
                             <TextField
@@ -544,23 +572,23 @@ const AdminHeader = () => {
 
                             {/* Sub Category Input */}
                             <Box sx={{ display: "flex", mb: 2 }}>
-                            <TextField
-                                fullWidth
-                                label="Sub Category Name"
-                                variant="outlined"
-                                value={subCategoryName}
-                                onChange={(e) => setSubCategoryName(e.target.value)}
-                                sx={{ mr: 2 }}
-                            />
+                                <TextField
+                                    fullWidth
+                                    label="Sub Category Name"
+                                    variant="outlined"
+                                    value={subCategoryName}
+                                    onChange={(e) => setSubCategoryName(e.target.value)}
+                                    sx={{ mr: 2 }}
+                                />
 
-                            {/* Next Button */}
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleAddSubCategory}
-                            >
-                                {editIndex !== null ? 'Update' : 'Add'}
-                            </Button>
+                                {/* Next Button */}
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleAddSubCategory}
+                                >
+                                    {editIndex !== null ? 'Update' : 'Add'}
+                                </Button>
                             </Box>
 
                             {/* Sub Category List */}
@@ -569,7 +597,7 @@ const AdminHeader = () => {
                                     <ListItem key={index} sx={{ borderBottom: "1px solid #ddd" }}>
                                         <ListItemText primary={subCategory} />
                                         <ListItemSecondaryAction>
-                                        <IconButton
+                                            <IconButton
                                                 edge="end"
                                                 aria-label="delete"
                                                 onClick={() => handleEditSubCategory(index)}
