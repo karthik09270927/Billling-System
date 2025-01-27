@@ -15,6 +15,8 @@ interface CentralizeDatePickerProps {
   size?: "small" | "medium";
   disableFuture?: boolean
   iconColor?: string;
+  fullwidth?: boolean;
+  label?: string;
 }
 
 
@@ -25,9 +27,11 @@ const CentralizeDatePicker: React.FC<CentralizeDatePickerProps> = ({
   sx = {},
   format =  "DD-MM-YYYY",
   readonly = false,
-  size = "medium",
+  // size = "medium",
   disableFuture = false,
   iconColor = "#bfbf7c",
+  fullwidth = true,
+  label,
   ...props
 }) => {
   return (
@@ -41,6 +45,7 @@ const CentralizeDatePicker: React.FC<CentralizeDatePickerProps> = ({
             {...props}
             views={format === "DD-MM-YYYY" ? ["year", "month", "day"] : undefined}
             format={format}
+           
             disableFuture={disableFuture}
             value={value ? dayjs(value, format) : null}
             onChange={(newValue) => {
@@ -53,10 +58,14 @@ const CentralizeDatePicker: React.FC<CentralizeDatePickerProps> = ({
             }}
             readOnly={readonly}
            slotProps={{
-             textField: {
-               sx,
-               size, 
-             },
+            textField: {
+              sx: {
+                ...sx,
+                width: fullwidth ? "100%" : "auto", // Make sure TextField is full width
+              },
+              label: label
+              // size,
+            },
            openPickerButton: {
             sx: {
               color: iconColor, // Set the icon color here

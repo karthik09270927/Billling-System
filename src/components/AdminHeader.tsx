@@ -49,12 +49,12 @@ const AdminHeader = () => {
     const [subCategory, setSubCategory] = useState<string[]>([]);
     const [step, setStep] = useState(1); // Step tracker
     const [editIndex, setEditIndex] = useState<number | null>(null);
-
+    const [productId, setProductId] = useState<number | null>(null);
 
     const getCategories = async () => {
         try {
             const data = await fetchCategories();
-            setCategories(data); // Set the fetched categories
+            setCategories(data); 
         } catch (error) {
             console.error("Error fetching categories:", error);
         }
@@ -98,12 +98,15 @@ const AdminHeader = () => {
     };
 
     const getUpdateProductCategory = async (categoryId: number) => {
+       
         try {
             const data = await fetchUpdateProductCategory(categoryId);
             console.log("updateGet",data);
             setItemName(data.data.categoryName);
             setUploadedImage(`data:image/jpeg;base64,${data.data.image}`);
-            setSubCategory([...data.data.subCategory]);
+            const extractedSubCategories = data.data.subCategory.map((sub:any) => sub.subCategoryName);
+            setSubCategory(extractedSubCategories);
+            setProductId(categoryId)
             
         } catch (error) {
             console.error("Error fetching subcategories:", error);
@@ -114,8 +117,6 @@ const AdminHeader = () => {
         getUpdateProductCategory(categoryId);
         setIsModalOpen(true);
         console.log("edit");
-
-
     };
 
 
@@ -184,8 +185,10 @@ const AdminHeader = () => {
         console.log("Sub Categories:", subCategory);
 
         try {
+
+            
             const taskProject = {
-                id: null,
+                id: editProduct ? productId : null, 
                 categoryName: itemName,
                 subCategoryName: subCategory,
             };
@@ -197,7 +200,6 @@ const AdminHeader = () => {
             const response = await postProductCategory(taskProject, uploadedImage);
             console.log("Submission successful:", response);
             getCategories();
-
             setIsModalOpen(false);
             setUploadedImage(null);
             setItemName("");
