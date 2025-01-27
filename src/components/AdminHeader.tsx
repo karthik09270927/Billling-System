@@ -42,7 +42,7 @@ const AdminHeader = () => {
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { selectedCategory, setSelectedCategory, setSubCategories } = useCategory();
+    const { selectedCategory, setSelectedCategory, setSubCategories,setSelectedCategoryId } = useCategory();
     const navigate = useNavigate();
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [itemName, setItemName] = useState("");
@@ -50,7 +50,6 @@ const AdminHeader = () => {
     const [subCategory, setSubCategory] = useState<string[]>([]);
     const [step, setStep] = useState(1); // Step tracker
     const [editIndex, setEditIndex] = useState<number | null>(null);
-
 
     useEffect(() => {
         const getCategories = async () => {
@@ -115,6 +114,7 @@ const AdminHeader = () => {
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
             setSelectedCategory(categoryName); 
+            setSelectedCategoryId(categoryId);
             const response = await fetchSubCategories(categoryId); 
             setSubCategories(response.data); 
         } catch (error) {
