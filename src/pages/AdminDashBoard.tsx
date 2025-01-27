@@ -18,6 +18,7 @@ import {
   CircularProgress,
   CardMedia,
   Pagination,
+  OutlinedInput,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
@@ -29,26 +30,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import { Toasts } from '../centralizedComponents/forms/Toast';
-import { fetchProductList } from "../utils/api-collection";
+import { fetchCategories, fetchProductList, fetchSubCategories } from "../utils/api-collection";
 import nodata from '../assets/no-data.png';
-
-// const items = [
-//   { id: 1, name: "Croissant", price: 4.0, image: "/src/assets/croissant.png", category: "Electronics", subcategory: "Laptops" },
-//   { id: 2, name: "Black Forest", price: 5.0, image: "/src/assets/blackforest.png", category: "Electronics", subcategory: "Laptops" },
-//   { id: 3, name: "Butter Croissant", price: 4.0, image: "/src/assets/buttercroissant.png", category: "Electronics", subcategory: "Laptops" },
-
-//   { id: 4, name: "TV", price: 2.45, image: "/src/assets/puffs.png", category: "Electronics", subcategory: "Home Appliances" },
-//   { id: 5, name: "Fridge", price: 3.75, image: "/src/assets/biscuits.png", category: "Electronics", subcategory: "Home Appliances" },
-//   { id: 6, name: "Sound Bar", price: 4.5, image: "/src/assets/biscuts.jpg", category: "Electronics", subcategory: "Home Appliances" },
-
-//   { id: 7, name: "Cereal Cream Donut", price: 2.45, image: "/src/assets/cerealcream.png", category: "Fashion", subcategory: "Accessories" },
-//   { id: 8, name: "Chocolate Donut", price: 3.5, image: "/src/assets/chocolatedonut.png", category: "Fashion", subcategory: "Accessories" },
-//   { id: 9, name: "Glazed Donut", price: 3.0, image: "/src/assets/glazeddonut.png", category: "Fashion", subcategory: "Accessories" },
-
-//   { id: 10, name: "Egg Tart", price: 3.25, image: "/src/assets/eggtart.png", category: "Fashion", subcategory: "Clothing" },
-//   { id: 11, name: "Spinchoco Roll", price: 4.0, image: "/src/assets/spinchoco.png", category: "Fashion", subcategory: "Clothing" },
-//   { id: 12, name: "Zaguma Pan", price: 4.5, image: "/src/assets/zaguma.png", category: "Fashion", subcategory: "Clothing" },
-// ];
+import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
 
 
 const groupItemsBySubcategory = (items: any) => {
@@ -74,7 +58,26 @@ const AdminDashboard: React.FC = () => {
   const [totalItems, setTotalItems] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  console.log(selectedCategoryId, "selectedCategoryId");
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subCategory, setSubCategory] = useState<any[]>([]);
+
+  const getCategories = async () => {
+    try {
+      const data = await fetchCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const getSubCategories = async (id: any) => {
+    try {
+      const subdata = await fetchSubCategories(id);
+      setSubCategory(subdata.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const handleItemClick = (item: any) => {
     setSelectedItems((prevItems) => {
@@ -128,6 +131,21 @@ const AdminDashboard: React.FC = () => {
 
   };
 
+  const handleCategoryChange = (value: any) => {
+    console.log("Category changed to:", value);
+    getSubCategories(value);
+  };
+
+
+  const handleSubCategoryChange = (value: any) => {
+
+  };
+
+  const handleAddNewItem = () => {
+    setIsModalOpen(true);
+    getCategories();
+  };
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -153,6 +171,10 @@ const AdminDashboard: React.FC = () => {
           productImage: "",
           price: "",
           quantity: "",
+          Weight: "",
+          manufactureDate: "",
+          expiryDate: "",
+
         },
       ],
     },
@@ -363,7 +385,7 @@ const AdminDashboard: React.FC = () => {
                     boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
                   },
                 }}
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleAddNewItem}
               >
                 <Box
                   sx={{
@@ -412,7 +434,7 @@ const AdminDashboard: React.FC = () => {
                 </CardContent>
               </Card>
             </Grid>
-            
+
             {(searchTerm ? searchResults : filteredBySubcategory).length > 0 ? (
               <>
 
@@ -562,7 +584,8 @@ const AdminDashboard: React.FC = () => {
             borderRadius: "12px",
             boxShadow: 24,
             p: 4,
-            width: { xs: "90%", sm: "80%", md: "60%" },
+            width: { xs: "100%", sm: "80%", md: "60%" },
+
           }}
         >
           <Typography
@@ -581,10 +604,21 @@ const AdminDashboard: React.FC = () => {
                   name="category"
                   control={control}
                   render={({ field }) => (
-                    <Select {...field} labelId="category-label" label="Category" defaultValue="" >
-                      <MenuItem value="Electronics">Electronics</MenuItem>
-                      <MenuItem value="Clothing">Clothing</MenuItem>
-                      <MenuItem value="Groceries">Groceries</MenuItem>
+                    <Select
+                      {...field}
+                      labelId="category-label"
+                      label="Category"
+                      defaultValue=""
+                      onChange={(event) => {
+                        field.onChange(event);
+                        handleCategoryChange(event.target.value);
+                      }}
+                    >
+                      {categories.map((category, index) => (
+                        <MenuItem key={index} value={category.id}>
+                          {category.categoryName}
+                        </MenuItem>
+                      ))}
                     </Select>
                   )}
                 />
@@ -597,10 +631,21 @@ const AdminDashboard: React.FC = () => {
                   name="subCategory"
                   control={control}
                   render={({ field }) => (
-                    <Select {...field} labelId="subcategory-label" label="Sub Category" defaultValue="">
-                      <MenuItem value="Mobiles">Mobiles</MenuItem>
-                      <MenuItem value="Shirts">Shirts</MenuItem>
-                      <MenuItem value="Vegetables">Vegetables</MenuItem>
+                    <Select
+                      {...field}
+                      labelId="subcategory-label"
+                      label="Sub Category"
+                      defaultValue=""
+                      onChange={(event) => {
+                        field.onChange(event);
+                        handleSubCategoryChange(event.target.value);
+                      }}
+                    >
+                      {subCategory.map((subCategories, index) => (
+                        <MenuItem key={index} value={subCategories.id}>
+                          {subCategories.subCategoryName}
+                        </MenuItem>
+                      ))}
                     </Select>
                   )}
                 />
@@ -613,132 +658,166 @@ const AdminDashboard: React.FC = () => {
             <Box
               key={field.id}
               sx={{
-                display: "flex",
-                gap: 2,
+
+
                 alignItems: "flex-start",
-                mb: 3,
+
                 borderBottom: "1px solid #ddd",
+                mb: 3,
+
                 pb: 3,
               }}
             >
-              {/* Product Name */}
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Product Name"
-                {...register(`products.${index}.productName`, { required: "Required" })}
-              />
+              <Box
 
-              {/* Upload Image */}
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  alignItems: "flex-start",
+
+
+                  pb: 3,
+                }}
+              >
+                {/* Product Name */}
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  label="Product Name"
+                  {...register(`products.${index}.productName`, { required: "Required" })}
+                />
+
+                {/* Upload Image */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexShrink: 0,
+                  }}
+                >
+                  {/* Use unique ID by appending index */}
+                  <input
+                    accept="image/*"
+                    type="file"
+                    id={`upload-image-${index}`}
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        const imageUrl = URL.createObjectURL(file);
+                        setValue(`products.${index}.productImage`, imageUrl);
+                      }
+                    }}
+                  />
+                  <label htmlFor={`upload-image-${index}`}>
+                    <Box
+                      sx={{
+                        width: "56px",
+                        height: "56px",
+                        backgroundColor: "#F0F0F0",
+                        borderRadius: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        border: "1px dashed #74d52b",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {watch(`products.${index}.productImage`) ? (
+                        <img
+                          src={watch(`products.${index}.productImage`)}
+                          alt="Uploaded"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <ImageOutlinedIcon sx={{ fontSize: "30px", color: "#74d52b" }} />
+                      )}
+                    </Box>
+                  </label>
+                </Box>
+
+                {/* Price */}
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  label="Price"
+                  type="number"
+                  {...register(`products.${index}.price`, { required: "Required" })}
+                />
+
+                {/* Quantity */}
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  label="Quantity"
+                  type="number"
+                  {...register(`products.${index}.quantity`, { required: "Required" })}
+                />
+
+
+
+
+              </Box>
               <Box
                 sx={{
                   display: "flex",
-                  flexShrink: 0,
+                  gap: 2,
+                  alignItems: "flex-start",
+
                 }}
               >
-                {/* Use unique ID by appending index */}
-                <input
-                  accept="image/*"
-                  type="file"
-                  id={`upload-image-${index}`}
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      const file = e.target.files[0];
-                      const imageUrl = URL.createObjectURL(file);
-                      setValue(`products.${index}.productImage`, imageUrl);
-                    }
-                  }}
-                />
-                <label htmlFor={`upload-image-${index}`}>
-                  <Box
-                    sx={{
-                      width: "56px",
-                      height: "56px",
-                      backgroundColor: "#F0F0F0",
-                      borderRadius: "8px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      border: "1px dashed #74d52b",
-                      overflow: "hidden",
+                <FormControl fullWidth variant="outlined">
+                  <TextField
+                    id="outlined-adornment-weight"
+                    label="Weight"
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">kg</InputAdornment>,
                     }}
-                  >
-                    {watch(`products.${index}.productImage`) ? (
-                      <img
-                        src={watch(`products.${index}.productImage`)}
-                        alt="Uploaded"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    ) : (
-                      <ImageOutlinedIcon sx={{ fontSize: "30px", color: "#74d52b" }} />
-                    )}
-                  </Box>
-                </label>
+                    aria-describedby="outlined-weight-helper-text"
+                    inputProps={{
+                      'aria-label': 'weight',
+                    }}
+                    {...register(`products.${index}.Weight`, { required: "Required" })}
+                  />
+                </FormControl>
+
+                <CentralizeDatePicker
+                label="Manufacture Date"
+                  // name="manufactureDate"
+                  control={control}
+                  defaultValue=""
+                  format="DD-MM-YYYY"
+                  size="small"
+                  {...register(`products.${index}.manufactureDate`, { required: "Required" })}
+                />
+
+                <CentralizeDatePicker
+                label="Expiry Date"
+                  // name="expiryDate"
+                  control={control}
+                  defaultValue=""
+                  format="DD-MM-YYYY"
+                  size="small"
+                  {...register(`products.${index}.expiryDate`, { required: "Required" })}
+                />
+                {/* Remove Button */}
+                <IconButton
+                  color="error"
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => remove(index)}
+                  sx={{
+                    alignSelf: "center",
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
               </Box>
-
-              {/* Price */}
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Price"
-                type="number"
-                {...register(`products.${index}.price`, { required: "Required" })}
-              />
-
-              {/* Quantity */}
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Quantity"
-                type="number"
-                {...register(`products.${index}.quantity`, { required: "Required" })}
-              />
-
-              {/* Remove Button */}
-              <IconButton
-                color="error"
-                edge="end"
-                aria-label="delete"
-                onClick={() => remove(index)}
-                sx={{
-                  alignSelf: "center",
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
             </Box>
+
           ))}
 
-          {/* Add Product Button */}
-          <Button
-            variant="contained"
-            // color="primary"
-            fullWidth
-            sx={{ mb: 3, borderRadius: "8px", py: 1, backgroundColor: "#bdba04" }}
-            onClick={() => {
-              const lastIndex = fields.length - 1;
-              if (lastIndex >= 0) {
-                const productName = getValues(`products.${lastIndex}.productName`);
-                const price = getValues(`products.${lastIndex}.price`);
-                const quantity = getValues(`products.${lastIndex}.quantity`);
-                if (!productName || !price || !quantity) {
-                  Toasts({ message: 'Please fill in all fields', type: 'error' })
-                  return;
-                }
-              }
 
-              append({
-                productName: "",
-                productImage: "",
-                price: "",
-                quantity: "",
-              });
-            }}
-          >
-            Add Product
-          </Button>
 
           <Box
             sx={{
@@ -746,6 +825,43 @@ const AdminDashboard: React.FC = () => {
               gap: 3,
             }}
           >
+
+            {/* Add Product Button */}
+            <Button
+              variant="contained"
+              // color="primary"
+              fullWidth
+              sx={{ borderRadius: "8px", backgroundColor: "#bdba04" }}
+              onClick={() => {
+                const lastIndex = fields.length - 1;
+                if (lastIndex >= 0) {
+                  const productName = getValues(`products.${lastIndex}.productName`);
+                  const price = getValues(`products.${lastIndex}.price`);
+                  const quantity = getValues(`products.${lastIndex}.quantity`);
+                  const Weight = getValues(`products.${lastIndex}.Weight`);
+                  const manufactureDate = getValues(`products.${lastIndex}.manufactureDate`);
+                  const expiryDate = getValues(`products.${lastIndex}.expiryDate`);
+
+                  if (!productName || !price || !quantity || !Weight || !manufactureDate || !expiryDate) {
+                    Toasts({ message: 'Please fill in all fields', type: 'error' })
+                    return;
+                  }
+                }
+
+                append({
+                  productName: "",
+                  productImage: "",
+                  price: "",
+                  quantity: "",
+                  Weight: "",
+                  manufactureDate: "",
+                  expiryDate: "",
+                });
+              }}
+            >
+              Add Product
+            </Button>
+
             <Button
               variant="contained"
               fullWidth
@@ -754,6 +870,8 @@ const AdminDashboard: React.FC = () => {
             >
               Close
             </Button>
+
+
 
 
 
