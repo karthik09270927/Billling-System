@@ -179,3 +179,42 @@ export const verifyOTP = async (userEmail: string, otp: string): Promise<any> =>
     throw error.response?.data || { message: "An unknown error occurred" };
   }
 };
+
+
+const base64ToFile = (base64String: string, fileName: string): File => {
+  const byteString = atob(base64String.split(",")[1]); 
+  const mimeString = base64String.split(",")[0].split(":")[1].split(";")[0];
+  const byteArray = new Uint8Array(byteString.length);
+
+  for (let i = 0; i < byteString.length; i++) {
+    byteArray[i] = byteString.charCodeAt(i);
+  }
+
+  return new File([byteArray], fileName, { type: mimeString });
+};
+
+export const postProductCategory = async (
+  taskProject: { id: any; categoryName: string; subCategoryName: string[] },
+  base64Image: string
+): Promise<any> => {
+  try {
+    
+    const imageFile = base64ToFile(base64Image, "uploaded_image.jpg");
+
+    const formData = new FormData();
+    formData.append("taskProject", JSON.stringify(taskProject));
+    formData.append("image", imageFile);
+
+    // Make API call
+    const response = await API.post(`/billing/productSubCategory`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error posting product category:", error.response?.data || error);
+    throw error.response?.data?.message || "Failed to post product category";
+  }
+};
