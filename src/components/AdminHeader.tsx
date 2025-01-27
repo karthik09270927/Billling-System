@@ -42,7 +42,7 @@ const AdminHeader = () => {
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { selectedCategory, setSelectedCategory, setSubCategories } = useCategory();
+    const { selectedCategory, setSelectedCategory, setSubCategories,setSelectedCategoryId } = useCategory();
     const navigate = useNavigate();
     const [uploadedImage, setUploadedImage] = useState<any | null>(null);
     const [itemName, setItemName] = useState("");
@@ -113,6 +113,7 @@ const AdminHeader = () => {
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
             setSelectedCategory(categoryName); 
+            setSelectedCategoryId(categoryId);
             const response = await fetchSubCategories(categoryId); 
             setSubCategories(response.data); 
         } catch (error) {

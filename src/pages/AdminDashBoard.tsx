@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -14,6 +14,10 @@ import {
   InputLabel,
   FormControl,
   IconButton,
+  Badge,
+  CircularProgress,
+  CardMedia,
+  Pagination,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
@@ -25,6 +29,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import { Toasts } from '../centralizedComponents/forms/Toast';
+import { fetchProductList } from "../utils/api-collection";
+import nodata from '../assets/no-data.png';
 
 // const items = [
 //   { id: 1, name: "Croissant", price: 4.0, image: "/src/assets/croissant.png", category: "Electronics", subcategory: "Laptops" },
@@ -56,26 +62,19 @@ const groupItemsBySubcategory = (items: any) => {
 };
 
 const AdminDashboard: React.FC = () => {
-  const { selectedCategory } = useCategory();
+  const { selectedCategoryId, subCategories } = useCategory();
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const { subCategories } = useCategory();
+  const [selectedSubcategory, setSelectedSubcategory] = useState<any | null>(null);
   const [deleteSubCategory, setdeleteSubCategory] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // const filteredItems =
-  //   selectedCategory === "All Menu"
-  //     ? items
-  //     : items.filter((item) => item.category === selectedCategory);
-
-
-  // const groupedItems = groupItemsBySubcategory(filteredItems);
-
-
-  // const filteredBySubcategory = selectedSubcategory
-  //   ? filteredItems.filter((item) => item.subcategory === selectedSubcategory)
-  //   : filteredItems;
-
+  const [isProductsLoading, setIsProductsLoading] = useState<boolean>(false);
+  const [pageNo, setPageNo] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [filteredBySubcategory, setFilteredBySubcategory] = useState<any[]>([]);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  console.log(selectedCategoryId, "selectedCategoryId");
 
   const handleItemClick = (item: any) => {
     setSelectedItems((prevItems) => {
@@ -88,6 +87,23 @@ const AdminDashboard: React.FC = () => {
         return [...prevItems, { ...item, quantity: 1 }];
       }
     });
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const { products, totalCount } = await fetchProductList(
+        selectedCategoryId,
+        selectedSubcategory,
+        pageNo,
+        pageSize
+      );
+      setFilteredBySubcategory(products);
+      setTotalItems(totalCount);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsProductsLoading(false); // Stop the product loader
+    }
   };
 
 
@@ -118,8 +134,16 @@ const AdminDashboard: React.FC = () => {
     reset();
   };
 
+  const handleSubcategorySelect = (subcategory: any) => {
+    console.log("Selected Subcategory:", subcategory);
 
-  const { control, handleSubmit, watch, setValue, register, reset, getValues  } = useForm({
+    setSelectedSubcategory(subcategory.id);
+    setPageNo(1);
+    setIsProductsLoading(true);
+  };
+
+
+  const { control, handleSubmit, watch, setValue, register, reset, getValues } = useForm({
     defaultValues: {
       category: "",
       subCategory: "",
@@ -145,6 +169,12 @@ const AdminDashboard: React.FC = () => {
     reset();
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    if (selectedSubcategory !== null) {
+      fetchProducts();
+    }
+  }, [selectedSubcategory, pageNo, pageSize]);
 
 
   return (
@@ -185,7 +215,7 @@ const AdminDashboard: React.FC = () => {
           {subCategories.map((subcategory: any) => (
             <Button
               key={subcategory.id}
-              onClick={() => setSelectedSubcategory(subcategory)}
+              onClick={() => handleSubcategorySelect(subcategory)}
               sx={{
                 margin: "0 8px",
                 padding: "6px 16px",
@@ -207,7 +237,27 @@ const AdminDashboard: React.FC = () => {
                 },
               }}
             >
-              {subcategory.subCategoryName} ({subcategory.count})
+              {subcategory.subCategoryName}
+
+              <Badge
+                showZero
+                badgeContent={subcategory.count}
+                color="primary"
+                sx={{
+                  position: "absolute",
+                  top: "0px",
+                  right: "0px",
+                  "& .MuiBadge-badge": {
+                    backgroundColor:
+                      selectedSubcategory === subcategory ? "#f9f9f9" : "#74D52B",
+                    color: selectedSubcategory === subcategory ? "#74D52B" : "#ffffff",
+                    fontSize: "12px",
+                    minWidth: "22px",
+                    height: "22px",
+                    boxShadow: "0 2px 6px rgba(21, 255, 0, 0.7)",
+                  },
+                }}
+              />
               {deleteSubCategory && (<CloseIcon sx={{ fontSize: "18px", ml: 1, color: "red" }} onClick={handleDeleteSubCategory} />)}
             </Button>
 
@@ -295,70 +345,10 @@ const AdminDashboard: React.FC = () => {
           }}
         />
 
-        <Grid container spacing={3} mt={3}>
-          <Grid item xs={12} sm={6} md={4} lg={2.4} >
-            <Card
-              sx={{
-                backgroundColor: "#ffffff",
-                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-                borderRadius: "12px",
-                padding: 1,
-                width: "200px",
-                transition: "transform 0.3s, box-shadow 0.3s",
-                "&:hover": {
-                  transform: "translateY(-5px)",
-                  boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
-                },
-              }}
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Box
-                sx={{
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: "10px",
-                  overflow: "hidden",
-                  mb: 2,
-                  height: "120px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Box
-                  sx={{
-                    height: "90px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#F9F9F9",
-                    borderRadius: "12px 12px 0 0",
-                  }}
-                >
-                  <AddIcon sx={{ fontSize: "60px", color: "#74d52b" }} />
-                </Box>
-              </Box>
-              <CardContent
-                sx={{
-                  textAlign: "center",
-                  "&:last-child": { paddingBottom: 0, paddingTop: 0 },
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                    color: "#333",
-                    mb: 0.5,
-                  }}
-                >
-                  Add New Item
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          {/* {filteredBySubcategory.map((item: any) => (
-            <Grid item xs={12} sm={6} md={4} lg={2.4} key={item.id}>
+        <Grid container spacing={3} mt={0}>
+          <>
+            {/* Add New Item Card */}
+            <Grid item xs={12} sm={6} md={2} lg={2}>
               <Card
                 sx={{
                   backgroundColor: "#ffffff",
@@ -366,13 +356,14 @@ const AdminDashboard: React.FC = () => {
                   borderRadius: "12px",
                   padding: 1,
                   width: "200px",
+                  height: "300px",
                   transition: "transform 0.3s, box-shadow 0.3s",
                   "&:hover": {
                     transform: "translateY(-5px)",
                     boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
                   },
                 }}
-                onClick={() => handleItemClick(item)}
+                onClick={() => setIsModalOpen(true)}
               >
                 <Box
                   sx={{
@@ -380,26 +371,29 @@ const AdminDashboard: React.FC = () => {
                     borderRadius: "10px",
                     overflow: "hidden",
                     mb: 2,
-                    height: "120px",
+                    height: "180px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <CardMedia
-                    component="img"
+                  <Box
                     sx={{
-                      maxHeight: "100%",
-                      maxWidth: "100%",
-                      objectFit: "contain",
+                      height: "90px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#F9F9F9",
+                      borderRadius: "12px 12px 0 0",
                     }}
-                    image={item.image}
-                    alt={item.name}
-                  />
+                  >
+                    <AddIcon sx={{ fontSize: "60px", color: "#74d52b" }} />
+                  </Box>
                 </Box>
                 <CardContent
                   sx={{
-                    textAlign: "start",
+                    alignItems: "center",
+                    textAlign: "center",
                     "&:last-child": { paddingBottom: 0, paddingTop: 0 },
                   }}
                 >
@@ -410,24 +404,146 @@ const AdminDashboard: React.FC = () => {
                       fontWeight: "bold",
                       color: "#333",
                       mb: 0.5,
+
                     }}
                   >
-                    {item.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontSize: "16px",
-                      color: "#777",
-                    }}
-                  >
-                    ${item.price.toFixed(2)}
+                    Add New Item
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
-          ))} */}
+            
+            {(searchTerm ? searchResults : filteredBySubcategory).length > 0 ? (
+              <>
+
+
+                {/* Product Cards */}
+                {isProductsLoading ? (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      minHeight: "50vh",
+                    }}
+                  >
+                    <CircularProgress />
+                  </Box>
+                ) : (
+                  <>
+                    {(searchTerm ? searchResults : filteredBySubcategory).map(
+                      (item: any) => (
+                        <Grid item xs={12} sm={6} md={4} lg={2} key={item.id}>
+                          <Card
+                            sx={{
+                              backgroundColor: "#ffffff",
+                              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+                              borderRadius: "12px",
+                              padding: 1,
+                              width: "200px",
+                              height: "300px",
+                              transition: "transform 0.3s, box-shadow 0.3s",
+                              "&:hover": {
+                                transform: "translateY(-5px)",
+                                boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
+                              },
+                            }}
+                            onClick={() => handleItemClick(item)}
+                          >
+                            <Box
+                              sx={{
+                                backgroundColor: "#f9f9f9",
+                                borderRadius: "10px",
+                                overflow: "hidden",
+                                mb: 2,
+                                height: "120px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <CardMedia
+                                component="img"
+                                sx={{
+                                  maxHeight: "100%",
+                                  maxWidth: "100%",
+                                  objectFit: "contain",
+                                }}
+                                image={`data:image/jpeg;base64,${item.image}`}
+                                alt={item.productName}
+                              />
+                            </Box>
+                            <CardContent
+                              sx={{
+                                textAlign: "start",
+                                "&:last-child": { paddingBottom: 0 },
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  fontSize: "14px",
+                                  fontWeight: "bold",
+                                  color: "#333",
+                                  mb: 0.5,
+                                }}
+                              >
+                                {item.productName}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: "16px",
+                                  color: "#777",
+                                }}
+                              >
+                                ₹ {item.mrpPrice ? item.mrpPrice.toFixed(2) : "N/A"}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      )
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "50vh",
+                  gap: 2,
+                }}
+              >
+                <img
+                  src={nodata}
+                  alt="No products found"
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    objectFit: "contain",
+                  }}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "#666",
+                    textAlign: "center",
+                  }}
+                >
+                  {searchTerm
+                    ? "No products found matching your search"
+                    : "No products available"}
+                </Typography>
+              </Box>
+            )}
+          </>
         </Grid>
+
       </Box>
       {/* Updated Modal Code */}
       <Modal
@@ -598,9 +714,9 @@ const AdminDashboard: React.FC = () => {
           {/* Add Product Button */}
           <Button
             variant="contained"
-            color="primary"
+            // color="primary"
             fullWidth
-            sx={{ mb: 3, borderRadius: "8px", py: 1 }}
+            sx={{ mb: 3, borderRadius: "8px", py: 1, backgroundColor: "#bdba04" }}
             onClick={() => {
               const lastIndex = fields.length - 1;
               if (lastIndex >= 0) {
@@ -624,17 +740,35 @@ const AdminDashboard: React.FC = () => {
             Add Product
           </Button>
 
-
-
-          {/* Submit Button */}
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{ borderRadius: "8px", py: 1, backgroundColor: "#74D52B" }}
-            onClick={handleSubmit(onSubmit)}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 3,
+            }}
           >
-            Submit
-          </Button>
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ borderRadius: "8px", py: 1, backgroundColor: "#d93030" }}
+              onClick={handleCloseModal}
+            >
+              Close
+            </Button>
+
+
+
+            {/* Submit Button */}
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ borderRadius: "8px", py: 1, backgroundColor: "#74D52B" }}
+              onClick={handleSubmit(onSubmit)}
+            >
+              Submit
+            </Button>
+          </Box>
+
+
 
         </Box>
       </Modal>
