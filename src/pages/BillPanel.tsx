@@ -19,6 +19,8 @@ import {
 import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { Toasts } from "../centralizedComponents/forms/Toast";
+import { saveBill } from "../utils/api-collection";
 
 interface OrderItem {
   id: number;
@@ -40,48 +42,126 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
   const [phoneNumber, setPhoneNumber] = useState(""); // Customer phone number
   const [name, setName] = useState(customerName || ""); // Customer name
   const [email, setEmail] = useState(""); // Customer address
-  const [paymentMode, setPaymentMode] = useState<string>("");
+  const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'Online'>('Cash');
+  const [errors, setErrors] = useState({
+    name: '',
+    phoneNumber: '',
+    email: '',
+    paymentMode: ''
+  });
+
+  const resetForm = () => {
+    setName('');
+    setPhoneNumber('');
+    setEmail('');
+    setPaymentMode('Cash');
+    setErrors({
+      name: '',
+      phoneNumber: '',
+      email: '',
+      paymentMode: ''
+    });
+  };
+
+  const isFormValid = () => {
+    const isNameValid = name.length >= 3;
+    const isPhoneValid = /^\d{10}$/.test(phoneNumber);
+    const isEmailValid = /^[a-zA-Z0-9._-]+$/.test(email);
+    const isPaymentSelected = !!paymentMode;
+
+    return isNameValid && isPhoneValid && isEmailValid && isPaymentSelected;
+  };
+
+  const validateFields = () => {
+    const newErrors = {
+      name: '',
+      phoneNumber: '',
+      email: '',
+      paymentMode: ''
+    };
+
+    // Name validation
+    if (!name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (name.length < 3) {
+      newErrors.name = 'Name must be at least 3 characters';
+    }
+
+    // Phone validation
+    if (!phoneNumber) {
+      newErrors.phoneNumber = 'Phone number is required';
+    } else if (!/^\d{10}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = 'Enter valid 10-digit number';
+    }
+
+    // Email validation
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[a-zA-Z0-9._-]+$/.test(email)) {
+      newErrors.email = 'Invalid email format';
+    }
+
+    // Payment mode validation
+    if (!paymentMode) {
+      newErrors.paymentMode = 'Select payment mode';
+    }
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error !== '');
+  };
+
 
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
     return emailRegex.test(email);
   };
 
+
+
   const calculateTotal = () => {
     return selectedItems?.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
   };
 
-  const handlePlaceOrder = async () => {
-    setIsPlacingOrder(true); // Show loading indicator
+
+  const handleConfirmOrder = async () => {
+    console.info('Starting order confirmation process...');
+
+    if (!validateFields()) {
+      console.warn('Validation failed:', errors);
+      return;
+    }
+
+    setIsPlacingOrder(true);
+    console.info('Processing order...');
 
     try {
-      const response = await fetch("https://api.example.com/place-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          customerName: name,
-          phoneNumber,
-          orderNumber,
-          items: selectedItems,
-          totalPrice: calculateTotal(),
-        }),
+      const billData = {
+        userName: name,
+        userEmail: email + '@gmail.com',
+        userPhone: phoneNumber,
+        paymentMode: paymentMode,
+        products: selectedItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity
+        }))
+      };
+
+      console.log('Sending bill data:', billData);
+      const response = await saveBill(billData);
+      console.log('Success', response)
+      console.info('Order placed successfully!');
+      Toasts({ message: 'Order placed successfully', type: 'success' });
+      setIsModalOpen(false);
+      setSelectedItems([]);
+      resetForm();
+    } catch (error: any) {
+      console.error('Order placement failed:', error);
+      Toasts({
+        message: error.response?.data?.message || 'Failed to place order',
+        type: 'error'
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Order placed successfully:", data);
-
-        setSelectedItems([]); // Clear selected items
-        setIsOrderPlaced(true); // Mark order as placed
-        setIsModalOpen(false); // Close the modal
-      } else {
-        console.error("Failed to place the order:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error placing the order:", error);
     } finally {
+      console.info('Order process completed');
       setIsPlacingOrder(false);
     }
   };
@@ -94,6 +174,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           sx={{
             height: "50px",
             backgroundColor: "#fbfbe5",
+            borderBottom: '3px solid #e0e0e0',
             padding: "8px",
             flexShrink: 0,
             display: "flex",
@@ -142,9 +223,17 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                     image={`data:image/jpeg;base64,${item.image}`}
                     alt={item.productName}
                     sx={{
-                      width: 60,
-                      height: 60,
-                      objectFit: "contain",
+                      width: 70,
+                      height: 70,
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                      border: "2px solid #e0e0e0",
+                      padding: "2px",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "scale(1.05)",
+                        boxShadow: "0 0 10px rgba(116, 213, 43, 0.3)",
+                      }
                     }}
                   />
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
@@ -228,7 +317,6 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
         <Box
           sx={{
             height: "80px",
-            backgroundColor: "#fbfbe5",
             padding: 2,
             flexShrink: 0,
             display: "flex",
@@ -258,7 +346,15 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
 
       <Dialog
         open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={(_, reason) => {
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+            return;
+          }
+          setIsModalOpen(false);
+          resetForm();
+        }}
+        disableEscapeKeyDown
+        hideBackdrop={false}
         fullWidth
         maxWidth="sm"
         PaperProps={{
@@ -268,53 +364,70 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
           }
         }}
-      >        <DialogTitle
-        sx={{
-          textAlign: 'center',
-          padding: '20px',
-          color: '#333',
-          fontWeight: 800,
-          '& .MuiTypography-root': {
-            fontSize: '1.8rem'
-          }
-        }}
       >
+        <DialogTitle
+          sx={{
+            textAlign: 'center',
+            padding: '20px',
+            color: '#333',
+            fontWeight: 800,
+            '& .MuiTypography-root': {
+              fontSize: '1.8rem'
+            }
+          }}
+        >
           Confirm Order
         </DialogTitle>        <DialogContent>
           <Box sx={{ marginBottom: 2 }}>
             <Typography variant="h6">Billing Details</Typography>
-            <TextField
-              label="Customer Name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="Phone Number"
-              type="number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2, mt: 1 }}>
+              <TextField
+                label="Customer Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                error={!!errors.name}
+                helperText={errors.name}
+                required
+                fullWidth
+                sx={{
+                  '& .MuiFormHelperText-root': {
+                    color: '#d32f2f'
+                  }
+                }}
+              />
+
+              <TextField
+                label="Phone Number"
+                type="number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber}
+                required
+                fullWidth
+                inputProps={{ maxLength: 10 }}
+              />
+            </Box>
+
             <TextField
               label="Mail Id"
               type="email"
               value={email}
+              error={!!errors.email}
+              helperText={errors.email}
+              required
               onChange={(e) => {
                 const value = e.target.value;
                 // Remove @gmail.com if user types it manually
                 const baseEmail = value.replace(/@gmail\.com$/, '');
                 setEmail(baseEmail);
               }}
-              error={email.length > 0 && !isValidEmail(email + '@gmail.com')}
-              helperText={
-                email.length > 0 && !isValidEmail(email + '@gmail.com')
-                  ? 'Please enter a valid email'
-                  : ''
-              }
+              // error={email.length > 0 && !isValidEmail(email + '@gmail.com')}
+              // helperText={
+              //   email.length > 0 && !isValidEmail(email + '@gmail.com')
+              //     ? 'Please enter a valid email'
+              //     : ''
+              // }
               fullWidth
               margin="normal"
               InputProps={{
@@ -340,57 +453,49 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 }
               }}
             />
-
           </Box>
 
           {/* Payment Mode Buttons */}
-          <Box sx={{ marginBottom: 2 }}>
+          <Box sx={{
+            marginBottom: 2, ...(errors.paymentMode && {
+              '& .MuiButton-root': {
+                borderColor: '#d32f2f'
+              }
+            })
+          }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, marginTop: 1 }}>
-              <Button
-                variant={paymentMode === "Cash" ? "contained" : "outlined"}
-                onClick={() => setPaymentMode("Cash")}
-                fullWidth
-                sx={{
-                  bgcolor: paymentMode === "Cash" ? "#74D52B" : "transparent",
-                  color: paymentMode === "Cash" ? "white" : "#74D52B",
-                  borderColor: "#74D52B",
-                  '&:hover': {
-                    bgcolor: paymentMode === "Cash" ? "#65BA25" : "#74D52B10",
-                  }
-                }}
-              >
-                Cash
-              </Button>
-              <Button
-                variant={paymentMode === "Card" ? "contained" : "outlined"}
-                onClick={() => setPaymentMode("Card")}
-                fullWidth
-                sx={{
-                  bgcolor: paymentMode === "Card" ? "#74D52B" : "transparent",
-                  color: paymentMode === "Card" ? "white" : "#74D52B",
-                  borderColor: "#74D52B",
-                  '&:hover': {
-                    bgcolor: paymentMode === "Card" ? "#65BA25" : "#74D52B10",
-                  }
-                }}
-              >
-                Card
-              </Button>
-              <Button
-                variant={paymentMode === "Online" ? "contained" : "outlined"}
-                onClick={() => setPaymentMode("Online")}
-                fullWidth
-                sx={{
-                  bgcolor: paymentMode === "Online" ? "#74D52B" : "transparent",
-                  color: paymentMode === "Online" ? "white" : "#74D52B",
-                  borderColor: "#74D52B",
-                  '&:hover': {
-                    bgcolor: paymentMode === "Online" ? "#65BA25" : "#74D52B10",
-                  }
-                }}
-              >
-                UPI
-              </Button>
+              {['Cash', 'Card', 'Online'].map((mode) => (
+                <Button
+                  key={mode}
+                  variant={paymentMode === mode ? "contained" : "outlined"}
+                  onClick={() => {
+                    setPaymentMode(mode as 'Cash' | 'Card' | 'Online');
+                    setErrors({ ...errors, paymentMode: '' });
+                  }}
+                  fullWidth
+                  sx={{
+                    bgcolor: paymentMode === mode ? "#74D52B" : "transparent",
+                    color: paymentMode === mode ? "white" : "#74D52B",
+                    borderColor: errors.paymentMode ? "#d32f2f" : "#74D52B",
+                    '&:hover': {
+                      bgcolor: paymentMode === mode ? "#65BA25" : "#74D52B10",
+                    },
+                    ...(mode === 'Cash' && {
+                      bgcolor: paymentMode === 'Cash' ? "#74D52B" : "transparent",
+                    })
+                  }}
+                >
+                  {mode}
+                </Button>
+              ))}
+              {errors.paymentMode && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: '#d32f2f', mt: 1 }}
+                >
+                  {errors.paymentMode}
+                </Typography>
+              )}
             </Box>
           </Box>
 
@@ -467,14 +572,18 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             padding: '20px',
           }}
         >
-          <Button onClick={() => setIsModalOpen(false)} color="secondary">
+          <Button onClick={() => {
+            setIsModalOpen(false);
+            resetForm();
+          }}
+            color="secondary" >
             Cancel
           </Button>
           <Button
-            onClick={handlePlaceOrder}
+            onClick={handleConfirmOrder}
             color="primary"
             variant="contained"
-            disabled={isPlacingOrder}
+            disabled={!isFormValid() || isPlacingOrder}
             sx={{
               bgcolor: "#74D52B",
               '&:hover': {
@@ -482,7 +591,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
               },
             }}
           >
-            {isPlacingOrder ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Place Order"}
+            {isPlacingOrder ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Confirm"}
           </Button>
         </DialogActions>
       </Dialog>

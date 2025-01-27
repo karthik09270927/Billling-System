@@ -7,7 +7,7 @@ const StaffLayout = () => {
     <Box sx={{ height: "100vh", overflow: { md: "hidden" } }}>
       <Grid container spacing={0} sx={{ height: "100%", padding: 0, backgroundColor: "#fff" }}>
         <Grid item xs={12} md={9} sx={{ height: "100vh" }}>
-          <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+          <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column", borderRight:'3px solid #e0e0e0' }}>
             <Box
               sx={{
                 flexShrink: 0,

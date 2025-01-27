@@ -136,10 +136,26 @@ export const fetchProductList = async (
     const data = response.data as { data: any; totalCount: number };
     return {
       products: data.data,
-      totalCount: data.totalCount, 
+      totalCount: data.totalCount,
     };
   } catch (error) {
     console.error("Error fetching products:", error);
+    throw error;
+  }
+};
+
+export const saveBill = async (billData: {
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  paymentMode: string;
+  products: Array<{ productId: number; quantity: number }>;
+}) => {
+  try {
+    const response = await API.post('/billingProduct/saveBill', billData);
+    return response.data;
+  } catch (error) {
+    console.error('Error saving bill:', error);
     throw error;
   }
 };
@@ -182,7 +198,7 @@ export const verifyOTP = async (userEmail: string, otp: string): Promise<any> =>
 
 
 const base64ToFile = (base64String: string, fileName: string): File => {
-  const byteString = atob(base64String.split(",")[1]); 
+  const byteString = atob(base64String.split(",")[1]);
   const mimeString = base64String.split(",")[0].split(":")[1].split(";")[0];
   const byteArray = new Uint8Array(byteString.length);
 
@@ -198,7 +214,7 @@ export const postProductCategory = async (
   base64Image: string
 ): Promise<any> => {
   try {
-    
+
     const imageFile = base64ToFile(base64Image, "uploaded_image.jpg");
 
     const formData = new FormData();

@@ -142,7 +142,7 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: '#ffffff' }} >
+    <Box>
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>

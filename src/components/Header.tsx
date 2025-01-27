@@ -84,7 +84,7 @@ const Header = () => {
 
 
     return (
-        <Box>
+        <Box sx={{ borderBottom: '2px solid #e0e0e0' }}>
             {/* Floating Menu Icon */}
             {!isHeaderOpen && (
                 <IconButton

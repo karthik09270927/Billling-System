@@ -127,7 +127,7 @@ const StaffDashboard: React.FC = () => {
             alignItems: "center",
             height: "auto",
           }}>
-            <NewLoader/>
+            <NewLoader />
           </Box>
         ) : (
           <Box sx={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
@@ -136,7 +136,7 @@ const StaffDashboard: React.FC = () => {
                 No subcategories
               </Typography>
             ) : (
-              subCategories.map((subcategory: any) => (
+              subCategories.map((subcategory: any, index: any) => (
                 <Card
                   key={subcategory.id}
                   onClick={() => handleSubcategorySelect(subcategory)}
@@ -153,12 +153,12 @@ const StaffDashboard: React.FC = () => {
                     padding: 0,
                     position: "relative",
                     boxShadow:
-                      selectedSubcategory === subcategory
+                      selectedSubcategory === subcategory.id
                         ? "0 4px 12px rgba(116, 213, 43, 0.2)"
                         : "0 4px 8px rgba(0, 0, 0, 0.1)",
                     backgroundColor:
-                      selectedSubcategory === subcategory ? "#74D52B" : "#f0f0f0",
-                    color: selectedSubcategory === subcategory ? "white" : "#333",
+                      selectedSubcategory === subcategory.id ? "#74D52B" : "#f0f0f0",
+                    color: selectedSubcategory === subcategory.id ? "white" : "#333",
                     transition: "all 0.5s ease out",
                     "&:hover": {
                       backgroundColor: "#74D52B",
@@ -179,8 +179,8 @@ const StaffDashboard: React.FC = () => {
                       right: "18px",
                       "& .MuiBadge-badge": {
                         backgroundColor:
-                          selectedSubcategory === subcategory ? "#f9f9f9" : "#74D52B",
-                        color: selectedSubcategory === subcategory ? "#74D52B" : "#ffffff",
+                          selectedSubcategory === subcategory.id ? "#f9f9f9" : "#74D52B",
+                        color: selectedSubcategory === subcategory.id ? "#74D52B" : "#ffffff",
                         fontSize: "12px",
                         minWidth: "22px",
                         height: "22px",
@@ -267,7 +267,7 @@ const StaffDashboard: React.FC = () => {
                         transition: "transform 0.3s, box-shadow 0.3s",
                         "&:hover": {
                           transform: "translateY(-10px)",
-                          boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)',
+                          boxShadow: '4px 4px 6px 6px #b5e48c',
                         },
                       }}
                       onClick={() => handleItemClick(item)}
