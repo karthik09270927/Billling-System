@@ -218,3 +218,10 @@ export const postProductCategory = async (
     throw error.response?.data?.message || "Failed to post product category";
   }
 };
+
+
+export const fetchUpdateProductCategory = async (selectedCategoryId: number) => {
+  const response = await API.get<{ data: any }>(`/billing/productSubCategory?id=${selectedCategoryId}`);
+  if (response.status !== 200) throw new Error("Failed to fetch subcategories");
+  return response.data;
+};
