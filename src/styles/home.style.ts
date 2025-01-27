@@ -98,7 +98,7 @@ export const loginBox = { height: '100%', display: 'flex', justifyContent: 'cent
 
 export const loginLightBox = { height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background:'#ffffff' }
 
-export const loginGrid = { justifyContent: 'space-between', background :'#fbfbe5' }
+export const loginGrid = { justifyContent: 'space-between', background :'#ffffff' }
 
 export const loginCard = { boxShadow: 'none', maxWidth: 350 }
 

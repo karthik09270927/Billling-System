@@ -13,8 +13,12 @@ import {
   TextField,
   MenuItem,
   Select,
+  InputAdornment,
+  CardMedia,
 } from "@mui/material";
 import { useSelectedItems } from "../Hooks/productContext";
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 interface OrderItem {
   id: number;
@@ -35,8 +39,13 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [phoneNumber, setPhoneNumber] = useState(""); // Customer phone number
   const [name, setName] = useState(customerName || ""); // Customer name
+  const [email, setEmail] = useState(""); // Customer address
   const [paymentMode, setPaymentMode] = useState<string>("");
 
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+    return emailRegex.test(email);
+  };
 
   const calculateTotal = () => {
     return selectedItems?.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
@@ -92,15 +101,14 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             alignItems: "center",
           }}
         >
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            {customerName}
+          <Typography variant="body1" sx={{ fontWeight: "bold", color: '#74D52B' }}>
+            "FRESH HYPERMARKET"
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666" }}>
             Order #{orderNumber}
           </Typography>
         </Box>
 
-        {/* Content Section */}
         <Box
           sx={{
             flex: 1,
@@ -115,27 +123,108 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 key={item.id}
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  flexDirection: "column",
                   marginBottom: 2,
+                  borderRadius: 2,
+                  padding: 2,
                 }}
               >
-                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                  {item.name} x{item.quantity}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#777" }}>
-                  ₹ {(item.price * item.quantity).toFixed(2)}
-                </Typography>
+                {/* Row 1: Product Image and Name */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 2,
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    image={`data:image/jpeg;base64,${item.image}`}
+                    alt={item.productName}
+                    sx={{
+                      width: 60,
+                      height: 60,
+                      objectFit: "contain",
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    {item.productName}
+                  </Typography>
+                </Box>
+
+                {/* Row 2: Quantity Controls */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    marginTop: 1,
+                    gap: 1,
+                  }}
+                >
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      setSelectedItems((prevItems) =>
+                        prevItems
+                          .map((i) =>
+                            i.id === item.id
+                              ? { ...i, quantity: i.quantity - 1 }
+                              : i
+                          )
+                          .filter((i) => i.quantity > 0) // Remove item if quantity becomes 0
+                      )
+                    }
+                  >
+                    <RemoveIcon sx={{ color: 'red' }} />
+                  </Button>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: "bold", minWidth: 24, textAlign: "center" }}
+                  >
+                    {item.quantity}
+                  </Typography>
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      setSelectedItems((prevItems) =>
+                        prevItems.map((i) =>
+                          i.id === item.id
+                            ? { ...i, quantity: i.quantity + 1 }
+                            : i
+                        )
+                      )
+                    }
+                  >
+                    <AddIcon sx={{ color: '#74D52B' }} />
+                  </Button>
+                </Box>
+
+                {/* Row 3: Product Price */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    marginTop: 1,
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    ₹ {(item.price * item.quantity).toFixed(2)}
+                  </Typography>
+                </Box>
               </Box>
             ))
           ) : (
-            <Typography variant="body2" sx={{ color: "#999", textAlign: "center" }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#999", textAlign: "center" }}
+            >
               No items selected.
             </Typography>
           )}
         </Box>
 
-        {/* Footer Section */}
+
         <Box
           sx={{
             height: "80px",
@@ -195,18 +284,61 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           <Box sx={{ marginBottom: 2 }}>
             <Typography variant="h6">Billing Details</Typography>
             <TextField
+              label="Customer Name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
               label="Phone Number"
+              type="number"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               fullWidth
               margin="normal"
             />
             <TextField
-              label="Customer Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              label="Mail Id"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Remove @gmail.com if user types it manually
+                const baseEmail = value.replace(/@gmail\.com$/, '');
+                setEmail(baseEmail);
+              }}
+              error={email.length > 0 && !isValidEmail(email + '@gmail.com')}
+              helperText={
+                email.length > 0 && !isValidEmail(email + '@gmail.com')
+                  ? 'Please enter a valid email'
+                  : ''
+              }
               fullWidth
               margin="normal"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Typography
+                      sx={{
+                        color: '#666',
+                        userSelect: 'none',
+                        fontSize: '14px'
+                      }}
+                    >
+                      @gmail.com
+                    </Typography>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& input': {
+                    paddingRight: '80px'
+                  }
+                }
+              }}
             />
 
           </Box>
@@ -265,9 +397,62 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           {/* Products List */}
           <Typography variant="h6">Products</Typography>
           {selectedItems.map((item) => (
-            <Box key={item.id} sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-              <Typography>{item.name} x{item.quantity}</Typography>
-              <Typography>₹ {(item.price * item.quantity).toFixed(2)}</Typography>  
+            <Box
+              key={item.id}
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "60px 2fr 1fr 1fr",
+                alignItems: "center",
+                gap: 2,
+                mb: 2,
+                p: 1,
+                borderRadius: '8px'
+              }}
+            >
+              {/* Product Image */}
+              <CardMedia
+                component="img"
+                image={`data:image/jpeg;base64,${item.image}`}
+                alt={item.productName}
+                sx={{
+                  width: 50,
+                  height: 50,
+                  objectFit: "cover",
+                  borderRadius: '4px'
+                }}
+              />
+
+              {/* Product Name */}
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: "bold",
+                  color: '#333'
+                }}
+              >
+                {item.productName}
+              </Typography>
+
+              {/* Quantity */}
+              <Typography
+                sx={{
+                  color: '#666',
+                  textAlign: 'center'
+                }}
+              >
+                × {item.quantity}
+              </Typography>
+
+              {/* Price */}
+              <Typography
+                sx={{
+                  fontWeight: "600",
+                  textAlign: 'right',
+                  color: '#333'
+                }}
+              >
+                ₹ {(item.price * item.quantity).toFixed(2)}
+              </Typography>
             </Box>
           ))}
           <Box sx={{ mt: 2, textAlign: "right" }}>

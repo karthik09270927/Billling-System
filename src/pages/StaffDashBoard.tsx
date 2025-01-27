@@ -18,17 +18,17 @@ import { useCategory } from "../Hooks/useContext";
 import { useSelectedItems } from "../Hooks/productContext";
 import { fetchProductList } from "../utils/api-collection";
 import nodata from '../assets/no-data.png';
+import { NewLoader } from "../centralizedComponents/forms/NewLoader";
 
 
 const StaffDashboard: React.FC = () => {
-  const { subCategories, selectedCategoryId } = useCategory();
+  const { subCategories, selectedCategoryId, isSubCategoriesLoading } = useCategory();
   const { selectedItems, setSelectedItems } = useSelectedItems();
   const [selectedSubcategory, setSelectedSubcategory] = useState<any | null>(null);
   const [filteredBySubcategory, setFilteredBySubcategory] = useState<any[]>([]);
   const [pageNo, setPageNo] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [isSubCategoriesLoading, setIsSubCategoriesLoading] = useState<boolean>(true);
   const [isProductsLoading, setIsProductsLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -87,11 +87,6 @@ const StaffDashboard: React.FC = () => {
     setSearchResults(filtered);
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setIsSubCategoriesLoading(false);
-    }, 1000);
-  }, []);
 
 
   useEffect(() => {
@@ -126,80 +121,88 @@ const StaffDashboard: React.FC = () => {
         }}
       >
         {isSubCategoriesLoading ? (
-          <Skeleton
-            variant="rectangular"
-            width="100%"
-            height="80px"
-            sx={{ mb: 2, borderRadius: "16px" }}
-          />
+          <Box sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "auto",
+          }}>
+            <NewLoader/>
+          </Box>
         ) : (
           <Box sx={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
-            {subCategories.map((subcategory: any) => (
-              <Card
-                key={subcategory.id}
-                onClick={() => handleSubcategorySelect(subcategory)}
-                sx={{
-                  minWidth: "150px",
-                  maxWidth: "220px",
-                  minHeight: "80px",
-                  maxHeight: "120px",
-                  margin: "10px",
-                  borderRadius: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: 0,
-                  position: "relative",
-                  boxShadow:
-                    selectedSubcategory === subcategory
-                      ? "0 4px 12px rgba(116, 213, 43, 0.2)"
-                      : "0 4px 8px rgba(0, 0, 0, 0.1)",
-                  backgroundColor:
-                    selectedSubcategory === subcategory ? "#74D52B" : "#f0f0f0",
-                  color: selectedSubcategory === subcategory ? "white" : "#333",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    backgroundColor: "#74D52B",
-                    color: "white",
-                    transform: "translateY(-3px)",
-                    boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
-                  },
-                  cursor: "pointer",
-                }}
-              >
-                <Badge
-                  showZero
-                  badgeContent={subcategory.count}
-                  color="primary"
+            {subCategories.length === 0 ? (
+              <Typography variant="body1" sx={{ textAlign: "center", color: "#888", mt: 5 }}>
+                No subcategories
+              </Typography>
+            ) : (
+              subCategories.map((subcategory: any) => (
+                <Card
+                  key={subcategory.id}
+                  onClick={() => handleSubcategorySelect(subcategory)}
                   sx={{
-                    position: "absolute",
-                    top: "16px",
-                    right: "18px",
-                    "& .MuiBadge-badge": {
-                      backgroundColor:
-                        selectedSubcategory === subcategory ? "#f9f9f9" : "#74D52B",
-                      color: selectedSubcategory === subcategory ? "#74D52B" : "#ffffff",
-                      fontSize: "12px",
-                      minWidth: "22px",
-                      height: "22px",
-                      boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+                    minWidth: "150px",
+                    maxWidth: "220px",
+                    minHeight: "80px",
+                    maxHeight: "120px",
+                    margin: "10px",
+                    borderRadius: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: 0,
+                    position: "relative",
+                    boxShadow:
+                      selectedSubcategory === subcategory
+                        ? "0 4px 12px rgba(116, 213, 43, 0.2)"
+                        : "0 4px 8px rgba(0, 0, 0, 0.1)",
+                    backgroundColor:
+                      selectedSubcategory === subcategory ? "#74D52B" : "#f0f0f0",
+                    color: selectedSubcategory === subcategory ? "white" : "#333",
+                    transition: "all 0.5s ease out",
+                    "&:hover": {
+                      backgroundColor: "#74D52B",
+                      color: "white",
+                      transform: "translateY(-3px)",
+                      boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
                     },
-                  }}
-                />
-                <Typography
-                  variant="body1"
-                  sx={{
-                    textAlign: "center",
-                    fontWeight: "600",
-                    fontSize: "14px",
-                    ml: 1,
-                    flexGrow: 1,
+                    cursor: "pointer",
                   }}
                 >
-                  {subcategory.subCategoryName}
-                </Typography>
-              </Card>
-            ))}
+                  <Badge
+                    showZero
+                    badgeContent={subcategory.count}
+                    color="primary"
+                    sx={{
+                      position: "absolute",
+                      top: "16px",
+                      right: "18px",
+                      "& .MuiBadge-badge": {
+                        backgroundColor:
+                          selectedSubcategory === subcategory ? "#f9f9f9" : "#74D52B",
+                        color: selectedSubcategory === subcategory ? "#74D52B" : "#ffffff",
+                        fontSize: "12px",
+                        minWidth: "22px",
+                        height: "22px",
+                        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      textAlign: "center",
+                      fontWeight: "600",
+                      fontSize: "14px",
+                      ml: 1,
+                      flexGrow: 1,
+                    }}
+                  >
+                    {subcategory.subCategoryName}
+                  </Typography>
+                </Card>
+              ))
+            )}
           </Box>
         )}
       </Grid>
@@ -231,7 +234,7 @@ const StaffDashboard: React.FC = () => {
             height: "40px",
             backgroundColor: "#fbfbe5",
             borderRadius: "20px",
-            mt: 1,
+            mt: 4,
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
                 border: "none",
@@ -245,26 +248,26 @@ const StaffDashboard: React.FC = () => {
         {/* Displaying Products in Grid */}
         {isProductsLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <CircularProgress />
+            <NewLoader />
           </Box>
         ) : (
           <>
-            <Grid container spacing={3} mt={1}>
+            <Grid container spacing={2} mt={1}>
               {(searchTerm ? searchResults : filteredBySubcategory).length > 0 ? (
                 (searchTerm ? searchResults : filteredBySubcategory).map((item: any) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
                     <Card
                       sx={{
                         backgroundColor: "#ffffff",
-                        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+                        boxShadow: '2px 2px 2px 2px rgba(0, 0, 0, 0.1)',
                         borderRadius: "12px",
                         padding: 1,
                         width: "200px",
                         height: "300px",
                         transition: "transform 0.3s, box-shadow 0.3s",
                         "&:hover": {
-                          transform: "translateY(-5px)",
-                          boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
+                          transform: "translateY(-10px)",
+                          boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)',
                         },
                       }}
                       onClick={() => handleItemClick(item)}

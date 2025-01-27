@@ -10,11 +10,11 @@ const StaffLayout = () => {
           <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Box
               sx={{
-                flexShrink: 0, 
-                position: "sticky", 
-                top: 0, 
-                zIndex: 1, 
-                backgroundColor: "#fff", 
+                flexShrink: 0,
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
+                backgroundColor: "#fff",
               }}
             >
               <Header />
@@ -22,7 +22,7 @@ const StaffLayout = () => {
             <Box
               sx={{
                 flex: 1,
-                overflowY: "auto", 
+                overflowY: "auto",
                 padding: 1,
                 scrollbarWidth: "none",
               }}

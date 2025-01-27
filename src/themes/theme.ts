@@ -49,7 +49,7 @@ export const lightTheme = createTheme({
     Box : {
       styleOverrides: {
         root: {
-          backgroundColor: '#fbfbe5',
+          backgroundColor: '#ffffff',
           color: '#000000',
           boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)',
           borderRadius: '30px',
