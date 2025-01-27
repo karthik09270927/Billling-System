@@ -16,7 +16,7 @@ import logo from '../assets/BrandLogo.png';
 import { loginUser } from '../utils/api-collection';
 import { jwtDecode } from "jwt-decode";
 import { Toasts } from '../centralizedComponents/forms/Toast';
-import { WashingLoader } from '../centralizedComponents/forms/WashingLoader';
+import { MainLoader } from '../centralizedComponents/forms/MainLoader';
 
 
 
@@ -134,7 +134,7 @@ export const LoginPage: React.FC = () => {
           </Typography>
         </motion.div>
         <Typography sx={{ mt: 2 }}>
-          <WashingLoader />
+          <MainLoader />
         </Typography>
 
       </SplashScreen>
@@ -142,11 +142,11 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: '#fbfbe5' }} >
+    <Box>
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
-            <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)', background: '#ffffff' }}>
+            <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", background: '#ffffff' }}>
               <img src={logo} alt="login"
                 style={{
                   width: "100%",

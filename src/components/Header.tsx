@@ -25,7 +25,7 @@ const Header = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const { selectedCategory, setSelectedCategory, setSubCategories, setSelectedCategoryId } = useCategory();
+    const { selectedCategory, setSelectedCategory, setSubCategories, setSelectedCategoryId, setIsSubCategoriesLoading } = useCategory();
     const navigate = useNavigate();
 
     // Fetch categories from the API on component mount
@@ -64,18 +64,27 @@ const Header = () => {
     };
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
-          setSelectedCategory(categoryName); // Set selected category name
-          setSelectedCategoryId(categoryId); // Set selected category ID
-          const response = await fetchSubCategories(categoryId); // Call SubCategoryList API
-          setSubCategories(response.data); // Update subcategories in context
+            setSelectedCategory(categoryName); // Set selected category name
+            setSelectedCategoryId(categoryId); // Set selected category ID
+
+            setSubCategories([]);
+            // Set subcategory loading state to true before API call
+            setIsSubCategoriesLoading(true);
+
+            const response = await fetchSubCategories(categoryId); // Call SubCategoryList API
+            setSubCategories(response.data); // Update subcategories in context
+
+            // Set subcategory loading state to false after the API call
+            setIsSubCategoriesLoading(false);
         } catch (error) {
-          console.error("Error fetching subcategories:", error);
+            console.error("Error fetching subcategories:", error);
+            setIsSubCategoriesLoading(false); // Ensure loading state is false on error
         }
-      };
-      
+    };
+
 
     return (
-        <Box>
+        <Box sx={{ borderBottom: '2px solid #e0e0e0' }}>
             {/* Floating Menu Icon */}
             {!isHeaderOpen && (
                 <IconButton
@@ -83,13 +92,13 @@ const Header = () => {
                     sx={{
                         position: "fixed",
                         top: 10,
-                        left: 10,
+                        left: '43rem',
                         backgroundColor: "#fff",
                         boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                         zIndex: 1000,
                     }}
                 >
-                    <ExpandMoreIcon sx={{ fontSize: 20, color: "#333" }} />
+                    <ExpandMoreIcon  sx={{ fontSize: 20, color: "#333" }} />
                 </IconButton>
             )}
             {/* Header Section */}
@@ -132,6 +141,8 @@ const Header = () => {
                                 })}
                             </Typography>
                         </Grid>
+
+                        
 
                         {/* Search Bar, QR Code, and Logout Icons */}
                         <Grid item xs>

@@ -81,7 +81,7 @@ const UpdatePassword: React.FC = () => {
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
-            <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%", boxShadow: '4px 4px 6px 6px rgba(0, 0, 0, 0.1)', background: '#ffffff' }}>
+            <Box sx={{ borderRadius: "20px", overflow: "hidden", mt: 2, mx: 2, height: "95%",  background: '#ffffff' }}>
               <img src={logo} alt="login"
                 style={{
                   width: "100%",
