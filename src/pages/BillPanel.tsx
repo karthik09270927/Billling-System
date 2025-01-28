@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -15,19 +15,23 @@ import {
   Select,
   InputAdornment,
   CardMedia,
+  IconButton,
+  Stack,
 } from "@mui/material";
 import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { Toasts } from "../centralizedComponents/forms/Toast";
-import { saveBill } from "../utils/api-collection";
+import { getProductInfoById, getUserDetails, saveBill } from "../utils/api-collection";
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import CloseIcon from '@mui/icons-material/Close';
+import { Html5QrcodeScanner } from "html5-qrcode";
+import successSound from '../assets/sounds/success.mp3';
+import errorSound from '../assets/sounds/error.mp3';
 
-interface OrderItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
+
+
+
 
 interface RightPanelProps {
   customerName?: string;
@@ -36,18 +40,25 @@ interface RightPanelProps {
 
 const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) => {
   const { selectedItems, setSelectedItems } = useSelectedItems();
+  const [isLoadingUser, setIsLoadingUser] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false); // Loading state for API
-  const [isOrderPlaced, setIsOrderPlaced] = useState(false); // Track if order is placed
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [phoneNumber, setPhoneNumber] = useState(""); // Customer phone number
   const [name, setName] = useState(customerName || ""); // Customer name
   const [email, setEmail] = useState(""); // Customer address
+  const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
+  const scannerRef = useRef<any>(null);
+  const successAudioRef = useRef(new Audio(successSound));
+  const errorAudioRef = useRef(new Audio(errorSound));
+  const [isScanning, setIsScanning] = useState(false);
   const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'Online'>('Cash');
+  const [scannedBarcodes, setScannedBarcodes] = useState<Set<number>>(new Set());
   const [errors, setErrors] = useState({
     name: '',
     phoneNumber: '',
     email: '',
-    paymentMode: ''
+    paymentMode: '',
+    products: ''
   });
 
   const resetForm = () => {
@@ -59,7 +70,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
       name: '',
       phoneNumber: '',
       email: '',
-      paymentMode: ''
+      paymentMode: '',
+      products: ''
     });
   };
 
@@ -68,8 +80,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
     const isPhoneValid = /^\d{10}$/.test(phoneNumber);
     const isEmailValid = /^[a-zA-Z0-9._-]+$/.test(email);
     const isPaymentSelected = !!paymentMode;
+    const hasMinimumProducts = selectedItems.length > 0;
 
-    return isNameValid && isPhoneValid && isEmailValid && isPaymentSelected;
+    return isNameValid && isPhoneValid && isEmailValid && isPaymentSelected && hasMinimumProducts;
   };
 
   const validateFields = () => {
@@ -77,7 +90,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
       name: '',
       phoneNumber: '',
       email: '',
-      paymentMode: ''
+      paymentMode: '',
+      products: ''
     };
 
     // Name validation
@@ -106,6 +120,10 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
       newErrors.paymentMode = 'Select payment mode';
     }
 
+    if (selectedItems.length === 0) {
+      newErrors.products = 'Add at least one product';
+    }
+
     setErrors(newErrors);
     return !Object.values(newErrors).some(error => error !== '');
   };
@@ -116,10 +134,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
     return emailRegex.test(email);
   };
 
-
-
   const calculateTotal = () => {
-    return selectedItems?.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
+    return selectedItems?.reduce((acc, item) => acc + item.id * item.quantity, 0).toFixed(2);
   };
 
 
@@ -137,11 +153,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
     try {
       const billData = {
         userName: name,
-        userEmail: email + '@gmail.com',
+        userEmail: email + '@coherent.in',
         userPhone: phoneNumber,
         paymentMode: paymentMode,
         products: selectedItems.map(item => ({
-          productId: item.id,
+          productId: item.productId,
           quantity: item.quantity
         }))
       };
@@ -166,6 +182,113 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
     }
   };
 
+  const handlePhoneNumberChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setPhoneNumber(value);
+
+    // Only fetch when 10 digits entered
+    if (value.length === 10) {
+      setIsLoadingUser(true);
+      try {
+        const userData = await getUserDetails(value);
+        if (userData?.userName && userData?.userEmail) {
+          setName(userData.userName);
+          setEmail(userData.userEmail.split('@')[0]); // Remove @coherent.in
+        }
+      } catch (error) {
+        setName('');
+        setEmail('');
+        console.error('Error:', error);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    } else if (value.length < 10) {
+      setName('');
+      setEmail('');
+    }
+  };
+
+  const initializeScanner = () => {
+    scannerRef.current = new Html5QrcodeScanner("qr-reader", {
+      fps: 10,
+      qrbox: 350,
+    }, false);
+
+    scannerRef.current.render(onScanSuccess, onScanError);
+  };
+
+  const onScanSuccess = async (decodedText: string) => {
+    try {
+      const productId = parseInt(decodedText);
+
+      if (scannedBarcodes.has(productId)) {
+        errorAudioRef.current.play();
+        Toasts({
+          message: 'This product is already in your order',
+          type: 'error'
+        });
+        return; // Keep scanner open
+      }
+      const productInfo = await getProductInfoById(productId);
+
+      if (productInfo) {
+        successAudioRef.current.play();
+        const newItem = {
+          id: productInfo.id,
+          productId: productInfo.productId,
+          productName: productInfo.productName,
+          sellingPrice: productInfo.sellingPrice,
+          image: productInfo.productImage,
+          mrpPrice: productInfo.mrpPrice,
+          quantity: 1,
+          weightage: productInfo.weightage,
+          mfgDate: productInfo.mfgDate,
+          expDate: productInfo.expDate
+        };
+
+        setSelectedItems(prev => {
+          const existingItem = prev.find(item => item.id === newItem.id);
+          if (existingItem) {
+            errorAudioRef.current.play();
+            return prev
+          } else {
+            return [...prev, newItem];
+          }
+        });
+
+      }
+    } catch (error) {
+      errorAudioRef.current.play();
+      console.error('Error processing scanned code:', error);
+      Toasts({ message: 'Error processing scanned code', type: 'error' });
+    }
+  };
+
+  const onScanError = (error: any) => {
+    errorAudioRef.current.play();
+    console.warn(error);
+  };
+
+  const stopScanner = () => {
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopScanner();
+    };
+  }, []);
+
+  // Update QR Icon click handler
+  const handleQrIconClick = () => {
+    setIsQrScannerOpen(true);
+    setTimeout(() => {
+      initializeScanner();
+    }, 100);
+  };
+
   return (
     <Grid item sx={{ height: "100vh" }}>
       <Card elevation={1} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -185,10 +308,45 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           <Typography variant="body1" sx={{ fontWeight: "bold", color: '#74D52B' }}>
             "FRESH HYPERMARKET"
           </Typography>
-          <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666" }}>
-            Order #{orderNumber}
-          </Typography>
+          <IconButton
+            size="medium"
+            onClick={handleQrIconClick}
+            sx={{
+              '&:hover': {
+                backgroundColor: '#74D52B)'
+              }
+            }}
+          >
+            <QrCode2Icon sx={{
+              '&:hover': {
+                color: '#74D52B)'
+              }
+            }} />
+          </IconButton>
         </Box>
+
+        <Dialog
+          open={isQrScannerOpen}
+          onClose={() => {
+            stopScanner();
+            setIsQrScannerOpen(false);
+          }}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogContent>
+            <IconButton
+              sx={{ position: 'absolute', right: 8, top: 8 }}
+              onClick={() => {
+                stopScanner();
+                setIsQrScannerOpen(false);
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+            <div id="qr-reader" style={{ width: '100%' }} />
+          </DialogContent>
+        </Dialog>
 
         <Box
           sx={{
@@ -242,52 +400,105 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 </Box>
 
                 {/* Row 2: Quantity Controls */}
-                <Box
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  justifyContent="flex-end" // Add this
                   sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                    marginTop: 1,
-                    gap: 1,
+                    width: '100%',  // Add this
+                    marginLeft: 'auto' // Add this if needed
                   }}
                 >
-                  <Button
+                  <IconButton
                     size="small"
-                    onClick={() =>
-                      setSelectedItems((prevItems) =>
-                        prevItems
-                          .map((i) =>
-                            i.id === item.id
-                              ? { ...i, quantity: i.quantity - 1 }
-                              : i
-                          )
-                          .filter((i) => i.quantity > 0) // Remove item if quantity becomes 0
+                    onClick={() => {
+                      setSelectedItems(prevItems =>
+                        prevItems.map(item =>
+                          item.id === item.id
+                            ? { ...item, quantity: item.quantity - 1 }
+                            : item
+                        ).filter(item => item.quantity > 0) // Remove items with 0 quantity
                       )
-                    }
+                    }}
                   >
                     <RemoveIcon sx={{ color: 'red' }} />
-                  </Button>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", minWidth: 24, textAlign: "center" }}
-                  >
-                    {item.quantity}
-                  </Typography>
-                  <Button
+                  </IconButton>
+                  <TextField
                     size="small"
-                    onClick={() =>
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const newValue = parseInt(e.target.value) || '';
+                      const validQuantity = Math.min(Math.max(Number(newValue), 0), 999);
+
+                      setSelectedItems((prevItems) =>
+                        prevItems.map((i) =>
+                          i.id === item.id
+                            ? { ...i, quantity: validQuantity }
+                            : i
+                        )
+
+                      );
+                    }}
+                    InputProps={{
+                      inputProps: {
+                        min: 1,
+                        max: 999,
+                        style: {
+                          textAlign: 'center',
+                          MozAppearance: 'textfield',
+                        }
+                      },
+                      sx: {
+                        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                          '-webkit-appearance': 'none',
+                          margin: 0,
+                          borderRadius: '4px',
+                          backgroundColor: '#f5f5f5',
+                          '&:hover': {
+                            backgroundColor: '#eeeeee'
+                          }
+                        }
+                      },
+                    }}
+                    sx={{
+                      width: '70px',
+                      '& input': {
+                        padding: '6px',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        color: '#333'
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: '#ddd',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#999',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#666',
+                        }
+                      }
+                    }}
+                  />
+
+                  <IconButton
+                    size="small"
+                    onClick={() => {
                       setSelectedItems((prevItems) =>
                         prevItems.map((i) =>
                           i.id === item.id
                             ? { ...i, quantity: i.quantity + 1 }
                             : i
                         )
-                      )
-                    }
+                      );
+                    }}
                   >
                     <AddIcon sx={{ color: '#74D52B' }} />
-                  </Button>
-                </Box>
+                  </IconButton>
+                </Stack>
 
                 {/* Row 3: Product Price */}
                 <Box
@@ -298,7 +509,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    ₹ {(item.price * item.quantity).toFixed(2)}
+                    ₹ {(item.id * item.quantity).toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
@@ -316,29 +527,63 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
 
         <Box
           sx={{
-            height: "80px",
-            padding: 2,
-            flexShrink: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            backgroundColor: '#fff',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            padding: 3,
+            marginTop: 2
           }}
         >
-          <Button
-            variant="contained"
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Typography color="text.secondary">Subtotal:</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography align="right">
+                ₹{selectedItems.reduce((sum, item) => sum + (item.id * item.quantity), 0).toFixed(2)}
+              </Typography>
+            </Grid>
 
-            fullWidth
-            sx={{
-              height: "50px",
-              backgroundColor: "#74D52B",
-              fontSize: "16px",
-              fontWeight: "bold",
-              borderRadius: "8px",
-            }}
-            onClick={() => setIsModalOpen(true)}
-          >
-            Confirm
-          </Button>
+            {/* <Grid item xs={6}>
+              <Typography color="text.secondary">GST (18%):</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography align="right">
+                ₹{(selectedItems.reduce((sum, item) => sum + (item.id * item.quantity), 0) * 0.18).toFixed(2)}
+              </Typography>
+            </Grid> */}
+
+            <Grid item xs={6}>
+              <Typography variant="h6" fontWeight="bold">Total:</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6" align="right" fontWeight="bold">
+                ₹{(selectedItems.reduce((sum, item) => sum + (item.id * item.quantity), 0)).toFixed(2)}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box sx={{ mt: 2, borderTop: '1px solid #e0e0e0', pt: 2 }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    height: "50px",
+                    backgroundColor: "#74D52B",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    borderRadius: "8px",
+                    '&:hover': {
+                      backgroundColor: "#5fb321"
+                    }
+                  }}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Confirm
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
       </Card>
 
@@ -362,6 +607,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             borderRadius: 10,
             overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+            height: '90vh',
+            display: 'flex',
+            flexDirection: 'column'
           }
         }}
       >
@@ -377,10 +625,46 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           }}
         >
           Confirm Order
-        </DialogTitle>        <DialogContent>
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '20px',
+            '&::-webkit-scrollbar': {
+              width: '8px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#bdbdbd',
+              borderRadius: '4px'
+            }
+          }}
+        >
           <Box sx={{ marginBottom: 2 }}>
             <Typography variant="h6">Billing Details</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2, mt: 1 }}>
+              <TextField
+                label="Phone Number"
+                value={phoneNumber}
+                onChange={handlePhoneNumberChange}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber}
+                required
+                fullWidth
+                InputProps={{
+                  endAdornment: isLoadingUser && (
+                    <InputAdornment position="end">
+                      <CircularProgress size={20} />
+                    </InputAdornment>
+                  )
+                }}
+                inputProps={{
+                  maxLength: 10,
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*'
+                }}
+              />
+
               <TextField
                 label="Customer Name"
                 value={name}
@@ -389,23 +673,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 helperText={errors.name}
                 required
                 fullWidth
-                sx={{
-                  '& .MuiFormHelperText-root': {
-                    color: '#d32f2f'
-                  }
-                }}
-              />
-
-              <TextField
-                label="Phone Number"
-                type="number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                error={!!errors.phoneNumber}
-                helperText={errors.phoneNumber}
-                required
-                fullWidth
-                inputProps={{ maxLength: 10 }}
+                disabled={isLoadingUser}
               />
             </Box>
 
@@ -422,13 +690,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                 const baseEmail = value.replace(/@gmail\.com$/, '');
                 setEmail(baseEmail);
               }}
-              // error={email.length > 0 && !isValidEmail(email + '@gmail.com')}
-              // helperText={
-              //   email.length > 0 && !isValidEmail(email + '@gmail.com')
-              //     ? 'Please enter a valid email'
-              //     : ''
-              // }
               fullWidth
+              disabled={isLoadingUser}
               margin="normal"
               InputProps={{
                 endAdornment: (
@@ -440,7 +703,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                         fontSize: '14px'
                       }}
                     >
-                      @gmail.com
+                      @coherent.in
                     </Typography>
                   </InputAdornment>
                 ),
@@ -500,70 +763,95 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           </Box>
 
           {/* Products List */}
-          <Typography variant="h6">Products</Typography>
-          {selectedItems.map((item) => (
+          <Box sx={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+            {/* Fixed Header */}
             <Box
-              key={item.id}
               sx={{
                 display: "grid",
                 gridTemplateColumns: "60px 2fr 1fr 1fr",
-                alignItems: "center",
                 gap: 2,
-                mb: 2,
-                p: 1,
-                borderRadius: '8px'
+                p: 2,
+                borderBottom: '1px solid #e0e0e0',
+                backgroundColor: '#f5f5f5',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
               }}
             >
-              {/* Product Image */}
-              <CardMedia
-                component="img"
-                image={`data:image/jpeg;base64,${item.image}`}
-                alt={item.productName}
-                sx={{
-                  width: 50,
-                  height: 50,
-                  objectFit: "cover",
-                  borderRadius: '4px'
-                }}
-              />
-
-              {/* Product Name */}
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: "bold",
-                  color: '#333'
-                }}
-              >
-                {item.productName}
-              </Typography>
-
-              {/* Quantity */}
-              <Typography
-                sx={{
-                  color: '#666',
-                  textAlign: 'center'
-                }}
-              >
-                × {item.quantity}
-              </Typography>
-
-              {/* Price */}
-              <Typography
-                sx={{
-                  fontWeight: "600",
-                  textAlign: 'right',
-                  color: '#333'
-                }}
-              >
-                ₹ {(item.price * item.quantity).toFixed(2)}
-              </Typography>
+              <Typography variant="subtitle2">Image</Typography>
+              <Typography variant="subtitle2">Product</Typography>
+              <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>Qty</Typography>
+              <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>Price</Typography>
             </Box>
-          ))}
-          <Box sx={{ mt: 2, textAlign: "right" }}>
-            <Typography variant="h6">Total: ₹ {calculateTotal()}</Typography>
+
+            {/* Scrollable Content */}
+            <Box sx={{
+              overflowY: 'auto',
+              flex: 1,
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#bdbdbd',
+                borderRadius: '4px',
+              }
+            }}>
+              {selectedItems.map((item) => (
+                <Box
+                  key={item.id}
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "60px 2fr 1fr 1fr",
+                    alignItems: "center",
+                    gap: 2,
+                    p: 2,
+                    borderBottom: '1px solid #f0f0f0',
+                    '&:hover': {
+                      backgroundColor: '#fafafa'
+                    }
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    image={`data:image/jpeg;base64,${item.image}`}
+                    alt={item.productName}
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      objectFit: "cover",
+                      borderRadius: '4px'
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: '#333' }}>
+                    {item.productName}
+                  </Typography>
+                  <Typography sx={{ color: '#666', textAlign: 'center' }}>
+                    × {item.quantity}
+                  </Typography>
+                  <Typography sx={{ fontWeight: "600", textAlign: 'right', color: '#333' }}>
+                    ₹ {(item.id * item.quantity).toFixed(2)}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+
           </Box>
         </DialogContent>
+        <Box sx={{
+          borderTop: '1px solid #e0e0e0',
+          padding: '16px 24px',
+          display: 'grid',
+          gridTemplateColumns: '2fr auto',
+          alignItems: 'center',
+          gap: 2
+        }}>
+          <Typography variant="h6" fontWeight="bold">
+
+          </Typography>
+          <Typography fontWeight="bold" sx={{ fontSize: 18 }} >
+            Total Amount : ₹ {calculateTotal()}
+          </Typography>
+        </Box>
         <DialogActions
           sx={{
             display: 'flex',

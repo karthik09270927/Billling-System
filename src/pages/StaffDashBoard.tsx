@@ -307,15 +307,15 @@ const StaffDashboard: React.FC = () => {
                         >
                           {item.productName}
                         </Typography>
-                        <Typography
+                        {/* <Typography
                           variant="body2"
                           sx={{
                             fontSize: "16px",
-                            color: "#777",
+                            color: "red",
                           }}
                         >
-                          ₹ {item.mrpPrice ? item.mrpPrice.toFixed(2) : "N/A"}
-                        </Typography>
+                          ₹ {item.id ? item.id.toFixed(2) : "Price Unavailable"}
+                        </Typography> */}
                       </CardContent>
                     </Card>
                   </Grid>

@@ -160,6 +160,25 @@ export const saveBill = async (billData: {
   }
 };
 
+export const getUserDetails = async (phoneNumber: string): Promise<any> => {
+  try {
+    const response = await API.get<{ data: any }>(`/billingProduct/getUserDetails?userPhone=${phoneNumber}`);
+    return response.data?.data;
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    return null;
+  }
+};
+
+export const getProductInfoById = async (id: number) => {
+  try {
+    const response = await API.get<{ data: any }>(`/billing/productsInfo?id=${id}`);
+    return response.data?.data;
+  } catch (error) {
+    console.error('Error fetching product info:', error);
+    throw error;
+  }
+};
 
 
 export const forgotPassword = async (userEmail: string): Promise<any> => {
