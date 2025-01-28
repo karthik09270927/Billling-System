@@ -1,23 +1,24 @@
-import axios from 'axios';
-import { API_ENDPOINTS } from './endpoint';
-import { Toasts } from '../centralizedComponents/forms/Toast';
+import axios from "axios";
+import { API_ENDPOINTS } from "./endpoint";
+import { Toasts } from "../centralizedComponents/forms/Toast";
 
 
 const API = axios.create({
-  baseURL: 'https://primustt-backend-dev.coherent.in',
+  baseURL: "https://primustt-backend-dev.coherent.in",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 10000,
 });
 
 const refreshToken = async (): Promise<string | null> => {
   try {
-    const tokenData = localStorage.getItem('refreshToken');
-    const userId = JSON.parse(atob(tokenData?.split('.')[1] || '')).id;
-    if (!tokenData || !userId) throw new Error('Invalid refreshToken or userId');
+    const tokenData = localStorage.getItem("refreshToken");
+    const userId = JSON.parse(atob(tokenData?.split(".")[1] || "")).id;
+    if (!tokenData || !userId)
+      throw new Error("Invalid refreshToken or userId");
 
-    const response = await API.post('/auth/refreshToken', {
+    const response = await API.post("/auth/refreshToken", {
       refreshToken: tokenData,
       userId,
     });
@@ -25,26 +26,26 @@ const refreshToken = async (): Promise<string | null> => {
     const { accessToken, refreshToken } = (response.data as any).data || {};
 
     // Save new tokens
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
     return accessToken;
   } catch (error) {
-    console.error('Failed to refresh token:', error);
+    console.error("Failed to refresh token:", error);
     return null;
   }
 };
 
-
 // Request Interceptor
 API.interceptors.request.use(
   (config: any) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (
       token &&
-      !["/auth/authenticate", "/auth/refreshToken"].some((url) => config.url?.includes(url))
+      !["/auth/authenticate", "/auth/refreshToken"].some((url) =>
+        config.url?.includes(url)
+      )
     ) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -56,8 +57,7 @@ API.interceptors.request.use(
 // Response Interceptor
 API.interceptors.response.use(
   (response: any) => {
-    setTimeout(() => {
-    }, 1000);
+    setTimeout(() => {}, 1000);
     return response;
   },
   async (error: any) => {
@@ -67,58 +67,63 @@ API.interceptors.response.use(
     if (error.response?.status === 403) {
       const newToken = await refreshToken();
       if (newToken && originalRequest) {
-        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-        return API(originalRequest); // Retry the original request with the new token
+        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+        return API(originalRequest);
       } else {
         localStorage.clear();
-        window.location.href = '/auth/authenticate';
+        window.location.href = "/auth/authenticate";
         window.location.reload();
       }
     }
-    Toasts((error.response?.data as any).message || 'Something went wrong');
+    Toasts((error.response?.data as any).message || "Something went wrong");
     return Promise.reject(error);
   }
 );
 
-
-
-
-export const loginUser = async (employeeCode: string, password: string): Promise<any> => {
+export const loginUser = async (
+  employeeCode: string,
+  password: string
+): Promise<any> => {
   try {
-    const response = await API.post(API_ENDPOINTS.LOGIN, { employeeCode, password });
-    console.log('API Response:', response);
+    const response = await API.post(API_ENDPOINTS.LOGIN, {
+      employeeCode,
+      password,
+    });
+    console.log("API Response:", response);
     const { accessToken, refreshToken } = (response.data as any).data || {};
     if (accessToken && refreshToken) {
-      localStorage.setItem('accessToken', accessToken);
-      console.log('Access Token:', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      console.log('Refresh Token:', refreshToken);
+      localStorage.setItem("accessToken", accessToken);
+      console.log("Access Token:", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      console.log("Refresh Token:", refreshToken);
     } else {
-      throw new Error('Tokens are missing from the response');
+      throw new Error("Tokens are missing from the response");
     }
 
     return response.data;
   } catch (error: any) {
-    console.error('Login Error:', error);
-    throw error.response?.data?.message || 'Something went wrong';
+    console.error("Login Error:", error);
+    throw error.response?.data?.message || "Something went wrong";
   }
 };
-
-
 
 export const fetchCategories = async (): Promise<any> => {
   try {
-    const response = await API.get('/billing/productCategoryListDropDown');
+    const response = await API.get("/billing/productCategoryListDropDown");
     return (response.data as any).data;
   } catch (error: any) {
-    console.error('Error fetching categories:', error);
-    throw (error.response?.data as { message: string })?.message || 'Something went wrong';
+    console.error("Error fetching categories:", error);
+    throw (
+      (error.response?.data as { message: string })?.message ||
+      "Something went wrong"
+    );
   }
 };
 
-
 export const fetchSubCategories = async (categoryId: number) => {
-  const response = await API.get<{ data: any }>(`/billing/productSubCategoryListDropDown?id=${categoryId}`);
+  const response = await API.get<{ data: any }>(
+    `/billing/productSubCategoryListDropDown?id=${categoryId}`
+  );
   if (response.status !== 200) throw new Error("Failed to fetch subcategories");
   return response.data;
 };
@@ -152,10 +157,10 @@ export const saveBill = async (billData: {
   products: Array<{ productId: number; quantity: number }>;
 }) => {
   try {
-    const response = await API.post('/billingProduct/saveBill', billData);
+    const response = await API.post("/billingProduct/saveBill", billData);
     return response.data;
   } catch (error) {
-    console.error('Error saving bill:', error);
+    console.error("Error saving bill:", error);
     throw error;
   }
 };
@@ -183,38 +188,51 @@ export const getProductInfoById = async (id: number) => {
 
 export const forgotPassword = async (userEmail: string): Promise<any> => {
   try {
-    const response = await API.post(API_ENDPOINTS.FORGOT_PASSWORD, { userEmail });
+    const response = await API.post(API_ENDPOINTS.FORGOT_PASSWORD, {
+      userEmail,
+    });
     if (response.status === 200) {
       return response.data;
     } else {
       throw new Error(`Request failed with status code ${response.status}`);
     }
   } catch (error: any) {
-    console.error('Error sending OTP:', error.response?.data || error);
-    throw error.response?.data?.message || 'Something went wrong';
+    console.error("Error sending OTP:", error.response?.data || error);
+    throw error.response?.data?.message || "Something went wrong";
   }
 };
 
-export const updatePassword = async (mail: string, password: string): Promise<any> => {
+export const updatePassword = async (
+  mail: string,
+  password: string
+): Promise<any> => {
   try {
-    const response = await API.post(API_ENDPOINTS.UPDATE_PASSWORD, { mail, password });
+    const response = await API.post(API_ENDPOINTS.UPDATE_PASSWORD, {
+      mail,
+      password,
+    });
     return response.data;
   } catch (error: any) {
-    console.error('Error updating password:', error.response?.data || error);
-    throw error.response?.data?.message || 'Failed to update password';
+    console.error("Error updating password:", error.response?.data || error);
+    throw error.response?.data?.message || "Failed to update password";
   }
 };
 
-export const verifyOTP = async (userEmail: string, otp: string): Promise<any> => {
+export const verifyOTP = async (
+  userEmail: string,
+  otp: string
+): Promise<any> => {
   try {
-    const response = await API.post(API_ENDPOINTS.VERIFY_OTP, { userEmail, otp });
+    const response = await API.post(API_ENDPOINTS.VERIFY_OTP, {
+      userEmail,
+      otp,
+    });
     return response.data;
   } catch (error: any) {
     console.error("Error verifying OTP:", error.response?.data || error);
     throw error.response?.data || { message: "An unknown error occurred" };
   }
 };
-
 
 const base64ToFile = (base64String: string, fileName: string): File => {
   const byteString = atob(base64String.split(",")[1]);
@@ -229,18 +247,21 @@ const base64ToFile = (base64String: string, fileName: string): File => {
 };
 
 export const postProductCategory = async (
-  taskProject: { id: any; categoryName: string; subCategoryName: string[] },
+  taskProject: { id: any; categoryName: string; subCategory:{ id: number[] | null; subCategoryName: string }[] },
   base64Image: string
 ): Promise<any> => {
   try {
-
     const imageFile = base64ToFile(base64Image, "uploaded_image.jpg");
-
+    const formattedTaskProject = {
+      ...taskProject,
+      subCategory: taskProject.subCategory.map(sub => ({
+        ...sub,
+        id: Array.isArray(sub.id) ? (sub.id[0] !== null ? sub.id[0] : undefined) : (sub.id !== null ? sub.id : undefined), 
+      }))
+    };
     const formData = new FormData();
-    formData.append("taskProject", JSON.stringify(taskProject));
+    formData.append("taskProject", JSON.stringify(formattedTaskProject));
     formData.append("image", imageFile);
-
-    // Make API call
     const response = await API.post(`/billing/productSubCategory`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -249,10 +270,14 @@ export const postProductCategory = async (
 
     return response.data;
   } catch (error: any) {
-    console.error("Error posting product category:", error.response?.data || error);
+    console.error(
+      "Error posting product category:",
+      error.response?.data || error
+    );
     throw error.response?.data?.message || "Failed to post product category";
   }
 };
+
 
 
 export const fetchUpdateProductCategory = async (selectedCategoryId: number) => {
@@ -260,3 +285,16 @@ export const fetchUpdateProductCategory = async (selectedCategoryId: number) => 
   if (response.status !== 200) throw new Error("Failed to fetch subcategories");
   return response.data;
 };
+
+// User History
+
+export const fetchUserList = async () => {
+  const response = await API.get(`/billingProduct/userHistory`);
+  return response.data;   
+};
+
+export const getProductList = async ( search: string, pageNo: number, pageSize: number, productCategoryId: number, subProductCategoryId: number) => {
+  const response = await API.get(`/billing/productsList?search=${search}&pageNo=${pageNo}&pageSize=${pageSize}&productCategoryId=${productCategoryId}&subProductCategoryId=${subProductCategoryId}`);
+  return response.data;   
+};
+

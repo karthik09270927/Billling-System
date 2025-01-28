@@ -16,6 +16,7 @@ const navItems = [
   //   { name: "Dashboard", path: "/layout/dashboard" },
   { name: "Product Management", path: "/admin-dashboard/productmanagement" },
   { name: "User History", path: "/admin-dashboard/userhistory" },
+  { name: "Product List", path: "/admin-dashboard/productList" },
 ];
 
 

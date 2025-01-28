@@ -10,11 +10,6 @@ import {
     CardContent,
     CardMedia,
     Button,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
     Modal,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -23,18 +18,21 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { useNavigate } from "react-router-dom";
 import { fetchCategories, fetchSubCategories, fetchUpdateProductCategory, postProductCategory } from "../utils/api-collection";
 import EditIcon from '@mui/icons-material/Edit'
 import {
-
     List,
     ListItem,
     ListItemText,
     ListItemSecondaryAction,
 } from "@mui/material";
 import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import { addProductBoxStyle, AdminHeaderBoxStyle, AdminHeaderIconEditStyle, AdminHeaderIconStyle, AdminHeaderSubBoxStyle, BoxcardStyle, cardBoxStyle, editIconCardStyle, madalCardStyle, modalBoxStyle, modalBoxStyle2, TextFieldStyle, uploadImageStyle } from "../styles/admin.style";
 
+interface SubCategory {
+    id: number;
+    subCategoryName: string;
+}
 
 const AdminHeader = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
@@ -49,18 +47,17 @@ const AdminHeader = () => {
     const [subCategory, setSubCategory] = useState<string[]>([]);
     const [step, setStep] = useState(1); // Step tracker
     const [editIndex, setEditIndex] = useState<number | null>(null);
-
+    const [productId, setProductId] = useState<number | null>(null);
+    const [selectSubCategoryId, setSelectSubCategoryId] = useState<number[]>([]);
 
     const getCategories = async () => {
         try {
             const data = await fetchCategories();
-            setCategories(data); // Set the fetched categories
+            setCategories(data); 
         } catch (error) {
             console.error("Error fetching categories:", error);
         }
     };
-
-
 
     const toggleHeader = () => {
         setIsHeaderOpen((prev) => !prev);
@@ -73,17 +70,11 @@ const AdminHeader = () => {
                 left: scrollAmount,
                 behavior: "smooth",
             });
-        }
-    };
+        }};
 
     const handleShowEdit = () => {
         setEditProduct((prev) => !prev);
         console.log(editProduct);
-
-    };
-
-    const handleAddItem = () => {
-
 
     };
 
@@ -94,17 +85,20 @@ const AdminHeader = () => {
         setSubCategoryName("");
         setSubCategory([]);
         setStep(1);
-
     };
 
     const getUpdateProductCategory = async (categoryId: number) => {
         try {
             const data = await fetchUpdateProductCategory(categoryId);
-            console.log("updateGet",data);
+            console.log(data);
+            
             setItemName(data.data.categoryName);
             setUploadedImage(`data:image/jpeg;base64,${data.data.image}`);
-            setSubCategory([...data.data.subCategory]);
-            
+            const extractedSubCategories = data.data.subCategory.map((sub:any) => sub.subCategoryName);
+            setSubCategory(extractedSubCategories);
+            const extractedSubCategoriesId = data.data.subCategory.map((sub:any) => sub.id);
+            setSelectSubCategoryId(extractedSubCategoriesId);
+            setProductId(categoryId)
         } catch (error) {
             console.error("Error fetching subcategories:", error);
         }
@@ -113,17 +107,7 @@ const AdminHeader = () => {
     const handleEdit = (categoryId: number) => {
         getUpdateProductCategory(categoryId);
         setIsModalOpen(true);
-        console.log("edit");
-
-
     };
-
-
-    const handleDelete = () => {
-        console.log("delete");
-
-    };
-
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
             setSelectedCategory(categoryName);
@@ -164,9 +148,6 @@ const AdminHeader = () => {
         }
     };
 
-
-
-
     const handleRemoveSubCategory = (index: number) => {
         setSubCategory(subCategory.filter((_, i) => i !== index));
     };
@@ -176,41 +157,31 @@ const AdminHeader = () => {
         setEditIndex(index);
     };
 
-
-
     const handleSubmit = async () => {
-        console.log("Category Name:", itemName);
-        console.log("Uploaded Image:", uploadedImage);
-        console.log("Sub Categories:", subCategory);
-
-        try {
+        try {     
             const taskProject = {
-                id: null,
+                id: editProduct ? productId : null, 
                 categoryName: itemName,
-                subCategoryName: subCategory,
+                subCategory: subCategory.map((name) => ({
+                    id: editProduct ? selectSubCategoryId : null, 
+                    subCategoryName: name,
+                })),
             };
-
             if (!uploadedImage) {
                 throw new Error("Please upload an image before submitting.");
             }
-
             const response = await postProductCategory(taskProject, uploadedImage);
-            console.log("Submission successful:", response);
             getCategories();
-
             setIsModalOpen(false);
             setUploadedImage(null);
             setItemName("");
             setSubCategoryName("");
             setSubCategory([]);
             setStep(1);
-
         } catch (error) {
             console.error("Error during submission:", error);
         }
     };
-
-
 
     const handleNext = () => {
         if (step === 1) {
@@ -222,59 +193,27 @@ const AdminHeader = () => {
         getCategories();
     }, []);
 
-
-
-
     return (
         <Box sx={{ pt: 0 }}>
-            {/* Floating Menu Icon */}
             {!isHeaderOpen && (
                 <IconButton
                     onClick={toggleHeader}
-                    sx={{
-                        position: "fixed",
-                        top: 90,
-                        left: 16,
-                        backgroundColor: "#fff",
-                        boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                        zIndex: 1000,
-                    }}
-                >
+                    sx={AdminHeaderBoxStyle} >
                     <ExpandMoreIcon sx={{ fontSize: 20, color: "#333" }} />
                 </IconButton>
             )}
 
-            {/* Header Section */}
             <Box
-                sx={{
-                    backgroundColor: "#fff",
-                    borderBottom: "1px solid #ddd",
-                    padding: isHeaderOpen ? "8px 16px" : "0 16px",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                    height: isHeaderOpen ? "auto" : 0,
-                    overflow: "hidden",
-                    transition: "height 0.4s ease, padding 0.4s ease",
-                }}
-            >
+                sx={{...AdminHeaderSubBoxStyle, padding: isHeaderOpen ? "8px 16px" : "0 16px", height: isHeaderOpen ? "auto" : 0,}} >
                 {isHeaderOpen && (
                     <Grid container alignItems="center" spacing={2}>
-                        {/* Close Icon */}
                         <Grid item>
                             <IconButton onClick={toggleHeader}
-                                sx={{
-                                    position: "fixed",
-                                    top: 80,
-                                    left: 16,
-                                    backgroundColor: "#fff",
-                                    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                                    zIndex: 1000,
-                                }}
-                            >
+                                sx={AdminHeaderIconStyle}>
                                 <ExpandLessIcon sx={{ fontSize: 20, color: "#333" }} />
                             </IconButton>
                         </Grid>
 
-                        {/* Date and Time */}
                         <Grid item>
                             <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666", ml: 4 }}>
                                 {new Date().toLocaleString("en-US", {
@@ -286,20 +225,11 @@ const AdminHeader = () => {
                             </Typography>
                         </Grid>
 
-                        {/* Search Bar, QR Code, and Logout Icons */}
                         <Grid item xs>
                             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                                 <IconButton
                                     onClick={handleShowEdit}
-                                    sx={{
-                                        backgroundColor: "rgb(238, 255, 226)",
-                                        borderRadius: "20px",
-                                        "& .MuiOutlinedInput-root": {
-                                            "& fieldset": {
-                                                border: "none",
-                                            },
-                                        },
-                                    }}>
+                                    sx={AdminHeaderIconEditStyle}>
                                     <EditIcon />
                                 </IconButton>
                                 <TextField
@@ -312,80 +242,38 @@ const AdminHeader = () => {
                                             </InputAdornment>
                                         ),
                                     }}
-                                    sx={{
-                                        backgroundColor: "rgb(238, 255, 226)",
-                                        borderRadius: "20px",
-                                        "& .MuiOutlinedInput-root": {
-                                            "& fieldset": {
-                                                border: "none",
-                                            },
-                                        },
-                                    }}
-                                />
-
+                                    sx={TextFieldStyle}/>
                             </Box>
                         </Grid>
                     </Grid>
                 )}
 
-                {/* Category Tabs */}
                 {isHeaderOpen && (
                     <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                        {/* Left Arrow Icon */}
                         <IconButton onClick={() => scrollHorizontally("left")} sx={{ color: "#333" }}>
                             <ArrowBackIosIcon sx={{ fontSize: "20px" }} />
                         </IconButton>
 
-                        {/* Scrollable Category Cards */}
                         <Box
                             ref={scrollContainerRef}
-                            sx={{
-                                display: "flex",
-                                gap: 2,
-                                overflowX: "auto",
-                                whiteSpace: "nowrap",
-                                p: 1,
-                                scrollbarWidth: "none",
-                                "&::-webkit-scrollbar": {
-                                    display: "none",
-                                },
-                                flex: 1,
-                            }}
+                            sx={cardBoxStyle}
                         >
                             {categories.map((category, index) => (
                                 <Card
                                     key={index}
                                     onClick={() => handleCategoryClick(category.id, category.categoryName)}
-                                    sx={{
-                                        minWidth: "120px",
-                                        maxWidth: "140px",
-                                        height: "150px",
-                                        borderRadius: "12px",
-                                        boxShadow:
+                                    sx={{...BoxcardStyle, boxShadow:
                                             selectedCategory === category.categoryName
                                                 ? "0 2px 5px #74d52b"
                                                 : "0 2px 5px rgba(0, 0, 0, 0.1)",
                                         backgroundColor: selectedCategory === category.categoryName ? "rgb(238, 255, 226)" : "#F9F9F9",
-                                        cursor: "pointer",
-                                        transition: "box-shadow 0.3s",
-                                        position: "relative",
+                                      
                                     }}
                                 >
-
-
                                     {editProduct && (
                                         <IconButton
                                             onClick={() => handleEdit(category.id)}
-                                            sx={{
-                                                position: "absolute",
-                                                borderRadius: "0% 30% 0% 70%",
-                                                right: "0px",
-                                                backgroundColor: "#74d52b",
-                                                zIndex: 1,
-                                                '&:hover': {
-                                                    backgroundColor: "rgb(169, 252, 91)",
-                                                },
-                                            }}
+                                            sx={editIconCardStyle}
                                         >
                                             <EditIcon sx={{ fontSize: "18px", color: "#fff" }} />
                                         </IconButton>
@@ -418,26 +306,10 @@ const AdminHeader = () => {
 
                             <Card
                                 onClick={() => setIsModalOpen(true)}
-                                sx={{
-                                    minWidth: "120px",
-                                    maxWidth: "140px",
-                                    height: "150px",
-                                    borderRadius: "12px",
-                                    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-                                    backgroundColor: "#F9F9F9",
-                                    cursor: "pointer",
-                                    transition: "box-shadow 0.3s",
-                                }}
+                                sx={madalCardStyle}
                             >
                                 <Box
-                                    sx={{
-                                        height: "90px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        backgroundColor: "#F9F9F9",
-                                        borderRadius: "12px 12px 0 0",
-                                    }}
+                                    sx={modalBoxStyle}
                                 >
                                     <AddIcon sx={{ fontSize: "60px", color: "#74d52b" }} />
                                 </Box>
@@ -449,10 +321,7 @@ const AdminHeader = () => {
 
                                 </CardContent>
                             </Card>
-
-
                         </Box>
-                        {/* Right Arrow Icon */}
                         <IconButton onClick={() => scrollHorizontally("right")} sx={{ color: "#333" }}>
                             <ArrowForwardIosIcon sx={{ fontSize: "20px" }} />
                         </IconButton>
@@ -464,16 +333,7 @@ const AdminHeader = () => {
                 onClose={handleCloseModal}
                 sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
             >
-                <Box
-                    sx={{
-                        backgroundColor: "#FBFBE5",
-                        borderRadius: "8px",
-                        boxShadow: 24,
-                        p: 4,
-                        width: "400px",
-                        textAlign: "center",
-                    }}
-                >
+                <Box  sx={modalBoxStyle2} >
                     {step === 1 && (
                         <>
                             <Typography
@@ -482,17 +342,7 @@ const AdminHeader = () => {
                             >
                                 Add Category
                             </Typography>
-
-                            {/* Image Upload */}
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    flexDirection: "column",
-                                    mb: 3,
-                                }}
-                            >
+                            <Box sx={addProductBoxStyle} >
                                 <input
                                     accept="image/*"
                                     type="file"
@@ -502,18 +352,7 @@ const AdminHeader = () => {
                                 />
                                 <label htmlFor="upload-image">
                                     <Box
-                                        sx={{
-                                            width: "150px",
-                                            height: "150px",
-                                            backgroundColor: "#F0F0F0",
-                                            borderRadius: "8px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            cursor: "pointer",
-                                            border: "1px dashed #74d52b",
-                                            overflow: "hidden",
-                                        }}
+                                        sx={uploadImageStyle}
                                     >
                                         {uploadedImage ? (
                                             <img
@@ -569,8 +408,6 @@ const AdminHeader = () => {
                             >
                                 Add Subcategories
                             </Typography>
-
-                            {/* Sub Category Input */}
                             <Box sx={{ display: "flex", mb: 2 }}>
                                 <TextField
                                     fullWidth
@@ -580,8 +417,6 @@ const AdminHeader = () => {
                                     onChange={(e) => setSubCategoryName(e.target.value)}
                                     sx={{ mr: 2 }}
                                 />
-
-                                {/* Next Button */}
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -590,8 +425,6 @@ const AdminHeader = () => {
                                     {editIndex !== null ? 'Update' : 'Add'}
                                 </Button>
                             </Box>
-
-                            {/* Sub Category List */}
                             <List>
                                 {subCategory.map((subCategory, index) => (
                                     <ListItem key={index} sx={{ borderBottom: "1px solid #ddd" }}>
@@ -615,8 +448,6 @@ const AdminHeader = () => {
                                     </ListItem>
                                 ))}
                             </List>
-
-                            {/* Submit Button */}
                             <Button
                                 variant="contained"
                                 color="success"
@@ -631,9 +462,6 @@ const AdminHeader = () => {
                     )}
                 </Box>
             </Modal>
-
-
-
         </Box>
     );
 };
