@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Card, CardContent } from "@mui/material";
-import { Eye } from "lucide-react";
 import { getProductList } from "../utils/api-collection"; 
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
 interface ProductData {
   productId: number;
@@ -29,20 +29,31 @@ const ProductListPage: React.FC = () => {
     { field: "stock", headerName: "Stock", flex: 1, headerAlign: "center", align: "center" },
     { field: "status", headerName: "Status", flex: 1, headerAlign: "center", align: "center" },
     {
-      field: "viewDetails",
-      headerName: "View Details",
+      field: "invoice",
+      headerName: "Invoice",
       flex: 0.8,
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
         <button
-          className="text-green-500 hover:underline"
-          onClick={() => handleViewDetails(params.row.id)}
+          onClick={() => handleViewDetails(params.row.invoiceUrl)}
+          style={{
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
         >
-          <Eye className="inline-block h-5 w-5 mr-1" />
+          <VisibilityOutlinedIcon
+            sx={{
+              color: "green",
+              transition: "color 0.2s",
+             
+            }}
+          />
         </button>
       ),
-    },
+    }
   ];
 
   const loadProductList = async () => {
