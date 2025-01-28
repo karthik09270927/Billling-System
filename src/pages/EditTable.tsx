@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Button, Box,Paper, Typography,   } from "@mui/material";
+import { Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Button, Box, Paper, Typography } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
 interface UserData {
@@ -22,6 +22,7 @@ const EditTable: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
+    const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false); // New state for the "Add Product" modal
 
     const columns: GridColDef[] = [
         { field: "orderId", headerName: "Order ID", flex: 0.5, headerAlign: "center", align: "center" },
@@ -49,7 +50,6 @@ const EditTable: React.FC = () => {
                         sx={{
                             color: "green",
                             transition: "color 0.2s",
-
                         }}
                     />
                 </button>
@@ -60,12 +60,13 @@ const EditTable: React.FC = () => {
     const loadUserList = async () => {
         try {
             setLoading(true);
-            //   const data = await fetchUserList() as UserHistoryResponse;
-            //   const usersWithId = data.data.map((user) => ({
+            // Uncomment and modify as per your API call for loading data
+            // const data = await fetchUserList() as UserHistoryResponse;
+            // const usersWithId = data.data.map((user) => ({
             //     ...user,
             //     id: user.orderId,
-            //   }));
-            //   setRows(usersWithId);
+            // }));
+            // setRows(usersWithId);
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error("Error fetching user data:", error.message);
@@ -88,12 +89,21 @@ const EditTable: React.FC = () => {
         setSelectedInvoiceUrl(null);
     };
 
+    // New handler for opening the "Add Product" modal
+    const handleOpenAddProductModal = () => {
+        setOpenAddProductModal(true);
+    };
+
+    const handleCloseAddProductModal = () => {
+        setOpenAddProductModal(false);
+    };
+
     useEffect(() => {
         loadUserList();
     }, []);
 
     return (
-        <Box sx={{ display: "flex", justifyContent: "center",mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Paper
                 elevation={6}
                 sx={{
@@ -101,12 +111,10 @@ const EditTable: React.FC = () => {
                     maxWidth: "1300px",
                     borderRadius: "12px",
                     overflow: "hidden",
-
-                   
                 }}
             >
                 {/* Header Section */}
-                <Box sx={{ background: "linear-gradient(to right, #2563EB, #4338CA)", color: "#fff", p: 3 }}>
+                <Box sx={{ background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))", color: "#fff", p: 3 }}>
                     <Typography variant="h4" fontWeight="bold">Stock Details</Typography>
                     <Typography variant="subtitle1">Detailed overview of user activity</Typography>
                 </Box>
@@ -116,6 +124,7 @@ const EditTable: React.FC = () => {
                     <Button
                         variant="contained"
                         sx={{ backgroundColor: "#f5f58e", color: "#000", borderRadius: "12px" }}
+                        onClick={handleOpenAddProductModal} // Open Add Product modal
                     >
                         Add Product
                     </Button>
@@ -162,8 +171,21 @@ const EditTable: React.FC = () => {
                     <Button onClick={handleCloseModal} color="primary">Close</Button>
                 </DialogActions>
             </Dialog>
-        </Box>
 
+            {/* Add Product Dialog */}
+            <Dialog open={openAddProductModal} onClose={handleCloseAddProductModal} maxWidth="lg" fullWidth>
+                <DialogTitle>Add Product</DialogTitle>
+                <DialogContent>
+                    {/* Add Product Content */}
+                    <Typography variant="body1">Here you can add the details for the new product.</Typography>
+                    {/* Add product form goes here */}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseAddProductModal} color="primary">Close</Button>
+                    <Button onClick={() => {}} color="primary">Save</Button> {/* Add Save functionality */}
+                </DialogActions>
+            </Dialog>
+        </Box>
     );
 };
 

@@ -45,7 +45,7 @@ const AdminHeader = () => {
     const [itemName, setItemName] = useState("");
     const [subCategoryName, setSubCategoryName] = useState("");
     const [subCategory, setSubCategory] = useState<string[]>([]);
-    const [step, setStep] = useState(1); // Step tracker
+    const [step, setStep] = useState(1);
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [productId, setProductId] = useState<number | null>(null);
     const [selectSubCategoryId, setSelectSubCategoryId] = useState<number[]>([]);
@@ -53,7 +53,7 @@ const AdminHeader = () => {
     const getCategories = async () => {
         try {
             const data = await fetchCategories();
-            setCategories(data); 
+            setCategories(data);
         } catch (error) {
             console.error("Error fetching categories:", error);
         }
@@ -70,7 +70,8 @@ const AdminHeader = () => {
                 left: scrollAmount,
                 behavior: "smooth",
             });
-        }};
+        }
+    };
 
     const handleShowEdit = () => {
         setEditProduct((prev) => !prev);
@@ -91,13 +92,14 @@ const AdminHeader = () => {
         try {
             const data = await fetchUpdateProductCategory(categoryId);
             console.log(data);
-            
+
             setItemName(data.data.categoryName);
             setUploadedImage(`data:image/jpeg;base64,${data.data.image}`);
-            const extractedSubCategories = data.data.subCategory.map((sub:any) => sub.subCategoryName);
+            const extractedSubCategories = data.data.subCategory.map((sub: any) => sub.subCategoryName);
             setSubCategory(extractedSubCategories);
-            const extractedSubCategoriesId = data.data.subCategory.map((sub:any) => sub.id);
+            const extractedSubCategoriesId = data.data.subCategory.map((sub: any) => sub.id);
             setSelectSubCategoryId(extractedSubCategoriesId);
+            console.log("hi", extractedSubCategoriesId);
             setProductId(categoryId)
         } catch (error) {
             console.error("Error fetching subcategories:", error);
@@ -108,6 +110,7 @@ const AdminHeader = () => {
         getUpdateProductCategory(categoryId);
         setIsModalOpen(true);
     };
+
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
         try {
             setSelectedCategory(categoryName);
@@ -158,19 +161,22 @@ const AdminHeader = () => {
     };
 
     const handleSubmit = async () => {
-        try {     
+        try {
             const taskProject = {
-                id: editProduct ? productId : null, 
+                id: editProduct ? productId : null,
                 categoryName: itemName,
                 subCategory: subCategory.map((name) => ({
-                    id: editProduct ? selectSubCategoryId : null, 
+                    id: editProduct ? null : null, 
                     subCategoryName: name,
                 })),
             };
+
             if (!uploadedImage) {
                 throw new Error("Please upload an image before submitting.");
             }
+
             const response = await postProductCategory(taskProject, uploadedImage);
+            console.log(response);
             getCategories();
             setIsModalOpen(false);
             setUploadedImage(null);
@@ -182,6 +188,8 @@ const AdminHeader = () => {
             console.error("Error during submission:", error);
         }
     };
+
+
 
     const handleNext = () => {
         if (step === 1) {
@@ -204,7 +212,7 @@ const AdminHeader = () => {
             )}
 
             <Box
-                sx={{...AdminHeaderSubBoxStyle, padding: isHeaderOpen ? "8px 16px" : "0 16px", height: isHeaderOpen ? "auto" : 0,}} >
+                sx={{ ...AdminHeaderSubBoxStyle, padding: isHeaderOpen ? "8px 16px" : "0 16px", height: isHeaderOpen ? "auto" : 0, }} >
                 {isHeaderOpen && (
                     <Grid container alignItems="center" spacing={2}>
                         <Grid item>
@@ -242,7 +250,7 @@ const AdminHeader = () => {
                                             </InputAdornment>
                                         ),
                                     }}
-                                    sx={TextFieldStyle}/>
+                                    sx={TextFieldStyle} />
                             </Box>
                         </Grid>
                     </Grid>
@@ -262,12 +270,13 @@ const AdminHeader = () => {
                                 <Card
                                     key={index}
                                     onClick={() => handleCategoryClick(category.id, category.categoryName)}
-                                    sx={{...BoxcardStyle, boxShadow:
+                                    sx={{
+                                        ...BoxcardStyle, boxShadow:
                                             selectedCategory === category.categoryName
                                                 ? "0 2px 5px #74d52b"
                                                 : "0 2px 5px rgba(0, 0, 0, 0.1)",
                                         backgroundColor: selectedCategory === category.categoryName ? "rgb(238, 255, 226)" : "#F9F9F9",
-                                      
+
                                     }}
                                 >
                                     {editProduct && (
@@ -333,7 +342,7 @@ const AdminHeader = () => {
                 onClose={handleCloseModal}
                 sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
             >
-                <Box  sx={modalBoxStyle2} >
+                <Box sx={modalBoxStyle2} >
                     {step === 1 && (
                         <>
                             <Typography
