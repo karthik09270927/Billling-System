@@ -33,6 +33,7 @@ import { Toasts } from '../centralizedComponents/forms/Toast';
 import { fetchCategories, fetchProductList, fetchSubCategories } from "../utils/api-collection";
 import nodata from '../assets/no-data.png';
 import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
+import { useNavigate } from "react-router-dom";
 
 
 const groupItemsBySubcategory = (items: any) => {
@@ -60,6 +61,8 @@ const AdminDashboard: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategory, setSubCategory] = useState<any[]>([]);
+
+  const navigate=useNavigate();
 
   const getCategories = async () => {
     try {
@@ -139,6 +142,11 @@ const AdminDashboard: React.FC = () => {
 
   const handleSubCategoryChange = (value: any) => {
 
+  };
+
+  const handleEditClick = (value: any) => {
+    navigate(`/admin-dashboard/edit-product/${value}`);
+  
   };
 
   const handleAddNewItem = () => {
@@ -378,7 +386,7 @@ const AdminDashboard: React.FC = () => {
                   borderRadius: "12px",
                   padding: 1,
                   width: "200px",
-                  height: "300px",
+                  height: "310px",
                   transition: "transform 0.3s, box-shadow 0.3s",
                   "&:hover": {
                     transform: "translateY(-5px)",
@@ -429,7 +437,7 @@ const AdminDashboard: React.FC = () => {
 
                     }}
                   >
-                    Add New Item
+                    Add Product
                   </Typography>
                 </CardContent>
               </Card>
@@ -463,7 +471,10 @@ const AdminDashboard: React.FC = () => {
                               borderRadius: "12px",
                               padding: 1,
                               width: "200px",
-                              height: "300px",
+                              minHeight: "310px", // Minimum height maintain pannum
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between", // Ensures button stays at bottom
                               transition: "transform 0.3s, box-shadow 0.3s",
                               "&:hover": {
                                 transform: "translateY(-5px)",
@@ -477,7 +488,7 @@ const AdminDashboard: React.FC = () => {
                                 backgroundColor: "#f9f9f9",
                                 borderRadius: "10px",
                                 overflow: "hidden",
-                                mb: 2,
+                                mb: 1,
                                 height: "120px",
                                 display: "flex",
                                 alignItems: "center",
@@ -495,6 +506,7 @@ const AdminDashboard: React.FC = () => {
                                 alt={item.productName}
                               />
                             </Box>
+
                             <CardContent
                               sx={{
                                 textAlign: "start",
@@ -512,7 +524,7 @@ const AdminDashboard: React.FC = () => {
                               >
                                 {item.productName}
                               </Typography>
-                              <Typography
+                              {/* <Typography
                                 variant="body2"
                                 sx={{
                                   fontSize: "16px",
@@ -520,8 +532,24 @@ const AdminDashboard: React.FC = () => {
                                 }}
                               >
                                 ₹ {item.mrpPrice ? item.mrpPrice.toFixed(2) : "N/A"}
-                              </Typography>
+                              </Typography> */}
                             </CardContent>
+                            <Button
+                              variant="contained"
+
+                              fullWidth
+                              sx={{
+                                backgroundColor: "#74d52b",
+                                color: "white",
+                                borderRadius: "12px",
+                                marginTop: "auto",
+                              }}
+                            onClick={()=>handleEditClick(item.id)}
+
+                            >
+                              Edit
+                            </Button>
+
                           </Card>
                         </Grid>
                       )
@@ -782,7 +810,7 @@ const AdminDashboard: React.FC = () => {
                 </FormControl>
 
                 <CentralizeDatePicker
-                label="Manufacture Date"
+                  label="Manufacture Date"
                   // name="manufactureDate"
                   control={control}
                   defaultValue=""
@@ -792,7 +820,7 @@ const AdminDashboard: React.FC = () => {
                 />
 
                 <CentralizeDatePicker
-                label="Expiry Date"
+                  label="Expiry Date"
                   // name="expiryDate"
                   control={control}
                   defaultValue=""

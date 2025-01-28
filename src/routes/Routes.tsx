@@ -7,6 +7,7 @@ import AdminLayout from '../layout/AdminLayout';
 import ProductManagement from '../pages/productmanagement';
 import UserHistoryPage from '../pages/userhistory';
 import ProductListPage from '../pages/productList';
+import EditTable from '../pages/EditTable';
 
 
 const AppRoutes = () => {
@@ -29,6 +30,7 @@ const AppRoutes = () => {
         <Route path="productmanagement"  element={<ProductManagement />}  />
         <Route path="userhistory"  element={<UserHistoryPage />}  />
         <Route path="productlist"  element={<ProductListPage />}  />
+        <Route path="edit-product/:id"  element={<EditTable />}  />
         </Route>
       </Routes>
     </Router>

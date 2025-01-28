@@ -226,17 +226,21 @@ const base64ToFile = (base64String: string, fileName: string): File => {
 };
 
 export const postProductCategory = async (
-  taskProject: { id: any; categoryName: string; subCategoryName: string[] },
+  taskProject: { id: any; categoryName: string; subCategory:{ id: number[] | null; subCategoryName: string }[] },
   base64Image: string
 ): Promise<any> => {
   try {
     const imageFile = base64ToFile(base64Image, "uploaded_image.jpg");
-
+    const formattedTaskProject = {
+      ...taskProject,
+      subCategory: taskProject.subCategory.map(sub => ({
+        ...sub,
+        id: Array.isArray(sub.id) ? (sub.id[0] !== null ? sub.id[0] : undefined) : (sub.id !== null ? sub.id : undefined), 
+      }))
+    };
     const formData = new FormData();
-    formData.append("taskProject", JSON.stringify(taskProject));
+    formData.append("taskProject", JSON.stringify(formattedTaskProject));
     formData.append("image", imageFile);
-
-    // Make API call
     const response = await API.post(`/billing/productSubCategory`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -253,12 +257,10 @@ export const postProductCategory = async (
   }
 };
 
-export const fetchUpdateProductCategory = async (
-  selectedCategoryId: number
-) => {
-  const response = await API.get<{ data: any }>(
-    `/billing/productSubCategory?id=${selectedCategoryId}`
-  );
+
+
+export const fetchUpdateProductCategory = async (selectedCategoryId: number) => {
+  const response = await API.get<{ data: any }>(`/billing/productSubCategory?id=${selectedCategoryId}`);
   if (response.status !== 200) throw new Error("Failed to fetch subcategories");
   return response.data;
 };
