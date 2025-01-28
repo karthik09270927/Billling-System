@@ -10,11 +10,6 @@ import {
     CardContent,
     CardMedia,
     Button,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
     Modal,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -23,7 +18,6 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { useNavigate } from "react-router-dom";
 import { fetchCategories, fetchSubCategories, fetchUpdateProductCategory, postProductCategory } from "../utils/api-collection";
 import EditIcon from '@mui/icons-material/Edit'
 import {

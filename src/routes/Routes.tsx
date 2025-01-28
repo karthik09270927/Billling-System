@@ -5,11 +5,11 @@ import UpdatePassword from '../auth/UpdatePassword';
 import StaffLayout from '../layout/StaffLayout';
 import AdminLayout from '../layout/AdminLayout';
 import ProductManagement from '../pages/productmanagement';
-import UserHistory from '../pages/userhistory';
+import UserHistoryPage from '../pages/userhistory';
+import ProductListPage from '../pages/productList';
 
 
 const AppRoutes = () => {
-
 
   return (
     <Router>
@@ -27,7 +27,8 @@ const AppRoutes = () => {
         <Route path="/admin-dashboard"  element={<AdminLayout />}  >
         <Route index element={<Navigate to="productmanagement" />} />
         <Route path="productmanagement"  element={<ProductManagement />}  />
-        <Route path="userhistory"  element={<UserHistory />}  />
+        <Route path="userhistory"  element={<UserHistoryPage />}  />
+        <Route path="productlist"  element={<ProductListPage />}  />
         </Route>
       </Routes>
     </Router>
