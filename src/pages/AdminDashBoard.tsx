@@ -61,8 +61,10 @@ const AdminDashboard: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategory, setSubCategory] = useState<any[]>([]);
+  const [selectedProductCategoryId, setselectedProductCategoryId] = useState<number>(0);
+  const [selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
 
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   const getCategories = async () => {
     try {
@@ -137,16 +139,17 @@ const AdminDashboard: React.FC = () => {
   const handleCategoryChange = (value: any) => {
     console.log("Category changed to:", value);
     getSubCategories(value);
+    setselectedProductCategoryId(value);
   };
 
 
   const handleSubCategoryChange = (value: any) => {
-
+    setselectedSubCategoryId(value);
   };
 
   const handleEditClick = (value: any) => {
     navigate(`/admin-dashboard/edit-product/${value}`);
-  
+
   };
 
   const handleAddNewItem = () => {
@@ -178,11 +181,6 @@ const AdminDashboard: React.FC = () => {
           productName: "",
           productImage: "",
           price: "",
-          quantity: "",
-          Weight: "",
-          manufactureDate: "",
-          expiryDate: "",
-
         },
       ],
     },
@@ -195,9 +193,11 @@ const AdminDashboard: React.FC = () => {
   });
 
   const onSubmit = (data: any) => {
+    
     console.log(data);
     reset();
     setIsModalOpen(false);
+
   };
 
   useEffect(() => {
@@ -544,7 +544,7 @@ const AdminDashboard: React.FC = () => {
                                 borderRadius: "12px",
                                 marginTop: "auto",
                               }}
-                            onClick={()=>handleEditClick(item.id)}
+                              onClick={() => handleEditClick(item.id)}
 
                             >
                               Edit
@@ -686,13 +686,9 @@ const AdminDashboard: React.FC = () => {
             <Box
               key={field.id}
               sx={{
-
-
                 alignItems: "flex-start",
-
                 borderBottom: "1px solid #ddd",
                 mb: 3,
-
                 pb: 3,
               }}
             >
@@ -702,9 +698,6 @@ const AdminDashboard: React.FC = () => {
                   display: "flex",
                   gap: 2,
                   alignItems: "flex-start",
-
-
-                  pb: 3,
                 }}
               >
                 {/* Product Name */}
@@ -772,21 +765,20 @@ const AdminDashboard: React.FC = () => {
                   type="number"
                   {...register(`products.${index}.price`, { required: "Required" })}
                 />
-
-                {/* Quantity */}
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Quantity"
-                  type="number"
-                  {...register(`products.${index}.quantity`, { required: "Required" })}
-                />
-
-
-
-
+                {/* Remove Button */}
+                <IconButton
+                  color="error"
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => remove(index)}
+                  sx={{
+                    alignSelf: "center",
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
               </Box>
-              <Box
+              {/* <Box
                 sx={{
                   display: "flex",
                   gap: 2,
@@ -794,6 +786,13 @@ const AdminDashboard: React.FC = () => {
 
                 }}
               >
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  label="Quantity"
+                  type="number"
+                  {...register(`products.${index}.quantity`, { required: "Required" })}
+                />
                 <FormControl fullWidth variant="outlined">
                   <TextField
                     id="outlined-adornment-weight"
@@ -811,7 +810,6 @@ const AdminDashboard: React.FC = () => {
 
                 <CentralizeDatePicker
                   label="Manufacture Date"
-                  // name="manufactureDate"
                   control={control}
                   defaultValue=""
                   format="DD-MM-YYYY"
@@ -821,39 +819,21 @@ const AdminDashboard: React.FC = () => {
 
                 <CentralizeDatePicker
                   label="Expiry Date"
-                  // name="expiryDate"
                   control={control}
                   defaultValue=""
                   format="DD-MM-YYYY"
                   size="small"
                   {...register(`products.${index}.expiryDate`, { required: "Required" })}
                 />
-                {/* Remove Button */}
-                <IconButton
-                  color="error"
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => remove(index)}
-                  sx={{
-                    alignSelf: "center",
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
+              </Box> */}
             </Box>
-
           ))}
-
-
-
           <Box
             sx={{
               display: "flex",
               gap: 3,
             }}
           >
-
             {/* Add Product Button */}
             <Button
               variant="contained"
@@ -865,25 +845,16 @@ const AdminDashboard: React.FC = () => {
                 if (lastIndex >= 0) {
                   const productName = getValues(`products.${lastIndex}.productName`);
                   const price = getValues(`products.${lastIndex}.price`);
-                  const quantity = getValues(`products.${lastIndex}.quantity`);
-                  const Weight = getValues(`products.${lastIndex}.Weight`);
-                  const manufactureDate = getValues(`products.${lastIndex}.manufactureDate`);
-                  const expiryDate = getValues(`products.${lastIndex}.expiryDate`);
 
-                  if (!productName || !price || !quantity || !Weight || !manufactureDate || !expiryDate) {
+                  if (!productName || !price ) {
                     Toasts({ message: 'Please fill in all fields', type: 'error' })
                     return;
                   }
                 }
-
                 append({
                   productName: "",
                   productImage: "",
                   price: "",
-                  quantity: "",
-                  Weight: "",
-                  manufactureDate: "",
-                  expiryDate: "",
                 });
               }}
             >
@@ -898,11 +869,6 @@ const AdminDashboard: React.FC = () => {
             >
               Close
             </Button>
-
-
-
-
-
             {/* Submit Button */}
             <Button
               variant="contained"
@@ -913,14 +879,8 @@ const AdminDashboard: React.FC = () => {
               Submit
             </Button>
           </Box>
-
-
-
         </Box>
       </Modal>
-
-
-
     </Box>
   );
 };

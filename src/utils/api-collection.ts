@@ -277,3 +277,21 @@ export const getProductList = async ( search: string, pageNo: number, pageSize: 
   return response.data;   
 };
 
+export const saveProduct = async (productList: Array<{
+  id: number;
+  productName: string;
+  image: string[];
+  billingProductCategory: number;
+  billingProductSubCategory: number;
+  price: number;
+}>) => {
+  try {
+    const response = await API.post("/billingProduct/saveBill", { productList });
+    return response.data;
+  } catch (error) {
+    console.error("Error saving product:", error);
+    throw error;
+  }
+};
+
+
