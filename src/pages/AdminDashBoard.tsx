@@ -47,7 +47,7 @@ const groupItemsBySubcategory = (items: any) => {
 };
 
 const AdminDashboard: React.FC = () => {
-  const { selectedCategoryId, subCategories } = useCategory();
+  const { selectedCategoryId, subCategories,setProductId } = useCategory();
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState<any | null>(null);
   const [deleteSubCategory, setdeleteSubCategory] = useState(false);
@@ -149,7 +149,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleEditClick = (value: any) => {
     navigate(`/admin-dashboard/edit-product/${value}`);
-
+    setProductId(value);
   };
 
   const handleAddNewItem = () => {
