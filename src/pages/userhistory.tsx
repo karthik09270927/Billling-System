@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Button } from "@mui/material";
-import { fetchUserList } from "../utils/api-collection";
-import { Document, Page } from "react-pdf";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Box, Paper, Typography } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { fetchUserList } from "../utils/api-collection";
 
 interface UserData {
   orderId: number;
@@ -25,6 +24,7 @@ const UserHistoryPage: React.FC = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
 
+  // Define columns for the DataGrid
   const columns: GridColDef[] = [
     { field: "orderId", headerName: "Order ID", flex: 0.5, headerAlign: "center", align: "center" },
     { field: "userName", headerName: "User Name", flex: 1, headerAlign: "center", align: "center" },
@@ -47,125 +47,98 @@ const UserHistoryPage: React.FC = () => {
             cursor: "pointer",
           }}
         >
-          <VisibilityOutlinedIcon
-            sx={{
-              color: "green",
-              transition: "color 0.2s",
-             
-            }}
-          />
+          <VisibilityOutlinedIcon sx={{ color: "green", transition: "color 0.2s" }} />
         </button>
       ),
-    }
+    },
   ];
 
+  // Load user list data
   const loadUserList = async () => {
     try {
       setLoading(true);
-      const data = await fetchUserList() as UserHistoryResponse;
-      const usersWithId = data.data.map((user) => ({
-        ...user,
-        id: user.orderId,
-      }));
+      const { data } = await fetchUserList() as UserHistoryResponse;
+      const usersWithId = data.map((user) => ({ ...user, id: user.orderId }));
       setRows(usersWithId);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error fetching user data:", error.message);
-      } else {
-        console.error("Unexpected error occurred");
-      }
+    } catch (error) {
+      console.error("Error fetching user data:", error instanceof Error ? error.message : "Unexpected error");
       setRows([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle invoice view
   const handleViewDetails = (invoiceUrl: string) => {
     setSelectedInvoiceUrl(invoiceUrl);
     setOpenModal(true);
   };
 
+  // Close modal
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedInvoiceUrl(null);
   };
 
+  // Fetch data on mount
   useEffect(() => {
     loadUserList();
   }, []);
 
-  return (
-    <div className="p-8 flex justify-center items-center min-h-screen bg-gradient-to-r from-teal-50 via-pink-50 to-yellow-50">
-      <Card className="w-full max-w-6xl shadow-2xl rounded-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
-        <CardContent>
-          {/* Colored Header Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg p-6">
-            <h1 className="text-4xl font-extrabold mb-4">User History</h1>
-            <p className="text-lg font-medium">Detailed overview of user activity</p>
-          </div>
+  // Styles for the DataGrid
+  const gridStyles = {
+    "& .MuiDataGrid-columnHeaders": {
+      backgroundColor: "rgb(240 245 255)",
+      color: "rgb(72 85 99)",
+      fontWeight: "bold",
+      letterSpacing: "0.5px",
+      borderBottom: "2px solid #e5e7eb",
+    },
+    "& .MuiDataGrid-cell": {
+      padding: "0.75rem",
+      border: "1px solid #e5e7eb",
+      fontSize: "14px",
+      transition: "background-color 0.3s",
+    },
+    "& .MuiDataGrid-footerContainer": {
+      background: "linear-gradient(to right, rgb(253, 230, 114), rgb(253, 184, 115))",
+      borderTop: "1px solid #e5e7eb",
+    },
+  };
 
-          <div className="bg-white rounded-b-lg shadow-2xl overflow-hidden border border-gray-300 hover:shadow-2xl transition-shadow duration-300">
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.orderId}
-              className="bg-gray-50"
-              autoHeight
-              sx={{
-                "& .MuiDataGrid-columnHeaders": {
-                  backgroundColor: "rgb(240 245 255)",
-                  color: "rgb(72 85 99)",
-                  fontWeight: "bold",
-                  letterSpacing: "0.5px",
-                  borderBottom: "2px solid #e5e7eb",
-                },
-                "& .MuiDataGrid-cell": {
-                  padding: "0.75rem",
-                  border: "1px solid #e5e7eb",
-                  fontSize: "14px",
-                  transition: "background-color 0.3s",
-                },
-                "& .MuiDataGrid-footerContainer": {
-                  backgroundColor: "rgb(240 245 255)",
-                  borderTop: "1px solid #e5e7eb",
-                },
-                "& .MuiDataGrid-row": {
-                  transition: "background-color 0.3s",
-                },
-                "& .MuiDataGrid-row:hover": {
-                },
-                "& .MuiDataGrid-cell:focus": {
-                  outline: "none",
-                }
-              }}
-            />
-          </div>
-        </CardContent>
-      </Card>
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+      <Paper elevation={6} sx={{ width: "100%", maxWidth: "1450px", borderRadius: "12px", overflow: "hidden" }}>
+        {/* Header Section */}
+        <Box sx={{ background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))", color: "#fff", p: 3 }}>
+          <Typography variant="h4" fontWeight="bold">User History</Typography>
+          <Typography variant="subtitle1">Detailed overview of user bills & activity</Typography>
+        </Box>
+
+        {/* Data Table */}
+        <Box sx={{ p: 2 }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.orderId}
+            autoHeight
+            sx={gridStyles}
+          />
+        </Box>
+      </Paper>
+
+      {/* Invoice Dialog */}
       <Dialog open={openModal} onClose={handleCloseModal} maxWidth="lg" fullWidth>
         <DialogTitle>Invoice Details</DialogTitle>
         <DialogContent>
-          {selectedInvoiceUrl ? (
-            <div className="w-full h-[500px]">
-              {/* Displaying PDF in the modal */}
-              <Document file={selectedInvoiceUrl}>
-                <Page pageNumber={1} width={600} />
-              </Document>
-            </div>
-          ) : (
-            <p>Loading invoice...</p>
-          )}
+          {/* Content for Invoice (you can add content here as per your needs) */}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseModal} color="primary">
-            Close
-          </Button>
+          <Button onClick={handleCloseModal} color="primary">Close</Button>
         </DialogActions>
       </Dialog>
-
-    </div>
-
+    </Box>
   );
 };
 
