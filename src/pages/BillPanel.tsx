@@ -19,6 +19,7 @@ import {
   Stack,
   Tooltip,
   Badge,
+  Divider,
 } from "@mui/material";
 import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
@@ -26,10 +27,15 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { getProductInfoById, getUserDetails, saveBill } from "../utils/api-collection";
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import successSound from '../assets/sounds/success.mp3';
 import errorSound from '../assets/sounds/error.mp3';
 import { showErrorToast, showSuccessToast } from "../utils/toast";
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import logo from '../assets/bgremove (2).png';
+import NoItemSelect from '../assets/No Item Select.jpg';
+import noItem from '../assets/no-data.png';
 
 
 interface RightPanelProps {
@@ -48,9 +54,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
   const scannerRef = useRef<any>(null);
   const successAudioRef = useRef(new Audio(successSound));
   const errorAudioRef = useRef(new Audio(errorSound));
-  const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'Online'>('Cash');
+  const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'UPI'>('Cash');
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [scannedBarcodes, setScannedBarcodes] = useState<Set<number>>(new Set());
-  const [isScanning, setIsScanning] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const [errors, setErrors] = useState({
     name: '',
     phoneNumber: '',
@@ -279,6 +287,10 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }
   };
 
+  const filteredItems = (selectedItems ?? []).filter(item =>
+    item.productName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   useEffect(() => {
     return () => {
       stopScanner();
@@ -309,26 +321,52 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             alignItems: "center",
           }}
         >
-          <Typography variant="body1" sx={{ fontWeight: "bold", color: '#74D52B' }}>
-            "FRESH HYPERMARKET"
-          </Typography>
-          <IconButton
-            size="medium"
-            onClick={handleQrIconClick}
-            sx={{
-              '&:hover': {
-                backgroundColor: '#74D52B)'
-              }
-            }}
-          >
-            <Tooltip title="Scan the barcode" placement="top" arrow>
-              <QrCode2Icon sx={{
+          <Box sx={{
+            display: 'flex',
+            flex: 1,
+          }}>
+            <CardMedia
+              component="img"
+              src={logo}
+              alt="Logo"
+              sx={{
+                width: 30,
+                height: 30,
+                objectFit: 'contain',
+              }}
+            />
+            <Typography sx={{ fontWeight: "bold", color: '#74D52B', fontSize: 20 }}>
+              FRESH HYPERMARKET
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <IconButton
+              size="medium"
+              onClick={() => setIsFullScreen(true)}
+              sx={{
                 '&:hover': {
-                  color: '#74D52B)'
+                  backgroundColor: '#f9f9f9'
                 }
-              }} />
-            </Tooltip>
-          </IconButton>
+              }}
+            >
+              <Tooltip title="Expand View" placement="top" arrow>
+                <FullscreenIcon />
+              </Tooltip>
+            </IconButton>
+            <IconButton
+              size="medium"
+              onClick={handleQrIconClick}
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#f9f9f9'
+                }
+              }}
+            >
+              <Tooltip title="Scan the barcode" placement="top" arrow>
+                <QrCode2Icon />
+              </Tooltip>
+            </IconButton>
+          </Box>
         </Box>
 
         <Dialog
@@ -371,6 +409,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               <CloseIcon />
             </IconButton>
           </DialogTitle>
+
+
 
           <DialogContent sx={{
             p: 3,
@@ -425,8 +465,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                   display: "flex",
                   flexDirection: "column",
                   marginBottom: 2,
-                  borderRadius: 2,
                   padding: 2,
+                  borderBottom: '2px solid #e0e0e0',
+
                 }}
               >
                 {/* Row 1: Product Image and Name */}
@@ -598,30 +639,54 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               </Box>
             ))
           ) : (
-            <Typography
-              variant="body2"
-              sx={{ color: "#999", textAlign: "center" }}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "50vh",
+                gap: 2
+              }}
             >
-              No items selected.
-            </Typography>
+              <img
+                src={noItem}
+                alt="No products found"
+                style={{
+                  width: "250px",
+                  height: "250px",
+                  objectFit: "contain"
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "#666",
+                  textAlign: "center"
+                }}
+              >
+                No Items Added
+              </Typography>
+            </Box>
           )}
         </Box>
 
 
         <Box
           sx={{
-            backgroundColor: '#fff',
-            borderRadius: '8px',
+            backgroundColor: '#fbfbe5',
+            // borderTop: '3px solid #e0e0e0',
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             padding: 3,
             marginTop: 2
           }}
         >
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={6} md={6}>
               <Typography color="text.secondary">Subtotal:</Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={6} md={6}>
               <Typography align="right">
                 ₹{selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0).toFixed(2)}
               </Typography>
@@ -646,7 +711,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             </Grid>
 
             <Grid item xs={12}>
-              <Box sx={{ mt: 2, borderTop: '1px solid #e0e0e0', pt: 2 }}>
+              <Box sx={{ mt: 2, borderTop: '2px solid #e0e0e0', pt: 2 }}>
                 <Button
                   variant="contained"
                   fullWidth
@@ -668,7 +733,431 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             </Grid>
           </Grid>
         </Box>
+
       </Card>
+
+      <Dialog
+        fullScreen
+        open={isFullScreen}
+        onClose={() => setIsFullScreen(false)}
+        maxWidth="lg"
+        PaperProps={{
+          sx: {
+            width: '80%',
+            maxHeight: '90vh',
+            m: 'auto',
+            borderRadius: 2,
+            position: 'relative'
+          }
+        }}
+      >
+
+        <Box
+          sx={{
+            height: "60px",
+            backgroundColor: "#fbfbe5",
+            padding: "8px 16px",
+            flexShrink: 0,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {/* Logo and Title Section */}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'left',
+            gap: 1,
+            flex: 1,
+            justifyContent: 'left'
+          }}>
+            <CardMedia
+              component="img"
+              src={logo}
+              alt="Logo"
+              sx={{
+                width: 50,
+                height: 50,
+                objectFit: 'contain'
+              }}
+            />
+            <Typography variant="h5" sx={{ fontWeight: "bold", color: '#74D52B', mt:1 }}>
+              FRESH HYPERMARKET
+            </Typography>
+          </Box>
+
+          {/* Icons Section */}
+          <Box sx={{
+            display: 'flex',
+            gap: 1,
+            ml: 'auto'
+          }}>
+
+            <TextField
+              size="small"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#74D52B' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: '200px',
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  '& fieldset': {
+                    border: 'none'
+                  },
+                  '&:hover fieldset': {
+                    border: 'none'
+                  },
+                  '&.Mui-focused fieldset': {
+                    border: 'none'
+                  }
+                }
+              }}
+            />
+
+            <IconButton
+              size="medium"
+              onClick={() => setIsFullScreen(false)}
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#f9f9f9'
+                }
+              }}
+            >
+              <Tooltip title="Close Expand" placement="top" arrow>
+                <CloseIcon />
+              </Tooltip>
+            </IconButton>
+            <IconButton
+              size="medium"
+              onClick={handleQrIconClick}
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#f9f9f9'
+                }
+              }}
+            >
+              <Tooltip title="Scan the barcode" placement="top" arrow>
+                <QrCode2Icon />
+              </Tooltip>
+            </IconButton>
+          </Box>
+        </Box>
+
+
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            padding: 2,
+            scrollbarWidth: "thin",
+            background: '#ffffff',
+            borderBottom: '3px solid #fbfbe5'
+          }}
+        >
+          <Grid container spacing={2}>
+            {(selectedItems ?? []).length > 0 ? (
+              // (selectedItems ?? []).map((item) => (
+                (filteredItems ?? []).map((item) => (
+                <Grid item xs={12} md={6} key={item.id}>
+                  <Box
+                    key={item.id}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      marginBottom: 2,
+                      padding: 2,
+                      borderRadius: 8,
+                      backgroundColor: '#f5f5f5',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+
+                    }}
+                  >
+                    {/* Row 1: Product Image and Name */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 2,
+                      }}
+                    >
+                      <Badge
+                        badgeContent={`${item.weightage}g`}
+                        color="primary"
+                        anchorOrigin={{
+                          vertical: 'top',
+                          horizontal: 'right'
+                        }}
+                        sx={{
+                          '& .MuiBadge-badge': {
+                            backgroundColor: '#74D52B',
+                            color: 'white',
+                            fontSize: '12px',
+                            padding: '0 6px',
+                            minWidth: '45px',
+                            height: '20px',
+                            borderRadius: '10px'
+                          }
+                        }}
+                      >
+                        <CardMedia
+                          component="img"
+                          image={`data:image/jpeg;base64,${item.image}`}
+                          alt={item.productName}
+                          sx={{
+                            width: 70,
+                            height: 70,
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                            border: "2px solid #e0e0e0",
+                            padding: "2px",
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              transform: "scale(1.05)",
+                              boxShadow: "0 0 10px rgba(116, 213, 43, 0.3)",
+                            }
+                          }}
+                        />
+                      </Badge>
+                      <Typography variant="body2" sx={{ fontWeight: "bold", mt: 1 }}>
+                        {item.productName}
+                      </Typography>
+                    </Box>
+
+                    {/* Row 2: Quantity Controls */}
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      justifyContent="flex-end" // Add this
+                      sx={{
+                        width: '100%',  // Add this
+                        marginLeft: 'auto' // Add this if needed
+                      }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setSelectedItems(prevItems =>
+                            prevItems.map(product => {
+                              if (product.id === item.id) {
+                                // If quantity is 1, this product will be filtered out
+                                return { ...product, quantity: product.quantity - 1 };
+                              }
+                              return product;
+                            }).filter(product => product.quantity > 0) // Remove products with 0 quantity
+                          );
+                        }}
+                      >
+                        <RemoveIcon sx={{ color: 'red' }} />
+                      </IconButton>
+                      <TextField
+                        size="small"
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const newValue = parseInt(e.target.value) || '';
+                          const validQuantity = Math.min(Math.max(Number(newValue), 0), 999);
+
+                          setSelectedItems((prevItems) =>
+                            prevItems.map((i) =>
+                              i.id === item.id
+                                ? { ...i, quantity: validQuantity }
+                                : i
+                            )
+
+                          );
+                        }}
+                        InputProps={{
+                          inputProps: {
+                            min: 1,
+                            max: 999,
+                            style: {
+                              textAlign: 'center',
+                              MozAppearance: 'textfield',
+                            }
+                          },
+                          sx: {
+                            '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                              '-webkit-appearance': 'none',
+                              margin: 0,
+                              borderRadius: '4px',
+                              backgroundColor: '#f5f5f5',
+                              '&:hover': {
+                                backgroundColor: '#eeeeee'
+                              }
+                            }
+                          },
+                        }}
+                        sx={{
+                          width: '70px',
+                          '& input': {
+                            padding: '6px',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            color: '#333'
+                          },
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#ddd',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#999',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#666',
+                            }
+                          }
+                        }}
+                      />
+
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setSelectedItems((prevItems) =>
+                            prevItems.map((i) =>
+                              i.id === item.id
+                                ? { ...i, quantity: i.quantity + 1 }
+                                : i
+                            )
+                          );
+                        }}
+                      >
+                        <AddIcon sx={{ color: '#74D52B' }} />
+                      </IconButton>
+                    </Stack>
+
+                    {/* Row 3: Product Price */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginTop: 1,
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+              ))
+            ) : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  minHeight: '350px',
+                  width: '100%'
+                }}
+              >
+                <img
+                  src={NoItemSelect}
+                  alt="No Product Added"
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    objectFit: "contain"
+                  }}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "#666",
+                    textAlign: "center"
+                  }}
+                >
+                  No Product's Added
+                </Typography>
+              </Box>
+            )}
+          </Grid>
+
+        </Box>
+
+
+        <Box
+          sx={{
+            backgroundColor: '#fbfbe5',
+            // borderTop: '3px solid #e0e0e0',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            padding: 3,
+            marginTop: 2,
+            display: 'flex',
+            justifyContent: 'center'
+          }}
+        >
+          <Grid container spacing={2} sx={{
+
+          }}>
+            <Grid item xs={6} md={6}>
+              <Typography color="text.secondary">Subtotal:</Typography>
+            </Grid>
+            <Grid item xs={6} md={6}>
+              <Typography align="right">
+                ₹{selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0).toFixed(2)}
+              </Typography>
+            </Grid>
+
+            {/* <Grid item xs={6}>
+              <Typography color="text.secondary">GST (18%):</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography align="right">
+                ₹{(selectedItems.reduce((sum, item) => sum + (item.id * item.quantity), 0) * 0.18).toFixed(2)}
+              </Typography>
+            </Grid> */}
+
+            <Grid item xs={6} md={6}>
+              <Typography variant="h6" fontWeight="bold">Total:</Typography>
+            </Grid>
+            <Grid item xs={6} md={6}>
+              <Typography variant="h6" align="right" fontWeight="bold">
+                ₹{(selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0)).toFixed(2)}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12} md={12}>
+              <Box sx={{
+                mt: 2,
+                borderTop: '2px solid #e0e0e0',
+                pt: 2,
+                display: 'flex',
+                justifyContent: 'center'
+              }}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    height: "50px",
+                    width: "50%",
+                    backgroundColor: "#74D52B",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    borderRadius: "8px",
+                    '&:hover': {
+                      backgroundColor: "#5fb321"
+                    }
+                  }}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Confirm
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </Dialog>
 
       {/* Modal for Billing Details */}
 
@@ -810,12 +1299,12 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             })
           }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, marginTop: 1 }}>
-              {['Cash', 'Card', 'Online'].map((mode) => (
+              {['Cash', 'Card', 'UPI'].map((mode) => (
                 <Button
                   key={mode}
                   variant={paymentMode === mode ? "contained" : "outlined"}
                   onClick={() => {
-                    setPaymentMode(mode as 'Cash' | 'Card' | 'Online');
+                    setPaymentMode(mode as 'Cash' | 'Card' | 'UPI');
                     setErrors({ ...errors, paymentMode: '' });
                   }}
                   fullWidth
@@ -968,7 +1457,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       </Dialog>
 
 
-    </Grid>
+    </Grid >
   );
 };
 
