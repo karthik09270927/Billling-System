@@ -1,75 +1,68 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Button, Box,Paper, Typography,   } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Box, Paper, Typography, } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import { fetchUserList } from "../utils/api-collection";
+import { getAdminProductList } from "../utils/api-collection";
 
-interface UserData {
-    orderId: number;
-    userName: string;
-    purchasedDate: string;
-    totalAmount: string;
-    phone: string;
-    role: string;
-    invoiceUrl: string;
+interface ProductData {
+    id: number;
+    productName: string;
+    quantity: string;
+    weightage: string;
+    costPrice: number;
+    sellingPrice: number;
+    mrpPrice: number;
 }
 
-interface UserHistoryResponse {
-    data: UserData[];
+interface ProductListResponse {
+    data: ProductData[];
 }
 
 const ProductListPage: React.FC = () => {
-    const [rows, setRows] = useState<UserData[]>([]);
+    const [rows, setRows] = useState<ProductData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [openModal, setOpenModal] = useState<boolean>(false);
-    const [selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
+    const [_selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
 
     const columns: GridColDef[] = [
-        { field: "orderId", headerName: "Order ID", flex: 0.5, headerAlign: "center", align: "center" },
-        { field: "userName", headerName: "User Name", flex: 1, headerAlign: "center", align: "center" },
-        { field: "purchasedDate", headerName: "Purchased Date", flex: 1.5, headerAlign: "center", align: "center" },
-        { field: "paymentMode", headerName: "Payment Mode", flex: 1, headerAlign: "center", align: "center" },
-        { field: "totalAmount", headerName: "Total Amount", flex: 1, headerAlign: "center", align: "center" },
+        { field: "id", headerName: "Product ID", flex: 0.5, headerAlign: "center", align: "center" },
+        { field: "productName", headerName: "Product Name", flex: 1.5, headerAlign: "center", align: "center" },
+        { field: "quantity", headerName: "Quantity", flex: 1, headerAlign: "center", align: "center" },
+        { field: "weightage", headerName: "Weight", flex: 1, headerAlign: "center", align: "center" },
+        { field: "costPrice", headerName: "Cost Price", flex: 1, headerAlign: "center", align: "center" },
+        { field: "sellingPrice", headerName: "Selling Price", flex: 1, headerAlign: "center", align: "center" },
+        { field: "mrpPrice", headerName: "MRP Price", flex: 1, headerAlign: "center", align: "center" },
         {
-            field: "invoice",
-            headerName: "Invoice",
-            flex: 0.8,
+            field: "image",
+            headerName: "Product Image",
+            flex: 1,
             headerAlign: "center",
             align: "center",
             renderCell: (params) => (
-                <button
-                    onClick={() => handleViewDetails(params.row.invoiceUrl)}
-                    style={{
-                        background: "transparent",
-                        border: "none",
-                        padding: 0,
-                        cursor: "pointer",
-                    }}
-                >
-                    <VisibilityOutlinedIcon
-                        sx={{
-                            color: "green",
-                            transition: "color 0.2s",
-
-                        }}
-                    />
-                </button>
+                <img
+                    src={`data:image/png;base64,${params.value}`} // Assuming base64 image encoding
+                    alt="Product"
+                    style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
+                />
             ),
-        }
+        },
     ];
 
-    const loadUserList = async () => {
+
+    const loadProductList = async () => {
         try {
             setLoading(true);
-              const data = await fetchUserList() as UserHistoryResponse;
-              const usersWithId = data.data.map((user) => ({
-                ...user,
-                id: user.orderId,
-              }));
-              setRows(usersWithId);
+            const data = await getAdminProductList() as ProductListResponse;
+
+            const productsWithId = data.data.map((product, index) => ({
+                ...product,
+                id: product.id ?? index, // Fallback to index if id is undefined
+            }));
+
+            setRows(productsWithId);
         } catch (error: unknown) {
             if (error instanceof Error) {
-                console.error("Error fetching user data:", error.message);
+                console.error("Error fetching product data:", error.message);
             } else {
                 console.error("Unexpected error occurred");
             }
@@ -78,6 +71,8 @@ const ProductListPage: React.FC = () => {
             setLoading(false);
         }
     };
+
+
 
     const handleViewDetails = (invoiceUrl: string) => {
         setSelectedInvoiceUrl(invoiceUrl);
@@ -90,11 +85,11 @@ const ProductListPage: React.FC = () => {
     };
 
     useEffect(() => {
-        loadUserList();
+        loadProductList();
     }, []);
 
     return (
-        <Box sx={{ display: "flex", justifyContent: "center",mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Paper
                 elevation={6}
                 sx={{
@@ -103,7 +98,7 @@ const ProductListPage: React.FC = () => {
                     borderRadius: "12px",
                     overflow: "hidden",
 
-                   
+
                 }}
             >
                 {/* Header Section */}
@@ -118,7 +113,7 @@ const ProductListPage: React.FC = () => {
                         rows={rows}
                         columns={columns}
                         loading={loading}
-                        getRowId={(row) => row.orderId}
+                        getRowId={(row) => row.id} 
                         autoHeight
                         sx={{
                             "& .MuiDataGrid-columnHeaders": {
@@ -135,7 +130,7 @@ const ProductListPage: React.FC = () => {
                                 transition: "background-color 0.3s",
                             },
                             "& .MuiDataGrid-footerContainer": {
-                                backgroundColor: "rgb(240 245 255)",
+                                background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))",
                                 borderTop: "1px solid #e5e7eb",
                             },
                         }}
