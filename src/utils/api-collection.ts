@@ -298,3 +298,21 @@ export const getAdminProductList = async () => {
   return response.data;   
 };
 
+export const saveProduct = async (productList: Array<{
+  id: number;
+  productName: string;
+  image: string[];
+  billingProductCategory: number;
+  billingProductSubCategory: number;
+  price: number;
+}>) => {
+  try {
+    const response = await API.post("/billing/productSave", { productList });
+    return response.data;
+  } catch (error) {
+    console.error("Error saving product:", error);
+    throw error;
+  }
+};
+
+
