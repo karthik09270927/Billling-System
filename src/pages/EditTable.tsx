@@ -4,29 +4,35 @@ import { Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, B
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Toasts } from "../centralizedComponents/forms/Toast";
-import { fetchCategories, fetchSubCategories } from "../utils/api-collection";
+import { fetchCategories, fetchSubCategories, getAdminProductList, getProductDetails } from "../utils/api-collection";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import { useCategory } from "../Hooks/useContext";
 
-interface UserData {
-    orderId: number;
-    userName: string;
-    purchasedDate: string;
-    totalAmount: string;
-    phone: string;
-    role: string;
-    invoiceUrl: string;
+interface ProductData {
+    id: number;
+    productName: string;
+    quantity: string;
+    weightage: string;
+    costPrice: number;
+    sellingPrice: number;
+    mrpPrice: number;
+}
+
+interface ProductListResponse {
+    data: ProductData[];
 }
 
 
 const EditTable: React.FC = () => {
-    const [rows, setRows] = useState<UserData[]>([]);
+    const [rows, setRows] = useState<ProductData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
     const [subCategory, setSubCategory] = useState<any[]>([]);
+    const { productId } = useCategory();
 
     const { control, handleSubmit, watch, setValue, register, reset, getValues } = useForm({
         defaultValues: {
@@ -56,47 +62,77 @@ const EditTable: React.FC = () => {
         }
     };
 
-      const getSubCategories = async (id: any) => {
+    const getSubCategories = async (id: any) => {
         try {
-          const subdata = await fetchSubCategories(id);
-          setSubCategory(subdata.data);
+            const subdata = await fetchSubCategories(id);
+            setSubCategory(subdata.data);
         } catch (error) {
-          console.error("Error fetching categories:", error);
+            console.error("Error fetching categories:", error);
         }
-      };
-    const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false); // New state for the "Add Product" modal
+    };
+  
 
     const columns: GridColDef[] = [
-        { field: "orderId", headerName: "Order ID", flex: 0.5, headerAlign: "center", align: "center" },
-        { field: "userName", headerName: "User Name", flex: 1, headerAlign: "center", align: "center" },
-        { field: "purchasedDate", headerName: "Purchased Date", flex: 1.5, headerAlign: "center", align: "center" },
-        { field: "paymentMode", headerName: "Payment Mode", flex: 1, headerAlign: "center", align: "center" },
-        { field: "totalAmount", headerName: "Total Amount", flex: 1, headerAlign: "center", align: "center" },
         {
-            field: "invoice",
-            headerName: "Invoice",
-            flex: 0.8,
+            field: "serialNumber",
+            headerName: "S.No",
+            flex: 0.5,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => rows.findIndex(row => row.id === params.id) + 1,
+        },
+        { field: "id", headerName: "Product ID", flex: 0.5, headerAlign: "center", align: "center" },
+        { field: "productName", headerName: "Product Name", flex: 1.5, headerAlign: "center", align: "center" },
+        {
+            field: "productImage",
+            headerName: "Product Image",
+            flex: 1,
             headerAlign: "center",
             align: "center",
             renderCell: (params) => (
-                <button
-                    onClick={() => handleViewDetails(params.row.invoiceUrl)}
-                    style={{
-                        background: "transparent",
-                        border: "none",
-                        padding: 0,
-                        cursor: "pointer",
+                <img
+                    src={`data:image/jpeg;base64,${params.value}`} // Assuming base64 image encoding
+
+                    alt="Product"
+                    style={{ width: 50, height: 50, objectFit: "cover", }}
+                />
+            ),
+        },
+        { field: "mfgDate", headerName: "Mfg Date", flex: 1, headerAlign: "center", align: "center" },
+        { field: "expDate", headerName: "Expiry Date", flex: 1, headerAlign: "center", align: "center" },
+        { field: "weightage", headerName: "Weight", flex: 1, headerAlign: "center", align: "center" },
+        { field: "mrpPrice", headerName: "MRP Price", flex: 1, headerAlign: "center", align: "center" },
+        { field: "sellingPrice", headerName: "Selling Price", flex: 1, headerAlign: "center", align: "center" },
+        {
+            field: "editproduct",
+            headerName: "Edit Product",
+            flex: 1,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                        backgroundImage: "linear-gradient(to right, rgb(253, 230, 114), rgb(253, 184, 115))",
+                        color: "#000",
+                        borderRadius: "12px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "0.3s",
+                        "&:hover": {
+                            backgroundImage: "linear-gradient(to right, rgb(253, 210, 80), rgb(253, 164, 95))",
+                            transform: "scale(1.05)",
+                        },
                     }}
+                    onClick={() => setIsModalOpen(true)}
                 >
-                    <VisibilityOutlinedIcon
-                        sx={{
-                            color: "green",
-                            transition: "color 0.2s",
-                        }}
-                    />
-                </button>
+                    Edit
+                </Button>
             ),
         }
+
     ];
 
     const handleAddNewItem = () => {
@@ -125,19 +161,16 @@ const EditTable: React.FC = () => {
         setIsModalOpen(false);
     };
 
-    const loadUserList = async () => {
+    const loadProductList = async () => {
         try {
             setLoading(true);
-            // Uncomment and modify as per your API call for loading data
-            // const data = await fetchUserList() as UserHistoryResponse;
-            // const usersWithId = data.data.map((user) => ({
-            //     ...user,
-            //     id: user.orderId,
-            // }));
-            // setRows(usersWithId);
+            const data = await getProductDetails(productId)
+            console.log("productsWithId", data);
+
+            setRows([data]);
         } catch (error: unknown) {
             if (error instanceof Error) {
-                console.error("Error fetching user data:", error.message);
+                console.error("Error fetching product data:", error.message);
             } else {
                 console.error("Unexpected error occurred");
             }
@@ -147,33 +180,20 @@ const EditTable: React.FC = () => {
         }
     };
 
-    const handleViewDetails = (invoiceUrl: string) => {
-        setSelectedInvoiceUrl(invoiceUrl);
-        setOpenModal(true);
-    };
+    console.log("datA", rows);
 
-   
-
-    // New handler for opening the "Add Product" modal
-    const handleOpenAddProductModal = () => {
-        setOpenAddProductModal(true);
-    };
-
-    const handleCloseAddProductModal = () => {
-        setOpenAddProductModal(false);
-    };
 
     useEffect(() => {
-        loadUserList();
+        loadProductList();
     }, []);
 
     return (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4, padding: "auto" }}>
             <Paper
                 elevation={6}
                 sx={{
                     width: "100%",
-                    maxWidth: "1300px",
+                    maxWidth: "1450px",
                     borderRadius: "12px",
                     overflow: "hidden",
 
@@ -181,21 +201,23 @@ const EditTable: React.FC = () => {
                 }}
             >
                 {/* Header Section */}
-                <Box sx={{ background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))", color: "#fff", p: 3 }}>
-                    <Typography variant="h4" fontWeight="bold">Stock Details</Typography>
-                    <Typography variant="subtitle1">Detailed overview of user activity</Typography>
-                </Box>
+                <Box display="flex" justifyContent="space-between" sx={{ background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))", color: "#fff", p: 3 }}>
 
-                {/* Add Product Button */}
-                <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
-                    <Button
-                        variant="contained"
-                        onClick={handleAddNewItem}
-                        sx={{ backgroundColor: "#f5f58e", color: "#000", borderRadius: "12px" }}
+                    <Box>
+                        <Typography variant="h4" fontWeight="bold">Stock Details</Typography>
+                        <Typography variant="subtitle1">Detailed overview of user activity</Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                        <Button
+                            variant="contained"
+                            onClick={handleAddNewItem}
+                            sx={{ backgroundColor: "#f5f58e", color: "#000", borderRadius: "12px" }}
                         // onClick={handleOpenAddProductModal}
-                    >
-                        Add Product
-                    </Button>
+                        >
+                            Add Product
+                        </Button>
+                    </Box>
+
                 </Box>
 
                 {/* Data Table */}
@@ -204,8 +226,9 @@ const EditTable: React.FC = () => {
                         rows={rows}
                         columns={columns}
                         loading={loading}
-                        getRowId={(row) => row.orderId}
-                        autoHeight
+                        hideFooter
+                        rowHeight={75}
+
                         sx={{
                             "& .MuiDataGrid-columnHeaders": {
                                 backgroundColor: "rgb(240 245 255)",
@@ -221,7 +244,7 @@ const EditTable: React.FC = () => {
                                 transition: "background-color 0.3s",
                             },
                             "& .MuiDataGrid-footerContainer": {
-                                backgroundColor: "rgb(240 245 255)",
+                                background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))",
                                 borderTop: "1px solid #e5e7eb",
                             },
                         }}
@@ -229,16 +252,7 @@ const EditTable: React.FC = () => {
                 </Box>
             </Paper>
 
-            {/* Invoice Dialog */}
-            <Dialog open={openModal} onClose={handleCloseModal} maxWidth="lg" fullWidth>
-                <DialogTitle>Invoice Details</DialogTitle>
-                <DialogContent>
-                    {/* Invoice Content */}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseModal} color="primary">Close</Button>
-                </DialogActions>
-            </Dialog>
+
             <Modal
                 open={isModalOpen}
                 onClose={handleCloseModal}

@@ -18,7 +18,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { fetchCategories, fetchSubCategories, fetchUpdateProductCategory, postProductCategory } from "../utils/api-collection";
+import { deleteProductCategory, fetchCategories, fetchSubCategories, fetchUpdateProductCategory, postProductCategory } from "../utils/api-collection";
 import EditIcon from '@mui/icons-material/Edit'
 import {
     List,
@@ -27,7 +27,8 @@ import {
     ListItemSecondaryAction,
 } from "@mui/material";
 import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
-import { addProductBoxStyle, AdminHeaderBoxStyle, AdminHeaderIconEditStyle, AdminHeaderIconStyle, AdminHeaderSubBoxStyle, BoxcardStyle, cardBoxStyle, editIconCardStyle, madalCardStyle, modalBoxStyle, modalBoxStyle2, TextFieldStyle, uploadImageStyle } from "../styles/admin.style";
+import { addProductBoxStyle, AdminHeaderBoxStyle, AdminHeaderIconEditStyle, AdminHeaderIconStyle, AdminHeaderSubBoxStyle, BoxcardStyle, cardBoxStyle, deleteIconCardStyle, editIconCardStyle, madalCardStyle, modalBoxStyle, modalBoxStyle2, TextFieldStyle, uploadImageStyle } from "../styles/admin.style";
+
 
 interface SubCategory {
     id: number;
@@ -37,6 +38,7 @@ interface SubCategory {
 const AdminHeader = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
     const [editProduct, setEditProduct] = useState(false);
+    const [deleteProduct, setDeleteProduct] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +76,15 @@ const AdminHeader = () => {
     };
 
     const handleShowEdit = () => {
+        setDeleteProduct(false);
         setEditProduct((prev) => !prev);
+        console.log(editProduct);
+
+    };
+
+    const handleShowDelete = () => {
+        setEditProduct(false);
+        setDeleteProduct((prev) => !prev);
         console.log(editProduct);
 
     };
@@ -109,6 +119,11 @@ const AdminHeader = () => {
     const handleEdit = (categoryId: number) => {
         getUpdateProductCategory(categoryId);
         setIsModalOpen(true);
+    };
+
+    const handleDelete = async (categoryId: number) => {
+        const data = await  deleteProductCategory(categoryId);
+        getCategories();
     };
 
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
@@ -240,6 +255,11 @@ const AdminHeader = () => {
                                     sx={AdminHeaderIconEditStyle}>
                                     <EditIcon />
                                 </IconButton>
+                                <IconButton
+                                    onClick={handleShowDelete}
+                                    sx={AdminHeaderIconEditStyle}>
+                                    <DeleteIcon />
+                                </IconButton>
                                 <TextField
                                     placeholder="Search something sweet on your mind..."
                                     variant="outlined"
@@ -285,6 +305,15 @@ const AdminHeader = () => {
                                             sx={editIconCardStyle}
                                         >
                                             <EditIcon sx={{ fontSize: "18px", color: "#fff" }} />
+                                        </IconButton>
+                                    )
+                                    }
+                                    {deleteProduct && (
+                                        <IconButton
+                                            onClick={() => handleDelete(category.id)}
+                                            sx={deleteIconCardStyle}
+                                        >
+                                            <DeleteIcon sx={{ fontSize: "18px", color: "#fff" }} />
                                         </IconButton>
                                     )
                                     }
