@@ -70,18 +70,21 @@ const EditTable: React.FC = () => {
             console.error("Error fetching categories:", error);
         }
     };
-    const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false); // New state for the "Add Product" modal
+  
 
     const columns: GridColDef[] = [
+        {
+            field: "serialNumber",
+            headerName: "S.No",
+            flex: 0.5,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => rows.findIndex(row => row.id === params.id) + 1,
+        },
         { field: "id", headerName: "Product ID", flex: 0.5, headerAlign: "center", align: "center" },
         { field: "productName", headerName: "Product Name", flex: 1.5, headerAlign: "center", align: "center" },
-        { field: "quantity", headerName: "Quantity", flex: 1, headerAlign: "center", align: "center" },
-        { field: "weightage", headerName: "Weight", flex: 1, headerAlign: "center", align: "center" },
-        { field: "costPrice", headerName: "Cost Price", flex: 1, headerAlign: "center", align: "center" },
-        { field: "sellingPrice", headerName: "Selling Price", flex: 1, headerAlign: "center", align: "center" },
-        { field: "mrpPrice", headerName: "MRP Price", flex: 1, headerAlign: "center", align: "center" },
         {
-            field: "image",
+            field: "productImage",
             headerName: "Product Image",
             flex: 1,
             headerAlign: "center",
@@ -89,12 +92,47 @@ const EditTable: React.FC = () => {
             renderCell: (params) => (
                 <img
                     src={`data:image/jpeg;base64,${params.value}`} // Assuming base64 image encoding
-             
+
                     alt="Product"
-                    style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
+                    style={{ width: 50, height: 50, objectFit: "cover", }}
                 />
             ),
         },
+        { field: "mfgDate", headerName: "Mfg Date", flex: 1, headerAlign: "center", align: "center" },
+        { field: "expDate", headerName: "Expiry Date", flex: 1, headerAlign: "center", align: "center" },
+        { field: "weightage", headerName: "Weight", flex: 1, headerAlign: "center", align: "center" },
+        { field: "mrpPrice", headerName: "MRP Price", flex: 1, headerAlign: "center", align: "center" },
+        { field: "sellingPrice", headerName: "Selling Price", flex: 1, headerAlign: "center", align: "center" },
+        {
+            field: "editproduct",
+            headerName: "Edit Product",
+            flex: 1,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                        backgroundImage: "linear-gradient(to right, rgb(253, 230, 114), rgb(253, 184, 115))",
+                        color: "#000",
+                        borderRadius: "12px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "0.3s",
+                        "&:hover": {
+                            backgroundImage: "linear-gradient(to right, rgb(253, 210, 80), rgb(253, 164, 95))",
+                            transform: "scale(1.05)",
+                        },
+                    }}
+                    onClick={() => setIsModalOpen(true)}
+                >
+                    Edit
+                </Button>
+            ),
+        }
+
     ];
 
     const handleAddNewItem = () => {
@@ -129,7 +167,7 @@ const EditTable: React.FC = () => {
             const data = await getProductDetails(productId)
             console.log("productsWithId", data);
 
-            setRows([data]); 
+            setRows([data]);
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error("Error fetching product data:", error.message);
@@ -189,8 +227,8 @@ const EditTable: React.FC = () => {
                         columns={columns}
                         loading={loading}
                         hideFooter
-                        // getRowId={(row) => row.id}
                         rowHeight={75}
+
                         sx={{
                             "& .MuiDataGrid-columnHeaders": {
                                 backgroundColor: "rgb(240 245 255)",

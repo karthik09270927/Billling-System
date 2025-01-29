@@ -325,4 +325,14 @@ export const getProductDetails = async (id: number) => {
   }
 };
 
+export const deleteProductCategory = async (id: number) => {
+  try {
+    const response = await API.delete<{ data: any }>(`/billing/productSubCategory?id=${id}`);
+    return response.data?.data;
+  } catch (error) {
+    console.error('Error fetching product info:', error);
+    throw error;
+  }
+};
+
 
