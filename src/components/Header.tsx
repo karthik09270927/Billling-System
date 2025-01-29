@@ -9,9 +9,9 @@ import {
     Card,
     CardContent,
     CardMedia,
+    Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import QrCode2Icon from '@mui/icons-material/QrCode2';
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -98,7 +98,7 @@ const Header = () => {
                         zIndex: 1000,
                     }}
                 >
-                    <ExpandMoreIcon  sx={{ fontSize: 20, color: "#333" }} />
+                    <ExpandMoreIcon sx={{ fontSize: 20, color: "#333" }} />
                 </IconButton>
             )}
             {/* Header Section */}
@@ -142,7 +142,7 @@ const Header = () => {
                             </Typography>
                         </Grid>
 
-                        
+
 
                         {/* Search Bar, QR Code, and Logout Icons */}
                         <Grid item xs>
@@ -167,12 +167,11 @@ const Header = () => {
                                         },
                                     }}
                                 />
-                                <IconButton>
-                                    <QrCode2Icon sx={{ fontSize: 28, color: "#333" }} />
-                                </IconButton>
-                                <IconButton>
-                                    <LogoutIcon sx={{ fontSize: 28, color: "red" }} onClick={handleLogout} />
-                                </IconButton>
+                                <Tooltip title="Logout" placement="top" arrow>
+                                    <IconButton>
+                                        <LogoutIcon sx={{ fontSize: 28, color: "red" }} onClick={handleLogout} />
+                                    </IconButton>
+                                </Tooltip>
                             </Box>
                         </Grid>
                     </Grid>

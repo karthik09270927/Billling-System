@@ -15,8 +15,8 @@ import { motion } from 'framer-motion';
 import logo from '../assets/BrandLogo.png';
 import { loginUser } from '../utils/api-collection';
 import { jwtDecode } from "jwt-decode";
-import { Toasts } from '../centralizedComponents/forms/Toast';
 import { MainLoader } from '../centralizedComponents/forms/MainLoader';
+import { showErrorToast, showSuccessToast } from '../utils/toast';
 
 
 
@@ -65,7 +65,7 @@ export const LoginPage: React.FC = () => {
     try {
       const result = await loginUser(formValues.userMail, formValues.password);
       console.log('Login Successful:', result);
-      Toasts({ message: 'Login Successfully', type: 'success' })
+      showSuccessToast('Login Successfully');
 
       const { accessToken } = result.data;
 
@@ -89,7 +89,7 @@ export const LoginPage: React.FC = () => {
           } else if (decodedToken.role === 'staff') {
             navigate('/staff-dashboard');
           } else {
-            Toasts({ message: 'Invalid Role', type: 'error' })
+            showErrorToast('Invalid Role');
           }
         }, 5000);
 
@@ -97,8 +97,8 @@ export const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login Failed:', error);
-      Toasts({ message: 'Login Failed', type: 'error' })
       setErrorMessage(error || 'Login failed. Please try again.');
+      showErrorToast('Login failed. Please try again.');
     }
   };
 

@@ -256,68 +256,89 @@ const StaffDashboard: React.FC = () => {
               {(searchTerm ? searchResults : filteredBySubcategory).length > 0 ? (
                 (searchTerm ? searchResults : filteredBySubcategory).map((item: any) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-                    <Card
-                      sx={{
-                        backgroundColor: "#ffffff",
-                        boxShadow: '2px 2px 2px 2px rgba(0, 0, 0, 0.1)',
-                        borderRadius: "12px",
-                        padding: 1,
-                        width: "200px",
-                        height: "300px",
-                        transition: "transform 0.3s, box-shadow 0.3s",
-                        "&:hover": {
-                          transform: "translateY(-10px)",
-                          boxShadow: '4px 4px 6px 6px #b5e48c',
-                        },
+                    <Badge
+                      badgeContent={`${item.weightage}g`}
+                      color="primary"
+                      anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right'
                       }}
-                      onClick={() => handleItemClick(item)}
+                      sx={{
+                        '& .MuiBadge-badge': {
+                          backgroundColor: '#74D52B',
+                          color: 'white',
+                          fontSize: '14px',
+                          padding: '0 6px',
+                          minWidth: '45px',
+                          height: '26px',
+                          borderRadius: '10px',
+                          fontWeight: 'bold'
+                        }
+                      }}
                     >
-                      <Box
+                      <Card
                         sx={{
-                          backgroundColor: "#f9f9f9",
-                          borderRadius: "10px",
-                          overflow: "hidden",
-                          mb: 2,
-                          height: "120px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
+                          backgroundColor: "#ffffff",
+                          boxShadow: '2px 2px 2px 2px rgba(0, 0, 0, 0.1)',
+                          borderRadius: "12px",
+                          padding: 1,
+                          width: "200px",
+                          height: "300px",
+                          transition: "transform 0.3s, box-shadow 0.3s",
+                          "&:hover": {
+                            transform: "translateY(-10px)",
+                            boxShadow: '4px 4px 6px 6px #b5e48c',
+                          },
                         }}
+                        // onClick={() => handleItemClick(item)}
                       >
-                        <CardMedia
-                          component="img"
+                        <Box
                           sx={{
-                            maxHeight: "100%",
-                            maxWidth: "100%",
-                            objectFit: "contain",
-                          }}
-                          image={`data:image/jpeg;base64,${item.image}`}
-                          alt={item.productName}
-                        />
-                      </Box>
-                      <CardContent sx={{ textAlign: "start", "&:last-child": { paddingBottom: 0 } }}>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                            color: "#333",
-                            mb: 0.5,
+                            backgroundColor: "#f9f9f9",
+                            borderRadius: "10px",
+                            overflow: "hidden",
+                            mb: 2,
+                            height: "120px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
-                          {item.productName}
-                        </Typography>
-                        {/* <Typography
+                          <CardMedia
+                            component="img"
+                            sx={{
+                              maxHeight: "100%",
+                              maxWidth: "100%",
+                              objectFit: "contain",
+                            }}
+                            image={`data:image/jpeg;base64,${item.image}`}
+                            alt={item.productName}
+                          />
+                        </Box>
+                        <CardContent sx={{ textAlign: "start", "&:last-child": { paddingBottom: 0 } }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: "14px",
+                              fontWeight: "bold",
+                              color: "#333",
+                              mb: 0.5,
+                            }}
+                          >
+                            {item.productName}
+                          </Typography>
+                          <Typography
                           variant="body2"
                           sx={{
                             fontSize: "16px",
                             color: "red",
                           }}
                         >
-                          ₹ {item.id ? item.id.toFixed(2) : "Price Unavailable"}
-                        </Typography> */}
-                      </CardContent>
-                    </Card>
+                          ₹ {item.mrpPrice || "Price Unavailable"}
+                        </Typography>
+                        </CardContent>
+                      </Card>
+                    </Badge>
                   </Grid>
                 ))
               ) : (
