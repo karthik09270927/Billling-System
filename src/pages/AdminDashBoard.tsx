@@ -259,29 +259,29 @@ const AdminDashboard: React.FC = () => {
 
           {subCategories.map((subcategory: any) => (
             <Button
-              key={subcategory.id}
-              onClick={() => handleSubcategorySelect(subcategory)}
-              sx={{
-                margin: "0 8px",
-                padding: "6px 16px",
-                borderRadius: "30px",
-                backgroundColor: selectedSubcategory === subcategory ? "#74D52B" : "#f0f0f0",
-                color: selectedSubcategory === subcategory ? "white" : "#333",
-                fontSize: "12px",
-                fontWeight: 600,
-                transition: "all 0.3s ease",
-                boxShadow: selectedSubcategory === subcategory ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)",
-                "&:hover": {
-                  backgroundColor: "#74D52B",
-                  color: "white",
-                  transform: "translateY(-3px)",
-                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
-                },
-                "&:focus": {
-                  outline: "none",
-                },
-              }}
-            >
+            key={subcategory.id}
+            onClick={() => handleSubcategorySelect(subcategory)}
+            sx={{
+              margin: "0 8px",
+              padding: "6px 16px",
+              borderRadius: "30px",
+              backgroundColor: selectedSubcategory?.id === subcategory.id ? "#74D52B" : "#f0f0f0",
+              color: selectedSubcategory?.id === subcategory.id ? "white" : "#333",
+              fontSize: "12px",
+              fontWeight: 600,
+              transition: "all 0.3s ease",
+              boxShadow: selectedSubcategory?.id === subcategory.id ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)",
+              "&:hover": {
+                backgroundColor: "#74D52B",
+                color: "white",
+                transform: "translateY(-3px)",
+                boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
+              },
+              "&:focus": {
+                outline: "none",
+              },
+            }}
+          >
               {subcategory.subCategoryName}
 
               <Badge
@@ -303,7 +303,7 @@ const AdminDashboard: React.FC = () => {
                   },
                 }}
               />
-              {deleteSubCategory && (<CloseIcon sx={{ fontSize: "18px", ml: 1, color: "red" }} onClick={handleDeleteSubCategory} />)}
+              
             </Button>
 
           ))}
@@ -335,33 +335,6 @@ const AdminDashboard: React.FC = () => {
             </Button>
           </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "end",
-              cursor: "pointer",
-              ml: 2,
-            }}
-            onClick={handleDeleteSubCategoryList}
-          >
-            <Button
-              sx={{
-                minWidth: 0,
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                backgroundColor: "#f0f0f0",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                "&:hover": {
-                  backgroundColor: "#74D52B",
-                  color: "white",
-                },
-              }}
-            >
-              <DeleteIcon sx={{ fontSize: "18px", }} />
-            </Button>
-          </Box>
         </Box>
 
         <TextField
@@ -432,7 +405,7 @@ const AdminDashboard: React.FC = () => {
                       borderRadius: "12px 12px 0 0",
                     }}
                   >
-                    <AddIcon sx={{ fontSize: "60px", color: "#74d52b" }} />
+                    <AddIcon sx={{ fontSize: "60px", color: "#FDBE73" }} />
                   </Box>
                 </Box>
                 <CardContent
@@ -856,7 +829,6 @@ const AdminDashboard: React.FC = () => {
             {/* Add Product Button */}
             <Button
               variant="contained"
-              // color="primary"
               fullWidth
               sx={{ borderRadius: "8px", backgroundColor: "#bdba04" }}
               onClick={() => {

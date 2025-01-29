@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Button, Box, Paper, Typography, FormControl, Grid, IconButton, InputLabel, MenuItem, Modal, Select, TextField, } from "@mui/material";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Toasts } from "../centralizedComponents/forms/Toast";
-import { fetchCategories, fetchSubCategories, getAdminProductList, getProductDetails } from "../utils/api-collection";
-import DeleteIcon from '@mui/icons-material/Delete';
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import { Button, Box, Paper, Typography, Grid,  Modal, TextField, } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { getProductDetails } from "../utils/api-collection";
 import { useCategory } from "../Hooks/useContext";
+import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
 
 interface ProductData {
     id: number;
@@ -19,22 +16,15 @@ interface ProductData {
     mrpPrice: number;
 }
 
-interface ProductListResponse {
-    data: ProductData[];
-}
-
-
 const EditTable: React.FC = () => {
     const [rows, setRows] = useState<ProductData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [openModal, setOpenModal] = useState<boolean>(false);
-    const [selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [categories, setCategories] = useState<any[]>([]);
-    const [subCategory, setSubCategory] = useState<any[]>([]);
+    const [isEdit, setIsEdit] = useState(false);
     const { productId } = useCategory();
+    const modalTitle = isEdit ? "Edit Product" : "Add Product";
 
-    const { control, handleSubmit, watch, setValue, register, reset, getValues } = useForm({
+    const { control, handleSubmit, reset, } = useForm({
         defaultValues: {
             category: "",
             subCategory: "",
@@ -48,29 +38,12 @@ const EditTable: React.FC = () => {
         },
     });
 
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: "products",
-    });
-
-    const getCategories = async () => {
-        try {
-            const data = await fetchCategories();
-            setCategories(data);
-        } catch (error) {
-            console.error("Error fetching categories:", error);
-        }
+    const handleEditProducts = (params: any) => {
+        console.log(params);
+        setIsModalOpen(true);
+        setIsEdit(true);
     };
 
-    const getSubCategories = async (id: any) => {
-        try {
-            const subdata = await fetchSubCategories(id);
-            setSubCategory(subdata.data);
-        } catch (error) {
-            console.error("Error fetching categories:", error);
-        }
-    };
-  
 
     const columns: GridColDef[] = [
         {
@@ -126,7 +99,7 @@ const EditTable: React.FC = () => {
                             transform: "scale(1.05)",
                         },
                     }}
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => handleEditProducts(params)}
                 >
                     Edit
                 </Button>
@@ -137,23 +110,16 @@ const EditTable: React.FC = () => {
 
     const handleAddNewItem = () => {
         setIsModalOpen(true);
-        getCategories();
     };
 
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+        setIsEdit(false);
         reset();
-    };
-
-    const handleCategoryChange = (value: any) => {
-        console.log("Category changed to:", value);
-        getSubCategories(value);
-    };
-
-    const handleSubCategoryChange = (value: any) => {
 
     };
+
 
     const onSubmit = (data: any) => {
         console.log(data);
@@ -277,251 +243,61 @@ const EditTable: React.FC = () => {
                         variant="h5"
                         sx={{ textAlign: "center", mb: 3, fontWeight: "bold", color: "#333" }}
                     >
-                        Add Products
+                    {modalTitle}
                     </Typography>
 
-                    {/* Category and Subcategory */}
                     <Grid container spacing={2} sx={{ mb: 3 }}>
-                        <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth>
-                                <InputLabel id="category-label">Category</InputLabel>
-                                <Controller
-                                    name="category"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            {...field}
-                                            labelId="category-label"
-                                            label="Category"
-                                            defaultValue=""
-                                            onChange={(event) => {
-                                                field.onChange(event);
-                                                handleCategoryChange(event.target.value);
-                                            }}
-                                        >
-                                            {categories.map((category, index) => (
-                                                <MenuItem key={index} value={category.id}>
-                                                    {category.categoryName}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                            </FormControl>
+                        <Grid item xs={12} sm={4}>
+                            <TextField fullWidth variant="outlined" label="Product Name" />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth>
-                                <InputLabel id="subcategory-label">Sub Category</InputLabel>
-                                <Controller
-                                    name="subCategory"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            {...field}
-                                            labelId="subcategory-label"
-                                            label="Sub Category"
-                                            defaultValue=""
-                                            onChange={(event) => {
-                                                field.onChange(event);
-                                                handleSubCategoryChange(event.target.value);
-                                            }}
-                                        >
-                                            {subCategory.map((subCategories, index) => (
-                                                <MenuItem key={index} value={subCategories.id}>
-                                                    {subCategories.subCategoryName}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                            </FormControl>
+
+                        <Grid item xs={12} sm={4}>
+                            <CentralizeDatePicker
+                                name="manufacturedate"
+                                label="Manufacture Date"
+                                control={control}
+                                defaultValue=""
+                                format="DD-MM-YYYY"
+                                size="small"
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+                            <CentralizeDatePicker
+                                name="expirydate"
+                                label="Expiry Date"
+                                control={control}
+                                defaultValue=""
+                                format="DD-MM-YYYY"
+                                size="small"
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+                            <TextField fullWidth variant="outlined" label="Weight" type="number" />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+                            <TextField fullWidth variant="outlined" label="MRP Price" type="number" />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+                            <TextField fullWidth variant="outlined" label="Selling Price" type="number" />
                         </Grid>
                     </Grid>
 
-                    {/* Form Array for Products */}
-                    {fields.map((field, index) => (
-                        <Box
-                            key={field.id}
-                            sx={{
-                                alignItems: "flex-start",
-                                borderBottom: "1px solid #ddd",
-                                mb: 3,
-                                pb: 3,
-                            }}
-                        >
-                            <Box
-
-                                sx={{
-                                    display: "flex",
-                                    gap: 2,
-                                    alignItems: "flex-start",
-                                }}
-                            >
-                                {/* Product Name */}
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    label="Product Name"
-                                    {...register(`products.${index}.productName`, { required: "Required" })}
-                                />
-
-                                {/* Upload Image */}
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        flexShrink: 0,
-                                    }}
-                                >
-                                    {/* Use unique ID by appending index */}
-                                    <input
-                                        accept="image/*"
-                                        type="file"
-                                        id={`upload-image-${index}`}
-                                        style={{ display: "none" }}
-                                        onChange={(e) => {
-                                            if (e.target.files && e.target.files.length > 0) {
-                                                const file = e.target.files[0];
-                                                const imageUrl = URL.createObjectURL(file);
-                                                setValue(`products.${index}.productImage`, imageUrl);
-                                            }
-                                        }}
-                                    />
-                                    <label htmlFor={`upload-image-${index}`}>
-                                        <Box
-                                            sx={{
-                                                width: "56px",
-                                                height: "56px",
-                                                backgroundColor: "#F0F0F0",
-                                                borderRadius: "8px",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                cursor: "pointer",
-                                                border: "1px dashed #74d52b",
-                                                overflow: "hidden",
-                                            }}
-                                        >
-                                            {watch(`products.${index}.productImage`) ? (
-                                                <img
-                                                    src={watch(`products.${index}.productImage`)}
-                                                    alt="Uploaded"
-                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                                />
-                                            ) : (
-                                                <ImageOutlinedIcon sx={{ fontSize: "30px", color: "#74d52b" }} />
-                                            )}
-                                        </Box>
-                                    </label>
-                                </Box>
-
-                                {/* Price */}
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    label="Price"
-                                    type="number"
-                                    {...register(`products.${index}.price`, { required: "Required" })}
-                                />
-                                {/* Remove Button */}
-                                <IconButton
-                                    color="error"
-                                    edge="end"
-                                    aria-label="delete"
-                                    onClick={() => remove(index)}
-                                    sx={{
-                                        alignSelf: "center",
-                                    }}
-                                >
-                                    <DeleteIcon />
-                                </IconButton>
-                            </Box>
-                            {/* <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  alignItems: "flex-start",
-
-                }}
-              >
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Quantity"
-                  type="number"
-                  {...register(`products.${index}.quantity`, { required: "Required" })}
-                />
-                <FormControl fullWidth variant="outlined">
-                  <TextField
-                    id="outlined-adornment-weight"
-                    label="Weight"
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end">kg</InputAdornment>,
-                    }}
-                    aria-describedby="outlined-weight-helper-text"
-                    inputProps={{
-                      'aria-label': 'weight',
-                    }}
-                    {...register(`products.${index}.Weight`, { required: "Required" })}
-                  />
-                </FormControl>
-
-                <CentralizeDatePicker
-                  label="Manufacture Date"
-                  control={control}
-                  defaultValue=""
-                  format="DD-MM-YYYY"
-                  size="small"
-                  {...register(`products.${index}.manufactureDate`, { required: "Required" })}
-                />
-
-                <CentralizeDatePicker
-                  label="Expiry Date"
-                  control={control}
-                  defaultValue=""
-                  format="DD-MM-YYYY"
-                  size="small"
-                  {...register(`products.${index}.expiryDate`, { required: "Required" })}
-                />
-              </Box> */}
-                        </Box>
-                    ))}
                     <Box
                         sx={{
                             display: "flex",
                             gap: 3,
+                            justifyContent: "center",
                         }}
                     >
-                        {/* Add Product Button */}
-                        <Button
-                            variant="contained"
-                            // color="primary"
-                            fullWidth
-                            sx={{ borderRadius: "8px", backgroundColor: "#bdba04" }}
-                            onClick={() => {
-                                const lastIndex = fields.length - 1;
-                                if (lastIndex >= 0) {
-                                    const productName = getValues(`products.${lastIndex}.productName`);
-                                    const price = getValues(`products.${lastIndex}.price`);
 
-                                    if (!productName || !price) {
-                                        Toasts({ message: 'Please fill in all fields', type: 'error' })
-                                        return;
-                                    }
-                                }
-                                append({
-                                    productName: "",
-                                    productImage: "",
-                                    price: "",
-                                });
-                            }}
-                        >
-                            Add Product
-                        </Button>
 
                         <Button
                             variant="contained"
-                            fullWidth
-                            sx={{ borderRadius: "8px", py: 1, backgroundColor: "#d93030" }}
+                            sx={{ borderRadius: "8px", py: 1, backgroundColor: "#d93030", width: "auto" }}
                             onClick={handleCloseModal}
                         >
                             Close
@@ -529,11 +305,10 @@ const EditTable: React.FC = () => {
                         {/* Submit Button */}
                         <Button
                             variant="contained"
-                            fullWidth
                             sx={{ borderRadius: "8px", py: 1, backgroundColor: "#74D52B" }}
                             onClick={handleSubmit(onSubmit)}
                         >
-                            Submit
+                            {isEdit ? "Update" : "Add"}
                         </Button>
                     </Box>
                 </Box>
