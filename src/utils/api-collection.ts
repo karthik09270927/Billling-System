@@ -307,7 +307,7 @@ export const saveProduct = async (productList: Array<{
   price: number;
 }>) => {
   try {
-    const response = await API.post("/billingProduct/saveBill", { productList });
+    const response = await API.post("/billing/productSave", { productList });
     return response.data;
   } catch (error) {
     console.error("Error saving product:", error);
