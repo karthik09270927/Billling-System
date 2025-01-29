@@ -293,8 +293,8 @@ export const fetchUserList = async () => {
   return response.data;   
 };
 
-export const getProductList = async ( search: string, pageNo: number, pageSize: number, productCategoryId: number, subProductCategoryId: number) => {
-  const response = await API.get(`/billing/productsList?search=${search}&pageNo=${pageNo}&pageSize=${pageSize}&productCategoryId=${productCategoryId}&subProductCategoryId=${subProductCategoryId}`);
+export const getAdminProductList = async () => {
+  const response = await API.get(`/billing/adminProductsList`);
   return response.data;   
 };
 

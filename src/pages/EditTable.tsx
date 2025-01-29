@@ -64,6 +64,7 @@ const EditTable: React.FC = () => {
           console.error("Error fetching categories:", error);
         }
       };
+    const [openAddProductModal, setOpenAddProductModal] = useState<boolean>(false); // New state for the "Add Product" modal
 
     const columns: GridColDef[] = [
         { field: "orderId", headerName: "Order ID", flex: 0.5, headerAlign: "center", align: "center" },
@@ -91,7 +92,6 @@ const EditTable: React.FC = () => {
                         sx={{
                             color: "green",
                             transition: "color 0.2s",
-
                         }}
                     />
                 </button>
@@ -128,12 +128,13 @@ const EditTable: React.FC = () => {
     const loadUserList = async () => {
         try {
             setLoading(true);
-            //   const data = await fetchUserList() as UserHistoryResponse;
-            //   const usersWithId = data.data.map((user) => ({
+            // Uncomment and modify as per your API call for loading data
+            // const data = await fetchUserList() as UserHistoryResponse;
+            // const usersWithId = data.data.map((user) => ({
             //     ...user,
             //     id: user.orderId,
-            //   }));
-            //   setRows(usersWithId);
+            // }));
+            // setRows(usersWithId);
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error("Error fetching user data:", error.message);
@@ -149,6 +150,17 @@ const EditTable: React.FC = () => {
     const handleViewDetails = (invoiceUrl: string) => {
         setSelectedInvoiceUrl(invoiceUrl);
         setOpenModal(true);
+    };
+
+   
+
+    // New handler for opening the "Add Product" modal
+    const handleOpenAddProductModal = () => {
+        setOpenAddProductModal(true);
+    };
+
+    const handleCloseAddProductModal = () => {
+        setOpenAddProductModal(false);
     };
 
     useEffect(() => {
@@ -169,7 +181,7 @@ const EditTable: React.FC = () => {
                 }}
             >
                 {/* Header Section */}
-                <Box sx={{ background: "linear-gradient(to right, #2563EB, #4338CA)", color: "#fff", p: 3 }}>
+                <Box sx={{ background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))", color: "#fff", p: 3 }}>
                     <Typography variant="h4" fontWeight="bold">Stock Details</Typography>
                     <Typography variant="subtitle1">Detailed overview of user activity</Typography>
                 </Box>
@@ -180,6 +192,7 @@ const EditTable: React.FC = () => {
                         variant="contained"
                         onClick={handleAddNewItem}
                         sx={{ backgroundColor: "#f5f58e", color: "#000", borderRadius: "12px" }}
+                        // onClick={handleOpenAddProductModal}
                     >
                         Add Product
                     </Button>
