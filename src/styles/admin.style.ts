@@ -78,6 +78,17 @@ export const editIconCardStyle = {
     },
 }
 
+export const deleteIconCardStyle = {
+    position: "absolute",
+    borderRadius: "0% 30% 0% 70%",
+    right: "0px",
+    backgroundColor: "#f22727",
+    zIndex: 1,
+    '&:hover': {
+        backgroundColor: "rgb(252, 91, 91)",
+    },
+}
+
 export const madalCardStyle = {
     minWidth: "120px",
     maxWidth: "140px",

@@ -71,9 +71,9 @@ export default function AdminHeader() {
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            <IconButton>
+            {/* <IconButton>
               <QrCodeScannerIcon sx={{ fontSize: 28, color: "#333" }} />
-            </IconButton>
+            </IconButton> */}
             {refreshToken ? (
               <IconButton onClick={handleLogout} sx={{ color: "inherit" }}>
                 <LoginIcon />
