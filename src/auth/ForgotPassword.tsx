@@ -9,7 +9,7 @@ import { useTheme } from '@mui/system';
 import logo from '../assets/BrandLogo.png';
 import BackArrowIconButton from '../centralizedComponents/forms/ArroeBackIconButton.Component';
 import { forgotPassword, verifyOTP } from '../utils/api-collection';
-import { Toasts } from '../centralizedComponents/forms/Toast';
+import { showErrorToast, showSuccessToast } from '../utils/toast';
 
 
 const ForgotPassword: React.FC = () => {
@@ -44,10 +44,10 @@ const ForgotPassword: React.FC = () => {
             await forgotPassword(formValues.userMail);
             setSuccessMessage('OTP has been sent to your email address.');
             setIsOTPVisible(true);
-            Toasts({ message: 'OTP sent to your email', type: 'success' });
+            showSuccessToast('OTP sent to your email');
         } catch (error: any) {
             console.error('Error sending OTP:', error);
-            Toasts({ message: 'Error sending OTP', type: 'error' });
+            showErrorToast('Error sending OTP');
         }
     };
 
@@ -58,15 +58,15 @@ const ForgotPassword: React.FC = () => {
         try {
             console.log("Submitting OTP with payload:", { userMail: formValues.userMail, otp: formValues.otp });
             await verifyOTP(formValues.userMail, formValues.otp);
-            Toasts({ message: 'OTP verified successfully', type: 'success' });
+            showSuccessToast('OTP verified successfully');
             localStorage.setItem("userEmail", formValues.userMail);
-            Toasts({ message: 'OTP verified successfully', type: 'success' });
+            showSuccessToast('OTP verified successfully');
             navigate("/UpdatePassword");
         } catch (error: any) {
             console.error("Error verifying OTP:", error.response?.data || error);
             const serverError = error.response?.data;
             setErrorMessage(serverError?.message || "Invalid OTP. Please try again.");
-            Toasts({ message: 'Invalid OTP. Please try again.', type: 'error' });
+            showErrorToast('Invalid OTP. Please try again.');
         }
     };
 

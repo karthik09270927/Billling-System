@@ -17,28 +17,26 @@ import {
   CardMedia,
   IconButton,
   Stack,
+  Tooltip,
+  Badge,
 } from "@mui/material";
 import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { Toasts } from "../centralizedComponents/forms/Toast";
 import { getProductInfoById, getUserDetails, saveBill } from "../utils/api-collection";
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import CloseIcon from '@mui/icons-material/Close';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import successSound from '../assets/sounds/success.mp3';
 import errorSound from '../assets/sounds/error.mp3';
-
-
-
+import { showErrorToast, showSuccessToast } from "../utils/toast";
 
 
 interface RightPanelProps {
   customerName?: string;
-  orderNumber?: string;
 }
 
-const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) => {
+const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
   const { selectedItems, setSelectedItems } = useSelectedItems();
   const [isLoadingUser, setIsLoadingUser] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false); // Loading state for API
@@ -50,9 +48,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
   const scannerRef = useRef<any>(null);
   const successAudioRef = useRef(new Audio(successSound));
   const errorAudioRef = useRef(new Audio(errorSound));
-  const [isScanning, setIsScanning] = useState(false);
   const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'Online'>('Cash');
   const [scannedBarcodes, setScannedBarcodes] = useState<Set<number>>(new Set());
+  const [isScanning, setIsScanning] = useState(false);
   const [errors, setErrors] = useState({
     name: '',
     phoneNumber: '',
@@ -129,13 +127,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
   };
 
 
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
-    return emailRegex.test(email);
-  };
 
   const calculateTotal = () => {
-    return selectedItems?.reduce((acc, item) => acc + item.id * item.quantity, 0).toFixed(2);
+    return selectedItems?.reduce((acc, item) => acc + item.mrpPrice * item.quantity, 0).toFixed(2);
   };
 
 
@@ -166,16 +160,13 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
       const response = await saveBill(billData);
       console.log('Success', response)
       console.info('Order placed successfully!');
-      Toasts({ message: 'Order placed successfully', type: 'success' });
+      showSuccessToast('Order placed successfully');
       setIsModalOpen(false);
       setSelectedItems([]);
       resetForm();
     } catch (error: any) {
       console.error('Order placement failed:', error);
-      Toasts({
-        message: error.response?.data?.message || 'Failed to place order',
-        type: 'error'
-      });
+      showErrorToast('Failed to place order');
     } finally {
       console.info('Order process completed');
       setIsPlacingOrder(false);
@@ -223,11 +214,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
 
       if (scannedBarcodes.has(productId)) {
         errorAudioRef.current.play();
-        Toasts({
-          message: 'This product is already in your order',
-          type: 'error'
-        });
-        return; // Keep scanner open
+        showErrorToast('This product is already in your order');
+        return;
       }
       const productInfo = await getProductInfoById(productId);
 
@@ -250,8 +238,10 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           const existingItem = prev.find(item => item.id === newItem.id);
           if (existingItem) {
             errorAudioRef.current.play();
+            showErrorToast(`${productInfo.productName} is already in cart`);
             return prev
           } else {
+            showSuccessToast(`${productInfo.productName} 'added successfully'`);
             return [...prev, newItem];
           }
         });
@@ -260,7 +250,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
     } catch (error) {
       errorAudioRef.current.play();
       console.error('Error processing scanned code:', error);
-      Toasts({ message: 'Error processing scanned code', type: 'error' });
+      showErrorToast('Error processing scanned code');
     }
   };
 
@@ -270,8 +260,22 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
   };
 
   const stopScanner = () => {
-    if (scannerRef.current) {
-      scannerRef.current.clear();
+    try {
+      if (scannerRef.current) {
+        // Stop the scanner and release camera
+        scannerRef.current.stop().then(() => {
+          scannerRef.current.clear();
+          // Release camera stream
+          const videoElement = document.querySelector('video');
+          if (videoElement && videoElement.srcObject) {
+            const tracks = (videoElement.srcObject as MediaStream).getTracks();
+            tracks.forEach(track => track.stop());
+            videoElement.srcObject = null;
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error stopping scanner:', error);
     }
   };
 
@@ -317,11 +321,13 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
               }
             }}
           >
-            <QrCode2Icon sx={{
-              '&:hover': {
-                color: '#74D52B)'
-              }
-            }} />
+            <Tooltip title="Scan the barcode" placement="top" arrow>
+              <QrCode2Icon sx={{
+                '&:hover': {
+                  color: '#74D52B)'
+                }
+              }} />
+            </Tooltip>
           </IconButton>
         </Box>
 
@@ -333,18 +339,73 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
           }}
           maxWidth="sm"
           fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 10,
+              minHeight: '400px'
+            }
+          }}
         >
-          <DialogContent>
+          <DialogTitle sx={{
+            bgcolor: '#fbfbe5',
+            color: 'black',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+            <Typography variant="h6" fontWeight="bold">
+              Scan Product Barcode
+            </Typography>
             <IconButton
-              sx={{ position: 'absolute', right: 8, top: 8 }}
               onClick={() => {
                 stopScanner();
                 setIsQrScannerOpen(false);
               }}
+              sx={{
+                color: 'black',
+                '&:hover': {
+                  bgcolor: '#e0e0e0'
+                }
+              }}
             >
               <CloseIcon />
             </IconButton>
-            <div id="qr-reader" style={{ width: '100%' }} />
+          </DialogTitle>
+
+          <DialogContent sx={{
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            mt: 1
+          }}>
+            <Box
+              sx={{
+                border: '2px dashed #74D52B',
+                borderRadius: 8,
+                p: 2,
+                bgcolor: '#f5f5f5',
+                position: 'relative',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <div id="qr-reader" style={{ width: '100%', borderRadius: 10 }} />
+            </Box>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              align="center"
+              sx={{
+                bgcolor: '#e8f5e9',
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid #74D52B'
+              }}
+            >
+              Position the barcode within the frame to scan
+            </Typography>
           </DialogContent>
         </Dialog>
 
@@ -376,25 +437,45 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                     gap: 2,
                   }}
                 >
-                  <CardMedia
-                    component="img"
-                    image={`data:image/jpeg;base64,${item.image}`}
-                    alt={item.productName}
+                  <Badge
+                    badgeContent={`${item.weightage}g`}
+                    color="primary"
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right'
+                    }}
                     sx={{
-                      width: 70,
-                      height: 70,
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                      border: "2px solid #e0e0e0",
-                      padding: "2px",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "scale(1.05)",
-                        boxShadow: "0 0 10px rgba(116, 213, 43, 0.3)",
+                      '& .MuiBadge-badge': {
+                        backgroundColor: '#74D52B',
+                        color: 'white',
+                        fontSize: '12px',
+                        padding: '0 6px',
+                        minWidth: '45px',
+                        height: '20px',
+                        borderRadius: '10px'
                       }
                     }}
-                  />
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                  >
+                    <CardMedia
+                      component="img"
+                      image={`data:image/jpeg;base64,${item.image}`}
+                      alt={item.productName}
+                      sx={{
+                        width: 70,
+                        height: 70,
+                        objectFit: "cover",
+                        borderRadius: "50%",
+                        border: "2px solid #e0e0e0",
+                        padding: "2px",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                          boxShadow: "0 0 10px rgba(116, 213, 43, 0.3)",
+                        }
+                      }}
+                    />
+                  </Badge>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", mt: 1 }}>
                     {item.productName}
                   </Typography>
                 </Box>
@@ -414,12 +495,14 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                     size="small"
                     onClick={() => {
                       setSelectedItems(prevItems =>
-                        prevItems.map(item =>
-                          item.id === item.id
-                            ? { ...item, quantity: item.quantity - 1 }
-                            : item
-                        ).filter(item => item.quantity > 0) // Remove items with 0 quantity
-                      )
+                        prevItems.map(product => {
+                          if (product.id === item.id) {
+                            // If quantity is 1, this product will be filtered out
+                            return { ...product, quantity: product.quantity - 1 };
+                          }
+                          return product;
+                        }).filter(product => product.quantity > 0) // Remove products with 0 quantity
+                      );
                     }}
                   >
                     <RemoveIcon sx={{ color: 'red' }} />
@@ -509,7 +592,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    ₹ {(item.id * item.quantity).toFixed(2)}
+                    ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
@@ -540,7 +623,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             </Grid>
             <Grid item xs={6}>
               <Typography align="right">
-                ₹{selectedItems.reduce((sum, item) => sum + (item.id * item.quantity), 0).toFixed(2)}
+                ₹{selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0).toFixed(2)}
               </Typography>
             </Grid>
 
@@ -558,7 +641,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6" align="right" fontWeight="bold">
-                ₹{(selectedItems.reduce((sum, item) => sum + (item.id * item.quantity), 0)).toFixed(2)}
+                ₹{(selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0)).toFixed(2)}
               </Typography>
             </Grid>
 
@@ -829,7 +912,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName, orderNumber }) =>
                     × {item.quantity}
                   </Typography>
                   <Typography sx={{ fontWeight: "600", textAlign: 'right', color: '#333' }}>
-                    ₹ {(item.id * item.quantity).toFixed(2)}
+                    ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
                   </Typography>
                 </Box>
               ))}
