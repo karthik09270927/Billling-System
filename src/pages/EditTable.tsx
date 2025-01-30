@@ -6,7 +6,7 @@ import { getAdminEachProductDetail, getProductDetails } from "../utils/api-colle
 import { useCategory } from "../Hooks/useContext";
 import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
 import { gridStyles } from "../styles/centralizedStyles";
-
+import EditIcon from '@mui/icons-material/Edit'
 interface ProductData {
     id: number;
     productName: string;
@@ -35,31 +35,32 @@ const EditTable: React.FC = () => {
             expirydate: "",
             sellingPrice: 0,
             mrpPrice: 0,
+            costPrice: 0
         },
     });
 
     const handleEditProducts = async (params: any) => {
         try {
-            const data = await getAdminEachProductDetail(params.row.id);
-            console.log("editData", data);
+            const response = await getAdminEachProductDetail(params.row.productId);
+            const product = response[0];
+            
             reset({
-                category: data.category || "",
-                productName: data.productName || "",
-                quantity: data.quantity || "",
-                weightage: data.weightage || "",
-                manufacturedate: data.mfgDate || "",
-                expirydate: data.expDate || "",
-                sellingPrice: data.sellingPrice || 0,
-                mrpPrice: data.mrpPrice || 0,
+                category: product.category || "",
+                productName: product.productName || "",
+                quantity: product.quantity || "",
+                weightage: product.weightage || "",
+                manufacturedate: product.mfgDate || "",
+                expirydate: product.expDate || "",
+                sellingPrice: product.sellingPrice || 0,
+                mrpPrice: product.mrpPrice || 0,
+                costPrice: product.costPrice || 0
             });
         } catch (error: unknown) {
-            console.error("Unexpected error occurred");
+            console.error("Error fetching product details:", error);
         }
-        console.log(params);
         setIsModalOpen(true);
         setIsEdit(true);
     };
-
 
     const columns: GridColDef[] = [
         {
@@ -90,12 +91,34 @@ const EditTable: React.FC = () => {
         { field: "mfgDate", headerName: "Mfg Date", flex: 1, headerAlign: "center", align: "center" },
         { field: "expDate", headerName: "Expiry Date", flex: 1, headerAlign: "center", align: "center" },
         { field: "weightage", headerName: "Weight", flex: 1, headerAlign: "center", align: "center" },
-        { field: "mrpPrice", headerName: "MRP Price", flex: 1, headerAlign: "center", align: "center" },
-        { field: "sellingPrice", headerName: "Selling Price", flex: 1, headerAlign: "center", align: "center" },
+        {
+            field: "costPrice",
+            headerName: "Cost Price",
+            flex: 1,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => `₹ ${params.value}`,
+        },
+        {
+            field: "mrpPrice",
+            headerName: "MRP Price",
+            flex: 1,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => `₹ ${params.value}`,
+        },
+        {
+            field: "sellingPrice",
+            headerName: "Selling Price",
+            flex: 1,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => `₹ ${params.value}`,
+        },
         {
             field: "editproduct",
             headerName: "Edit Product",
-            flex: 1,
+            // flex: 1,
             headerAlign: "center",
             align: "center",
             renderCell: (params) => (
@@ -158,7 +181,7 @@ const EditTable: React.FC = () => {
             const data = await getProductDetails(productId)
             console.log("productsWithId", data);
 
-            setRows([data]);
+            setRows(data);
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error("Error fetching product data:", error.message);
@@ -252,7 +275,7 @@ const EditTable: React.FC = () => {
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 3 }}>
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={3}>
                             <Controller
                                 name="productName"
                                 control={control}
@@ -262,7 +285,7 @@ const EditTable: React.FC = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={3}>
                             <CentralizeDatePicker
                                 name="manufacturedate"
                                 label="Manufacture Date"
@@ -273,7 +296,7 @@ const EditTable: React.FC = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={3}>
                             <CentralizeDatePicker
                                 name="expirydate"
                                 label="Expiry Date"
@@ -299,6 +322,16 @@ const EditTable: React.FC = () => {
                                 control={control}
                                 render={({ field }) => (
                                     <TextField {...field} fullWidth variant="outlined" label="Weight" />
+                                )}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={3}>
+                            <Controller
+                                name="costPrice"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} fullWidth variant="outlined" label="Cost Price" type="number" />
                                 )}
                             />
                         </Grid>
