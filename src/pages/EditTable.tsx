@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Button, Box, Paper, Typography, Grid,  Modal, TextField, } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { getProductDetails } from "../utils/api-collection";
+import { Button, Box, Paper, Typography, Grid, Modal, TextField, } from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import { getAdminEachProductDetail, getProductDetails } from "../utils/api-collection";
 import { useCategory } from "../Hooks/useContext";
 import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
+import { gridStyles } from "../styles/centralizedStyles";
 
 interface ProductData {
     id: number;
@@ -24,21 +25,36 @@ const EditTable: React.FC = () => {
     const { productId } = useCategory();
     const modalTitle = isEdit ? "Edit Product" : "Add Product";
 
-    const { control, handleSubmit, reset, } = useForm({
+    const { control, handleSubmit, reset } = useForm({
         defaultValues: {
             category: "",
-            subCategory: "",
-            products: [
-                {
-                    productName: "",
-                    productImage: "",
-                    price: "",
-                },
-            ],
+            productName: "",
+            quantity: "",
+            weightage: "",
+            manufacturedate: "",
+            expirydate: "",
+            sellingPrice: 0,
+            mrpPrice: 0,
         },
     });
 
-    const handleEditProducts = (params: any) => {
+    const handleEditProducts = async (params: any) => {
+        try {
+            const data = await getAdminEachProductDetail(params.row.id);
+            console.log("editData", data);
+            reset({
+                category: data.category || "",
+                productName: data.productName || "",
+                quantity: data.quantity || "",
+                weightage: data.weightage || "",
+                manufacturedate: data.mfgDate || "",
+                expirydate: data.expDate || "",
+                sellingPrice: data.sellingPrice || 0,
+                mrpPrice: data.mrpPrice || 0,
+            });
+        } catch (error: unknown) {
+            console.error("Unexpected error occurred");
+        }
         console.log(params);
         setIsModalOpen(true);
         setIsEdit(true);
@@ -116,7 +132,16 @@ const EditTable: React.FC = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setIsEdit(false);
-        reset();
+        reset({
+            category: "",
+            productName: "",
+            quantity: "",
+            weightage: "",
+            manufacturedate: "",
+            expirydate: "",
+            sellingPrice: 0,
+            mrpPrice: 0,
+        });
 
     };
 
@@ -194,26 +219,7 @@ const EditTable: React.FC = () => {
                         loading={loading}
                         hideFooter
                         rowHeight={75}
-
-                        sx={{
-                            "& .MuiDataGrid-columnHeaders": {
-                                backgroundColor: "rgb(240 245 255)",
-                                color: "rgb(72 85 99)",
-                                fontWeight: "bold",
-                                letterSpacing: "0.5px",
-                                borderBottom: "2px solid #e5e7eb",
-                            },
-                            "& .MuiDataGrid-cell": {
-                                padding: "0.75rem",
-                                border: "1px solid #e5e7eb",
-                                fontSize: "14px",
-                                transition: "background-color 0.3s",
-                            },
-                            "& .MuiDataGrid-footerContainer": {
-                                background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))",
-                                borderTop: "1px solid #e5e7eb",
-                            },
-                        }}
+                        sx={gridStyles}
                     />
                 </Box>
             </Paper>
@@ -236,19 +242,24 @@ const EditTable: React.FC = () => {
                         boxShadow: 24,
                         p: 4,
                         width: { xs: "100%", sm: "80%", md: "60%" },
-
                     }}
                 >
                     <Typography
                         variant="h5"
                         sx={{ textAlign: "center", mb: 3, fontWeight: "bold", color: "#333" }}
                     >
-                    {modalTitle}
+                        {modalTitle}
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 3 }}>
                         <Grid item xs={12} sm={4}>
-                            <TextField fullWidth variant="outlined" label="Product Name" />
+                            <Controller
+                                name="productName"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} fullWidth variant="outlined" label="Product Name" />
+                                )}
+                            />
                         </Grid>
 
                         <Grid item xs={12} sm={4}>
@@ -272,17 +283,44 @@ const EditTable: React.FC = () => {
                                 size="small"
                             />
                         </Grid>
-
-                        <Grid item xs={12} sm={4}>
-                            <TextField fullWidth variant="outlined" label="Weight" type="number" />
+                        <Grid item xs={12} sm={3}>
+                            <Controller
+                                name="quantity"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} fullWidth variant="outlined" label="Quantity" type="number" />
+                                )}
+                            />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
-                            <TextField fullWidth variant="outlined" label="MRP Price" type="number" />
+                        <Grid item xs={12} sm={3}>
+                            <Controller
+                                name="weightage"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} fullWidth variant="outlined" label="Weight" />
+                                )}
+                            />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
-                            <TextField fullWidth variant="outlined" label="Selling Price" type="number" />
+                        <Grid item xs={12} sm={3}>
+                            <Controller
+                                name="mrpPrice"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} fullWidth variant="outlined" label="MRP Price" type="number" />
+                                )}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={3}>
+                            <Controller
+                                name="sellingPrice"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} fullWidth variant="outlined" label="Selling Price" type="number" />
+                                )}
+                            />
                         </Grid>
                     </Grid>
 
@@ -293,11 +331,14 @@ const EditTable: React.FC = () => {
                             justifyContent: "center",
                         }}
                     >
-
-
                         <Button
                             variant="contained"
-                            sx={{ borderRadius: "8px", py: 1, backgroundColor: "#d93030", width: "auto" }}
+                            sx={{
+                                borderRadius: "8px", py: 1, backgroundColor: "#d93030", width: "auto", transition: "0.3s",
+                                "&:hover": {
+                                    transform: "scale(1.05)",
+                                },
+                            }}
                             onClick={handleCloseModal}
                         >
                             Close
@@ -305,7 +346,12 @@ const EditTable: React.FC = () => {
                         {/* Submit Button */}
                         <Button
                             variant="contained"
-                            sx={{ borderRadius: "8px", py: 1, backgroundColor: "#74D52B" }}
+                            sx={{
+                                borderRadius: "8px", py: 1, backgroundColor: "#74D52B", transition: "0.3s",
+                                "&:hover": {
+                                    transform: "scale(1.05)",
+                                },
+                            }}
                             onClick={handleSubmit(onSubmit)}
                         >
                             {isEdit ? "Update" : "Add"}

@@ -52,7 +52,7 @@ export default function AdminHeader() {
               display: { xs: "none", sm: "block", md: "flex" }
             }}
           >
-            <ShoppingCartIcon sx={{ fontSize: "40px" }} /> HYPERMARKET
+            <ShoppingCartIcon sx={{ fontSize: "40px" }} />FRESH HYPERMARKET
           </Typography>
 
           <Box sx={{ flexGrow: 2, display: "block" }}>
