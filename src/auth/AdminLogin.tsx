@@ -78,12 +78,11 @@ export const LoginPage: React.FC = () => {
 
         // Show splash screen
         setShowSplash(true);
-
+        if(result.data.status===200){
+          setShowSplash(false);
+        }
         // Hide splash screen and navigate after 5 seconds
         setTimeout(() => {
-          setShowSplash(false);
-
-          // Navigate based on role
           if (decodedToken.role === 'admin') {
             navigate('/admin-dashboard');
           } else if (decodedToken.role === 'staff') {
