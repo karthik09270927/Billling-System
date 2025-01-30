@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -20,6 +20,11 @@ import {
   Tooltip,
   Badge,
   Divider,
+  debounce,
+  Stepper,
+  Step,
+  StepLabel,
+  StepContent,
 } from "@mui/material";
 import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
@@ -36,7 +41,10 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import logo from '../assets/bgremove (2).png';
 import NoItemSelect from '../assets/No Item Select.jpg';
 import noItem from '../assets/no-data.png';
-
+import PersonIcon from '@mui/icons-material/Person';
+import PaymentIcon from '@mui/icons-material/Payment';
+import CreditCard from "./CreditCard";
+import UPIPayment from "./UPIPayment";
 
 interface RightPanelProps {
   customerName?: string;
@@ -58,6 +66,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [scannedBarcodes, setScannedBarcodes] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [isShowingError, setIsShowingError] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
+
 
   const [errors, setErrors] = useState({
     name: '',
@@ -207,6 +218,24 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }
   };
 
+
+  // Add debounced error handler
+  const handleDuplicateError = useCallback(
+    debounce((productName: string) => {
+      if (!isShowingError) {
+        setIsShowingError(true);
+        errorAudioRef.current.play();
+        showErrorToast(`${productName} is already in cart`);
+
+        // Reset after 2 seconds
+        setTimeout(() => {
+          setIsShowingError(false);
+        }, 2000);
+      }
+    }, 500),
+    [isShowingError]
+  );
+
   const initializeScanner = () => {
     scannerRef.current = new Html5QrcodeScanner("qr-reader", {
       fps: 10,
@@ -245,8 +274,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         setSelectedItems(prev => {
           const existingItem = prev.find(item => item.id === newItem.id);
           if (existingItem) {
-            errorAudioRef.current.play();
-            showErrorToast(`${productInfo.productName} is already in cart`);
+            // errorAudioRef.current.play();
+            // showErrorToast(`${productInfo.productName} is already in cart`);
+            handleDuplicateError(productInfo.productName);
             return prev
           } else {
             showSuccessToast(`${productInfo.productName} 'added successfully'`);
@@ -304,6 +334,249 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       initializeScanner();
     }, 100);
   };
+
+  const PaymentContent = () => {
+    switch (paymentMode) {
+      case 'Card':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <CreditCard
+              onSubmit={() => console.log('Submitted')}
+              amount={parseFloat(calculateTotal())}
+            />
+          </Box>
+        );
+      case 'UPI':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <UPIPayment amount={calculateTotal()} onSubmit={()=> console.log('payment Successfully')} />
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
+
+
+  const steps = [
+    {
+      label: 'Customer Information',
+      icon: <PersonIcon />,
+      content: (
+        <Box>
+          <Box sx={{ marginBottom: 2 }}>
+            <Typography variant="h6">Billing Details</Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2, mt: 1 }}>
+              <TextField
+                label="Phone Number"
+                value={phoneNumber}
+                onChange={handlePhoneNumberChange}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber}
+                required
+                fullWidth
+                InputProps={{
+                  endAdornment: isLoadingUser && (
+                    <InputAdornment position="end">
+                      <CircularProgress size={20} />
+                    </InputAdornment>
+                  )
+                }}
+                inputProps={{
+                  maxLength: 10,
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*'
+                }}
+              />
+
+              <TextField
+                label="Customer Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                error={!!errors.name}
+                helperText={errors.name}
+                required
+                fullWidth
+                disabled={isLoadingUser}
+              />
+            </Box>
+
+            <TextField
+              label="Mail Id"
+              type="email"
+              value={email}
+              error={!!errors.email}
+              helperText={errors.email}
+              required
+              onChange={(e) => {
+                const value = e.target.value;
+                // Remove @gmail.com if user types it manually
+                const baseEmail = value.replace(/@gmail\.com$/, '');
+                setEmail(baseEmail);
+              }}
+              fullWidth
+              disabled={isLoadingUser}
+              margin="normal"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Typography
+                      sx={{
+                        color: '#666',
+                        userSelect: 'none',
+                        fontSize: '14px'
+                      }}
+                    >
+                      @coherent.in
+                    </Typography>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& input': {
+                    paddingRight: '80px'
+                  }
+                }
+              }}
+            />
+          </Box>
+          <Box sx={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+            {/* Fixed Header */}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "60px 2fr 1fr 1fr",
+                gap: 2,
+                p: 2,
+                borderBottom: '1px solid #e0e0e0',
+                backgroundColor: '#f5f5f5',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+              }}
+            >
+              <Typography variant="subtitle2">Image</Typography>
+              <Typography variant="subtitle2">Product</Typography>
+              <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>Qty</Typography>
+              <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>Price</Typography>
+            </Box>
+
+            {/* Scrollable Content */}
+            <Box sx={{
+              overflowY: 'auto',
+              flex: 1,
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#bdbdbd',
+                borderRadius: '4px',
+              }
+            }}>
+              {selectedItems.map((item) => (
+                <Box
+                  key={item.id}
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "60px 2fr 1fr 1fr",
+                    alignItems: "center",
+                    gap: 2,
+                    p: 2,
+                    borderBottom: '1px solid #f0f0f0',
+                    '&:hover': {
+                      backgroundColor: '#fafafa'
+                    }
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    image={`data:image/jpeg;base64,${item.image}`}
+                    alt={item.productName}
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      objectFit: "cover",
+                      borderRadius: '4px'
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: '#333' }}>
+                    {item.productName}
+                  </Typography>
+                  <Typography sx={{ color: '#666', textAlign: 'center' }}>
+                    × {item.quantity}
+                  </Typography>
+                  <Typography sx={{ fontWeight: "600", textAlign: 'right', color: '#333' }}>
+                    ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+
+          </Box>
+        </Box>
+      )
+    },
+    {
+      label: 'Payment Options',
+      icon: <PaymentIcon />,
+      content: (
+        <Box>
+          <Box sx={{
+            marginBottom: 2,
+            ...(errors.paymentMode && {
+              '& .MuiButton-root': {
+                borderColor: '#d32f2f'
+              }
+            })
+          }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, marginTop: 1 }}>
+              {['Cash', 'Card', 'UPI'].map((mode) => (
+                <Button
+                  key={mode}
+                  variant={paymentMode === mode ? "contained" : "outlined"}
+                  onClick={() => {
+                    setPaymentMode(mode as 'Cash' | 'Card' | 'UPI');
+                    setErrors({ ...errors, paymentMode: '' });
+                  }}
+                  fullWidth
+                  sx={{
+                    bgcolor: paymentMode === mode ? "#74D52B" : "transparent",
+                    color: paymentMode === mode ? "white" : "#74D52B",
+                    borderColor: errors.paymentMode ? "#d32f2f" : "#74D52B",
+                    '&:hover': {
+                      bgcolor: paymentMode === mode ? "#65BA25" : "#74D52B10",
+                    }
+                  }}
+                >
+                  {mode}
+                </Button>
+              ))}
+            </Box>
+
+            {/* Payment Component Container */}
+            <Box sx={{
+              mt: 3,
+              display: 'flex',
+              justifyContent: 'center',
+              minHeight: '200px'
+            }}>
+              <PaymentContent />
+            </Box>
+
+            {errors.paymentMode && (
+              <Typography
+                variant="caption"
+                sx={{ color: '#d32f2f', mt: 1 }}
+              >
+                {errors.paymentMode}
+              </Typography>
+            )}
+          </Box>
+        </Box>
+      )
+    }
+  ]
 
   return (
     <Grid item sx={{ height: "100vh" }}>
@@ -781,7 +1054,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                 objectFit: 'contain'
               }}
             />
-            <Typography variant="h5" sx={{ fontWeight: "bold", color: '#74D52B', mt:1 }}>
+            <Typography variant="h5" sx={{ fontWeight: "bold", color: '#74D52B', mt: 1 }}>
               FRESH HYPERMARKET
             </Typography>
           </Box>
@@ -867,7 +1140,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
           <Grid container spacing={2}>
             {(selectedItems ?? []).length > 0 ? (
               // (selectedItems ?? []).map((item) => (
-                (filteredItems ?? []).map((item) => (
+              (filteredItems ?? []).map((item) => (
                 <Grid item xs={12} md={6} key={item.id}>
                   <Box
                     key={item.id}
@@ -1180,6 +1453,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
             height: '90vh',
+            weight: '100%',
             display: 'flex',
             flexDirection: 'column'
           }
@@ -1212,206 +1486,61 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             }
           }}
         >
-          <Box sx={{ marginBottom: 2 }}>
-            <Typography variant="h6">Billing Details</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2, mt: 1 }}>
-              <TextField
-                label="Phone Number"
-                value={phoneNumber}
-                onChange={handlePhoneNumberChange}
-                error={!!errors.phoneNumber}
-                helperText={errors.phoneNumber}
-                required
-                fullWidth
-                InputProps={{
-                  endAdornment: isLoadingUser && (
-                    <InputAdornment position="end">
-                      <CircularProgress size={20} />
-                    </InputAdornment>
-                  )
-                }}
-                inputProps={{
-                  maxLength: 10,
-                  inputMode: 'numeric',
-                  pattern: '[0-9]*'
-                }}
-              />
-
-              <TextField
-                label="Customer Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                error={!!errors.name}
-                helperText={errors.name}
-                required
-                fullWidth
-                disabled={isLoadingUser}
-              />
-            </Box>
-
-            <TextField
-              label="Mail Id"
-              type="email"
-              value={email}
-              error={!!errors.email}
-              helperText={errors.email}
-              required
-              onChange={(e) => {
-                const value = e.target.value;
-                // Remove @gmail.com if user types it manually
-                const baseEmail = value.replace(/@gmail\.com$/, '');
-                setEmail(baseEmail);
-              }}
-              fullWidth
-              disabled={isLoadingUser}
-              margin="normal"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Typography
+          <Stepper activeStep={activeStep} orientation="vertical">
+            {steps.map((step, index) => (
+              <Step key={step.label}>
+                <StepLabel
+                  StepIconComponent={() => (
+                    <Box sx={{
+                      width: 35,
+                      height: 35,
+                      borderRadius: '50%',
+                      bgcolor: activeStep >= index ? '#74D52B' : '#e0e0e0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white'
+                    }}>
+                      {step.icon}
+                    </Box>
+                  )}
+                >
+                  {step.label}
+                </StepLabel>
+                <StepContent>
+                  {step.content}
+                  <Box sx={{ mb: 2, mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
+                    {index > 0 && (
+                      <Button onClick={() => setActiveStep(prev => prev - 1)}>
+                        Back
+                      </Button>
+                    )}
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        if (index === steps.length - 1) {
+                          handleConfirmOrder();
+                        } else {
+                          setActiveStep(prev => prev + 1);
+                        }
+                      }}
                       sx={{
-                        color: '#666',
-                        userSelect: 'none',
-                        fontSize: '14px'
+                        bgcolor: "#74D52B",
+                        '&:hover': { bgcolor: "#65BA25" }
                       }}
                     >
-                      @coherent.in
-                    </Typography>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& input': {
-                    paddingRight: '80px'
-                  }
-                }
-              }}
-            />
-          </Box>
+                      {index === steps.length - 1 ? 'Confirm Order' : 'Next'}
+                    </Button>
+                  </Box>
+                </StepContent>
+              </Step>
+            ))}
+          </Stepper>
 
-          {/* Payment Mode Buttons */}
-          <Box sx={{
-            marginBottom: 2, ...(errors.paymentMode && {
-              '& .MuiButton-root': {
-                borderColor: '#d32f2f'
-              }
-            })
-          }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, marginTop: 1 }}>
-              {['Cash', 'Card', 'UPI'].map((mode) => (
-                <Button
-                  key={mode}
-                  variant={paymentMode === mode ? "contained" : "outlined"}
-                  onClick={() => {
-                    setPaymentMode(mode as 'Cash' | 'Card' | 'UPI');
-                    setErrors({ ...errors, paymentMode: '' });
-                  }}
-                  fullWidth
-                  sx={{
-                    bgcolor: paymentMode === mode ? "#74D52B" : "transparent",
-                    color: paymentMode === mode ? "white" : "#74D52B",
-                    borderColor: errors.paymentMode ? "#d32f2f" : "#74D52B",
-                    '&:hover': {
-                      bgcolor: paymentMode === mode ? "#65BA25" : "#74D52B10",
-                    },
-                    ...(mode === 'Cash' && {
-                      bgcolor: paymentMode === 'Cash' ? "#74D52B" : "transparent",
-                    })
-                  }}
-                >
-                  {mode}
-                </Button>
-              ))}
-              {errors.paymentMode && (
-                <Typography
-                  variant="caption"
-                  sx={{ color: '#d32f2f', mt: 1 }}
-                >
-                  {errors.paymentMode}
-                </Typography>
-              )}
-            </Box>
-          </Box>
-
-          {/* Products List */}
-          <Box sx={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
-            {/* Fixed Header */}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "60px 2fr 1fr 1fr",
-                gap: 2,
-                p: 2,
-                borderBottom: '1px solid #e0e0e0',
-                backgroundColor: '#f5f5f5',
-                position: 'sticky',
-                top: 0,
-                zIndex: 1,
-              }}
-            >
-              <Typography variant="subtitle2">Image</Typography>
-              <Typography variant="subtitle2">Product</Typography>
-              <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>Qty</Typography>
-              <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>Price</Typography>
-            </Box>
-
-            {/* Scrollable Content */}
-            <Box sx={{
-              overflowY: 'auto',
-              flex: 1,
-              '&::-webkit-scrollbar': {
-                width: '8px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: '#bdbdbd',
-                borderRadius: '4px',
-              }
-            }}>
-              {selectedItems.map((item) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "60px 2fr 1fr 1fr",
-                    alignItems: "center",
-                    gap: 2,
-                    p: 2,
-                    borderBottom: '1px solid #f0f0f0',
-                    '&:hover': {
-                      backgroundColor: '#fafafa'
-                    }
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    image={`data:image/jpeg;base64,${item.image}`}
-                    alt={item.productName}
-                    sx={{
-                      width: 50,
-                      height: 50,
-                      objectFit: "cover",
-                      borderRadius: '4px'
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ fontWeight: "bold", color: '#333' }}>
-                    {item.productName}
-                  </Typography>
-                  <Typography sx={{ color: '#666', textAlign: 'center' }}>
-                    × {item.quantity}
-                  </Typography>
-                  <Typography sx={{ fontWeight: "600", textAlign: 'right', color: '#333' }}>
-                    ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-
-          </Box>
         </DialogContent>
         <Box sx={{
           borderTop: '1px solid #e0e0e0',
-          padding: '16px 24px',
+          padding: '16px 20px',
           display: 'grid',
           gridTemplateColumns: '2fr auto',
           alignItems: 'center',
