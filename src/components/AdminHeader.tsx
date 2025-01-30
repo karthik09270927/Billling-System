@@ -30,11 +30,6 @@ import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { addProductBoxStyle, AdminHeaderBoxStyle, AdminHeaderIconEditStyle, AdminHeaderIconStyle, AdminHeaderSubBoxStyle, BoxcardStyle, cardBoxStyle, deleteIconCardStyle, editIconCardStyle, madalCardStyle, modalBoxStyle, modalBoxStyle2, TextFieldStyle, uploadImageStyle } from "../styles/admin.style";
 
 
-interface SubCategory {
-    id: number;
-    subCategoryName: string;
-}
-
 const AdminHeader = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
     const [editProduct, setEditProduct] = useState(false);
@@ -50,7 +45,7 @@ const AdminHeader = () => {
     const [step, setStep] = useState(1);
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [productId, setProductId] = useState<number | null>(null);
-    const [selectSubCategoryId, setSelectSubCategoryId] = useState<number[]>([]);
+    const [_selectSubCategoryId, setSelectSubCategoryId] = useState<number[]>([]);
 
     const getCategories = async () => {
         try {
@@ -122,8 +117,9 @@ const AdminHeader = () => {
     };
 
     const handleDelete = async (categoryId: number) => {
-        const data = await  deleteProductCategory(categoryId);
+        await deleteProductCategory(categoryId);
         getCategories();
+        setSubCategories([]);
     };
 
     const handleCategoryClick = async (categoryId: number, categoryName: string) => {
@@ -181,7 +177,7 @@ const AdminHeader = () => {
                 id: editProduct ? productId : null,
                 categoryName: itemName,
                 subCategory: subCategory.map((name) => ({
-                    id: editProduct ? null : null, 
+                    id: editProduct ? null : null,
                     subCategoryName: name,
                 })),
             };
@@ -425,16 +421,29 @@ const AdminHeader = () => {
                                 sx={{ mb: 3 }}
                             />
 
-                            {/* Next Button */}
-                            <Button
-                                variant="contained"
-                                color="success"
-                                fullWidth
-                                onClick={handleNext}
-                                disabled={!itemName || !uploadedImage}
-                            >
-                                Next
-                            </Button>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    fullWidth
+                                    
+                                    onClick={handleCloseModal}
+                                >
+                                    Close
+                                </Button>
+
+                                {/* Next Button */}
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    fullWidth
+                                    onClick={handleNext}
+                                    disabled={!itemName || !uploadedImage}
+                                >
+                                    Next
+                                </Button>
+                            </Box>
+
                         </>
                     )}
 
@@ -486,16 +495,29 @@ const AdminHeader = () => {
                                     </ListItem>
                                 ))}
                             </List>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                fullWidth
-                                sx={{ mt: 3 }}
-                                onClick={handleSubmit}
-                                disabled={subCategory.length === 0}
-                            >
-                                Submit
-                            </Button>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    fullWidth
+                                    sx={{ mt: 3 }}
+                                    onClick={handleCloseModal}
+                                >
+                                    Close
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    fullWidth
+                                    sx={{ mt: 3 }}
+                                    onClick={handleSubmit}
+                                    disabled={subCategory.length === 0}
+                                >
+                                    Submit
+                                </Button>
+                            </Box>
+
+
                         </>
                     )}
                 </Box>

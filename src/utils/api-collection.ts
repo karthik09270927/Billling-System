@@ -336,3 +336,14 @@ export const deleteProductCategory = async (id: number) => {
 };
 
 
+export const getAdminEachProductDetail = async (id: number) => {
+  try {
+    const response = await API.get<{ data: any }>(`/billing/productsInfo?id=${id}`);
+    return response.data?.data;
+  } catch (error) {
+    console.error('Error fetching product info:', error);
+    throw error;
+  }
+};
+
+
