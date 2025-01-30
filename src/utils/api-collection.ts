@@ -301,7 +301,7 @@ export const getAdminProductList = async () => {
 export const saveProduct = async (productList: Array<{
   id: number;
   productName: string;
-  image: string[];
+  image: string;
   billingProductCategory: number;
   billingProductSubCategory: number;
   price: number;
@@ -317,7 +317,7 @@ export const saveProduct = async (productList: Array<{
 
 export const getProductDetails = async (id: number) => {
   try {
-    const response = await API.get<{ data: any }>(`/billing/productsInfo?id=${id}`);
+    const response = await API.get<{ data: any }>(`/billing/adminProductInfoId?id=${id}`);
     return response.data?.data;
   } catch (error) {
     console.error('Error fetching product info:', error);
@@ -338,7 +338,7 @@ export const deleteProductCategory = async (id: number) => {
 
 export const getAdminEachProductDetail = async (id: number) => {
   try {
-    const response = await API.get<{ data: any }>(`/billing/productsInfo?id=${id}`);
+    const response = await API.get<{ data: any }>(`/billing/adminProductInfoId?id=${id}`);
     return response.data?.data;
   } catch (error) {
     console.error('Error fetching product info:', error);

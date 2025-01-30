@@ -17,8 +17,6 @@ import {
   Badge,
   CircularProgress,
   CardMedia,
-  Pagination,
-  OutlinedInput,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
@@ -26,43 +24,29 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CloseIcon from '@mui/icons-material/Close';
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import { Toasts } from '../centralizedComponents/forms/Toast';
 import { fetchCategories, fetchProductList, fetchSubCategories, saveProduct } from "../utils/api-collection";
 import nodata from '../assets/no-data.png';
-import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
 import { useNavigate } from "react-router-dom";
-
-
-const groupItemsBySubcategory = (items: any) => {
-  return items.reduce((acc: any, item: any) => {
-    if (!acc[item.subcategory]) {
-      acc[item.subcategory] = [];
-    }
-    acc[item.subcategory].push(item);
-    return acc;
-  }, {});
-};
 
 const AdminDashboard: React.FC = () => {
   const { selectedCategoryId, subCategories, setProductId } = useCategory();
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+  const [_selectedItems, setSelectedItems] = useState<any[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState<any | null>(null);
-  const [deleteSubCategory, setdeleteSubCategory] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProductsLoading, setIsProductsLoading] = useState<boolean>(false);
   const [pageNo, setPageNo] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, _setPageSize] = useState<number>(10);
   const [filteredBySubcategory, setFilteredBySubcategory] = useState<any[]>([]);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [_totalItems, setTotalItems] = useState<number>(0);
+  const [searchTerm, _setSearchTerm] = useState<string>('');
+  const [searchResults, _setSearchResults] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategory, setSubCategory] = useState<any[]>([]);
   const [selectedProductCategoryId, setselectedProductCategoryId] = useState<number>(0);
-  const [selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
+  const [_selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
 
   const navigate = useNavigate();
 
@@ -110,11 +94,9 @@ const AdminDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
-      setIsProductsLoading(false); // Stop the product loader
+      setIsProductsLoading(false);
     }
   };
-
-
 
   const handleLeftArrowClick = () => {
     const container = document.querySelector(".scrollable-container");
@@ -126,22 +108,11 @@ const AdminDashboard: React.FC = () => {
     if (container) container.scrollBy({ left: 100, behavior: "smooth" });
   };
 
-  const handleDeleteSubCategoryList = () => {
-    setdeleteSubCategory((prev) => !prev);
-    console.log(deleteSubCategory);
-  };
-
-
-  const handleDeleteSubCategory = () => {
-
-  };
-
   const handleCategoryChange = (value: any) => {
     console.log("Category changed to:", value);
     getSubCategories(value);
     setselectedProductCategoryId(value);
   };
-
 
   const handleSubCategoryChange = (value: any) => {
     setselectedSubCategoryId(value);
@@ -180,7 +151,6 @@ const AdminDashboard: React.FC = () => {
         {
           productName: "",
           productImage: "",
-          price: "",
         },
       ],
     },
@@ -195,13 +165,13 @@ const AdminDashboard: React.FC = () => {
   const onSubmit = async (data: any) => {
     try {
       const productList = data.products.map((product: any) => ({
-        id: 0,
+        id: null,
         productName: product.productName,
-        image: [product.productImage],
+        image: product.productImage,
         billingProductCategory: selectedProductCategoryId || 0,
         billingProductSubCategory: selectedSubcategory || 0,
-        price: Number(product.price) || 0,
       }));
+      console.log("Product List:", productList);
 
       const response = await saveProduct(productList);
       console.log("Product saved successfully:", response);
@@ -212,8 +182,6 @@ const AdminDashboard: React.FC = () => {
       setIsModalOpen(false);
     }
   };
-
-
 
   useEffect(() => {
     if (selectedSubcategory !== null) {
@@ -259,29 +227,29 @@ const AdminDashboard: React.FC = () => {
 
           {subCategories.map((subcategory: any) => (
             <Button
-            key={subcategory.id}
-            onClick={() => handleSubcategorySelect(subcategory)}
-            sx={{
-              margin: "0 8px",
-              padding: "6px 16px",
-              borderRadius: "30px",
-              backgroundColor: selectedSubcategory?.id === subcategory.id ? "#74D52B" : "#f0f0f0",
-              color: selectedSubcategory?.id === subcategory.id ? "white" : "#333",
-              fontSize: "12px",
-              fontWeight: 600,
-              transition: "all 0.3s ease",
-              boxShadow: selectedSubcategory?.id === subcategory.id ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)",
-              "&:hover": {
-                backgroundColor: "#74D52B",
-                color: "white",
-                transform: "translateY(-3px)",
-                boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
-              },
-              "&:focus": {
-                outline: "none",
-              },
-            }}
-          >
+              key={subcategory.id}
+              onClick={() => handleSubcategorySelect(subcategory)}
+              sx={{
+                margin: "0 8px",
+                padding: "6px 16px",
+                borderRadius: "30px",
+                backgroundColor: selectedSubcategory?.id === subcategory.id ? "#74D52B" : "#f0f0f0",
+                color: selectedSubcategory?.id === subcategory.id ? "white" : "#333",
+                fontSize: "12px",
+                fontWeight: 600,
+                transition: "all 0.3s ease",
+                boxShadow: selectedSubcategory?.id === subcategory.id ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)",
+                "&:hover": {
+                  backgroundColor: "#74D52B",
+                  color: "white",
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
+                },
+                "&:focus": {
+                  outline: "none",
+                },
+              }}
+            >
               {subcategory.subCategoryName}
 
               <Badge
@@ -303,7 +271,7 @@ const AdminDashboard: React.FC = () => {
                   },
                 }}
               />
-              
+
             </Button>
 
           ))}
@@ -533,10 +501,10 @@ const AdminDashboard: React.FC = () => {
                                 transition: "0.3s",
                                 "&:hover": {
                                   backgroundImage: "linear-gradient(to right, rgb(253, 210, 80), rgb(253, 164, 95))",
-                                  transform: "scale(1.05)", 
+                                  transform: "scale(1.05)",
                                 },
                               }}
-                              onClick={() => handleEditClick(item.id)}
+                              onClick={() => handleEditClick(item.productId)}
                             >
                               Details
                             </Button>
@@ -716,8 +684,17 @@ const AdminDashboard: React.FC = () => {
                     onChange={(e) => {
                       if (e.target.files && e.target.files.length > 0) {
                         const file = e.target.files[0];
-                        const imageUrl = URL.createObjectURL(file);
-                        setValue(`products.${index}.productImage`, imageUrl);
+                        const reader = new FileReader();
+
+                        reader.onload = (event) => {
+                          if (event.target) {
+                            const base64 = event.target.result;
+                            if (typeof base64 === 'string') {
+                              setValue(`products.${index}.productImage`, base64);
+                            }
+                          }
+                        };
+                        reader.readAsDataURL(file); 
                       }
                     }}
                   />
@@ -748,15 +725,6 @@ const AdminDashboard: React.FC = () => {
                     </Box>
                   </label>
                 </Box>
-
-                {/* Price */}
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Price"
-                  type="number"
-                  {...register(`products.${index}.price`, { required: "Required" })}
-                />
                 {/* Remove Button */}
                 <IconButton
                   color="error"
@@ -770,54 +738,7 @@ const AdminDashboard: React.FC = () => {
                   <DeleteIcon />
                 </IconButton>
               </Box>
-              {/* <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  alignItems: "flex-start",
 
-                }}
-              >
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Quantity"
-                  type="number"
-                  {...register(`products.${index}.quantity`, { required: "Required" })}
-                />
-                <FormControl fullWidth variant="outlined">
-                  <TextField
-                    id="outlined-adornment-weight"
-                    label="Weight"
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end">kg</InputAdornment>,
-                    }}
-                    aria-describedby="outlined-weight-helper-text"
-                    inputProps={{
-                      'aria-label': 'weight',
-                    }}
-                    {...register(`products.${index}.Weight`, { required: "Required" })}
-                  />
-                </FormControl>
-
-                <CentralizeDatePicker
-                  label="Manufacture Date"
-                  control={control}
-                  defaultValue=""
-                  format="DD-MM-YYYY"
-                  size="small"
-                  {...register(`products.${index}.manufactureDate`, { required: "Required" })}
-                />
-
-                <CentralizeDatePicker
-                  label="Expiry Date"
-                  control={control}
-                  defaultValue=""
-                  format="DD-MM-YYYY"
-                  size="small"
-                  {...register(`products.${index}.expiryDate`, { required: "Required" })}
-                />
-              </Box> */}
             </Box>
           ))}
           <Box
@@ -835,9 +756,8 @@ const AdminDashboard: React.FC = () => {
                 const lastIndex = fields.length - 1;
                 if (lastIndex >= 0) {
                   const productName = getValues(`products.${lastIndex}.productName`);
-                  const price = getValues(`products.${lastIndex}.price`);
 
-                  if (!productName || !price) {
+                  if (!productName) {
                     Toasts({ message: 'Please fill in all fields', type: 'error' })
                     return;
                   }
@@ -845,7 +765,6 @@ const AdminDashboard: React.FC = () => {
                 append({
                   productName: "",
                   productImage: "",
-                  price: "",
                 });
               }}
             >

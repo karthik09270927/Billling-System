@@ -9,8 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import LoginIcon from "@mui/icons-material/Login";
 import { useState } from "react";
 import { mainAppBarStyle, appBarTypographyStyle } from "../style/header.Style";
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import logo from '../assets/bgremove (2).png';
 
 const navItems = [
   //   { name: "Dashboard", path: "/layout/dashboard" },
@@ -52,7 +51,7 @@ export default function AdminHeader() {
               display: { xs: "none", sm: "block", md: "flex" }
             }}
           >
-            <ShoppingCartIcon sx={{ fontSize: "40px" }} />FRESH HYPERMARKET
+           <img src={logo} alt="logo" style={{ width: "40px", height: "40px" }} /><Typography color="#7cc323" fontSize={23} fontWeight={800}> REFRESH HYPERMARKET</Typography>
           </Typography>
 
           <Box sx={{ flexGrow: 2, display: "block" }}>
