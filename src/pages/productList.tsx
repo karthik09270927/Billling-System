@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Box, Paper, Typography, } from "@mui/material";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { getAdminProductList } from "../utils/api-collection";
+import { gridStyles } from "../styles/centralizedStyles";
 
 interface ProductData {
     id: number;
@@ -25,7 +25,7 @@ const ProductListPage: React.FC = () => {
     const [_selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
 
     const columns: GridColDef[] = [
-        { field: "id", headerName: "Product ID", flex: 0.5, headerAlign: "center", align: "center" },
+        { field: "id", headerName: "Product ID", flex: 0.6, headerAlign: "center", align: "center" },
         { field: "productName", headerName: "Product Name", flex: 1.5, headerAlign: "center", align: "center" },
         { field: "quantity", headerName: "Quantity", flex: 1, headerAlign: "center", align: "center" },
         { field: "weightage", headerName: "Weight", flex: 1, headerAlign: "center", align: "center" },
@@ -40,7 +40,7 @@ const ProductListPage: React.FC = () => {
             align: "center",
             renderCell: (params) => (
                 <img
-                    src={`data:image/png;base64,${params.value}`} // Assuming base64 image encoding
+                    src={`data:image/png;base64,${params.value}`}
                     alt="Product"
                     style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
                 />
@@ -56,7 +56,7 @@ const ProductListPage: React.FC = () => {
 
             const productsWithId = data.data.map((product, index) => ({
                 ...product,
-                id: product.id ?? index, // Fallback to index if id is undefined
+                id: product.id ?? index,
             }));
 
             setRows(productsWithId);
@@ -73,11 +73,6 @@ const ProductListPage: React.FC = () => {
     };
 
 
-
-    const handleViewDetails = (invoiceUrl: string) => {
-        setSelectedInvoiceUrl(invoiceUrl);
-        setOpenModal(true);
-    };
 
     const handleCloseModal = () => {
         setOpenModal(false);
@@ -97,8 +92,6 @@ const ProductListPage: React.FC = () => {
                     maxWidth: "1450px",
                     borderRadius: "12px",
                     overflow: "hidden",
-
-
                 }}
             >
                 {/* Header Section */}
@@ -113,27 +106,9 @@ const ProductListPage: React.FC = () => {
                         rows={rows}
                         columns={columns}
                         loading={loading}
-                        getRowId={(row) => row.id} 
-                        autoHeight
-                        sx={{
-                            "& .MuiDataGrid-columnHeaders": {
-                                backgroundColor: "rgb(240 245 255)",
-                                color: "rgb(72 85 99)",
-                                fontWeight: "bold",
-                                letterSpacing: "0.5px",
-                                borderBottom: "2px solid #e5e7eb",
-                            },
-                            "& .MuiDataGrid-cell": {
-                                padding: "0.75rem",
-                                border: "1px solid #e5e7eb",
-                                fontSize: "14px",
-                                transition: "background-color 0.3s",
-                            },
-                            "& .MuiDataGrid-footerContainer": {
-                                background: "linear-gradient(to right,rgb(253, 230, 114),rgb(253, 184, 115))",
-                                borderTop: "1px solid #e5e7eb",
-                            },
-                        }}
+                        getRowId={(row) => row.id}
+                        rowHeight={70}
+                        sx={gridStyles}
                     />
                 </Box>
             </Paper>
