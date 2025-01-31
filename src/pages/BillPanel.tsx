@@ -25,6 +25,9 @@ import {
   Step,
   StepLabel,
   StepContent,
+  StepConnector,
+  styled,
+  stepConnectorClasses,
 } from "@mui/material";
 import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
@@ -45,6 +48,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CreditCard from "./CreditCard";
 import UPIPayment from "./UPIPayment";
+import CashPayment from "./CashPayment";
 
 interface RightPanelProps {
   customerName?: string;
@@ -100,6 +104,25 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     const hasMinimumProducts = selectedItems.length > 0;
 
     return isNameValid && isPhoneValid && isEmailValid && isPaymentSelected && hasMinimumProducts;
+  };
+
+  const resetCart = () => {
+    setSelectedItems([]);
+    scannedBarcodes.clear();
+    setIsModalOpen(false);
+    setIsFullScreen(false);
+    setActiveStep(0);
+    setName('');
+    setPhoneNumber('');
+    setEmail('');
+    setPaymentMode('Cash');
+    setErrors({
+      name: '',
+      phoneNumber: '',
+      email: '',
+      paymentMode: '',
+      products: ''
+    });
   };
 
   const validateFields = () => {
@@ -180,6 +203,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       console.log('Success', response)
       console.info('Order placed successfully!');
       showSuccessToast('Order placed successfully');
+      resetCart();
+      setIsFullScreen(false);
       setIsModalOpen(false);
       setSelectedItems([]);
       resetForm();
@@ -218,6 +243,23 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setName(value);
+    if (value.trim().length >= 3) {
+      setErrors(prev => ({ ...prev, name: '' }));
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const baseEmail = value.replace(/@coherent\.in$/, '');
+    setEmail(baseEmail);
+    if (baseEmail.trim()) {
+      setErrors(prev => ({ ...prev, email: '' }));
+    }
+  };
+
 
   // Add debounced error handler
   const handleDuplicateError = useCallback(
@@ -235,6 +277,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }, 500),
     [isShowingError]
   );
+
+  const handleOpenModal = () => {
+    setActiveStep(0);
+    setIsModalOpen(true);
+  };
 
   const initializeScanner = () => {
     scannerRef.current = new Html5QrcodeScanner("qr-reader", {
@@ -327,6 +374,29 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     };
   }, []);
 
+  const CustomConnector = styled(StepConnector)(({ theme }) => ({
+    [`&.${stepConnectorClasses.alternativeLabel}`]: {
+      top: 22,
+    },
+    [`&.${stepConnectorClasses.active}`]: {
+      [`& .${stepConnectorClasses.line}`]: {
+        backgroundImage: 'linear-gradient(95deg, #74D52B 0%, #65BA25 100%)',
+      },
+    },
+    [`&.${stepConnectorClasses.completed}`]: {
+      [`& .${stepConnectorClasses.line}`]: {
+        backgroundImage: 'linear-gradient(95deg, #74D52B 0%, #65BA25 100%)',
+      },
+    },
+    [`& .${stepConnectorClasses.line}`]: {
+      height: 3,
+      border: 0,
+      backgroundColor: '#eaeaf0',
+      borderRadius: 1,
+      transition: 'all 0.5s ease',
+    },
+  }));
+
   // Update QR Icon click handler
   const handleQrIconClick = () => {
     setIsQrScannerOpen(true);
@@ -337,19 +407,31 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
 
   const PaymentContent = () => {
     switch (paymentMode) {
+      case 'Cash':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <CashPayment amount={parseFloat(calculateTotal())} />
+          </Box>
+        );
       case 'Card':
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <CreditCard
-              onSubmit={() => console.log('Submitted')}
+              onSubmit={handleConfirmOrder}
               amount={parseFloat(calculateTotal())}
+              email={email}
+              onClose={() => {
+                setIsModalOpen(false);
+                setIsFullScreen(false);
+                resetForm();
+              }}
             />
           </Box>
         );
       case 'UPI':
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <UPIPayment amount={calculateTotal()} onSubmit={()=> console.log('payment Successfully')} />
+            <UPIPayment amount={calculateTotal()} onSubmit={() => console.log('payment Successfully')} />
           </Box>
         );
       default:
@@ -373,12 +455,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                 onChange={handlePhoneNumberChange}
                 error={!!errors.phoneNumber}
                 helperText={errors.phoneNumber}
-                required
                 fullWidth
                 InputProps={{
                   endAdornment: isLoadingUser && (
                     <InputAdornment position="end">
-                      <CircularProgress size={20} />
+                      <CircularProgress size={20} sx={{ color: '#65BA25' }} />
                     </InputAdornment>
                   )
                 }}
@@ -392,10 +473,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               <TextField
                 label="Customer Name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={handleNameChange}
                 error={!!errors.name}
                 helperText={errors.name}
-                required
                 fullWidth
                 disabled={isLoadingUser}
               />
@@ -407,13 +487,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               value={email}
               error={!!errors.email}
               helperText={errors.email}
-              required
-              onChange={(e) => {
-                const value = e.target.value;
-                // Remove @gmail.com if user types it manually
-                const baseEmail = value.replace(/@gmail\.com$/, '');
-                setEmail(baseEmail);
-              }}
+              onChange={handleEmailChange}
               fullWidth
               disabled={isLoadingUser}
               margin="normal"
@@ -752,7 +826,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                   }}
                 >
                   <Badge
-                    badgeContent={`${item.weightage}g`}
+                    badgeContent={`${item.weightage}`}
                     color="primary"
                     anchorOrigin={{
                       vertical: 'top',
@@ -998,7 +1072,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                       backgroundColor: "#5fb321"
                     }
                   }}
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={handleOpenModal}
                 >
                   Confirm
                 </Button>
@@ -1164,7 +1238,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                       }}
                     >
                       <Badge
-                        badgeContent={`${item.weightage}g`}
+                        badgeContent={`${item.weightage}`}
                         color="primary"
                         anchorOrigin={{
                           vertical: 'top',
@@ -1446,16 +1520,17 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         disableEscapeKeyDown
         hideBackdrop={false}
         fullWidth
-        maxWidth="sm"
+        maxWidth="md"
         PaperProps={{
           sx: {
             borderRadius: 10,
             overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-            height: '90vh',
+            height: '100vh',
             weight: '100%',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            backgroundColor: '#ffffff'
           }
         }}
       >
@@ -1465,7 +1540,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             color: '#333',
             fontWeight: 800,
             '& .MuiTypography-root': {
-              fontSize: '1.8rem'
+              fontSize: '2rem'
             }
           }}
         >
@@ -1484,70 +1559,134 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             }
           }}
         >
-          <Stepper activeStep={activeStep} orientation="vertical">
-            {steps.map((step, index) => (
-              <Step key={step.label}>
-                <StepLabel
-                  StepIconComponent={() => (
-                    <Box sx={{
-                      width: 45,
-                      height: 45,
-                      borderRadius: '50%',
-                      bgcolor: activeStep >= index ? '#74D52B' : '#e0e0e0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white'
-                    }}>
-                      {step.icon}
-                    </Box>
-                  )}
-                >
-                  {step.label}
-                </StepLabel>
-                <StepContent>
-                  {step.content}
-                  <Box sx={{ mb: 2, mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
-                    {index > 0 && (
-                      <Button onClick={() => setActiveStep(prev => prev - 1)}>
-                        Back
-                      </Button>
-                    )}
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        if (index === steps.length - 1) {
-                          handleConfirmOrder();
-                        } else {
-                          setActiveStep(prev => prev + 1);
+
+
+          <Box>
+            {/* Horizontal Stepper with Icons and Labels */}
+            <Box sx={{
+              position: 'sticky',
+              top: 0,
+              // background: 'linear-gradient(135deg, #799F0C 0%, #ACBB78 100%)',
+              backgroundColor: '#fbfbe5',
+              zIndex: 10,
+              pt: 3,
+              pb: 2,
+              px: 3,
+              borderRadius: 16
+            }}>
+              <Stepper
+                activeStep={activeStep}
+                alternativeLabel
+                connector={<CustomConnector />}
+              >
+                {steps.map((step, index) => (
+                  <Step key={step.label}>
+                    <StepLabel
+                      StepIconComponent={() => (
+                        <Box sx={{
+                          width: 45,
+                          height: 45,
+                          borderRadius: '50%',
+                          bgcolor: activeStep >= index ? '#74D52B' : '#e0e0e0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                        }}>
+                          {step.icon}
+                        </Box>
+                      )}
+                      sx={{
+                        '& .MuiStepLabel-label': {
+                          color: activeStep >= index ? '#74D52B' : '#000000',
+                          fontWeight: activeStep === index ? 600 : 400,
+                          transition: 'all 0.3s ease'
                         }
                       }}
-                      sx={{
-                        bgcolor: "#74D52B",
-                        '&:hover': { bgcolor: "#65BA25" }
-                      }}
                     >
-                      {index === steps.length - 1 ? 'Confirm' : 'Next'}
-                    </Button>
-                  </Box>
-                </StepContent>
-              </Step>
-            ))}
-          </Stepper>
+                      {step.label}
+                    </StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+            </Box>
 
+            {/* Step Content */}
+            <Box sx={{
+              flex: 1,
+              p: 5,
+              overflowY: 'hidden',
+              '&::-webkit-scrollbar': {
+                width: '8px'
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#bdbdbd',
+                borderRadius: '4px'
+              }
+            }}>
+              {steps[activeStep].content}
+            </Box>
+
+            {/* Navigation Buttons */}
+            <Box sx={{
+              bottom: 0,
+              p: 2,
+              borderTop: '3px solid #eee',
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}>
+              {activeStep > 0 && (
+                <Button
+                  onClick={() => setActiveStep(prev => prev - 1)}
+                  variant="outlined"
+                  sx={{
+                    borderColor: "#74D52B",
+                    color: "#74D52B",
+                    '&:hover': {
+                      borderColor: "#65BA25",
+                      bgcolor: "rgba(116, 213, 43, 0.1)"
+                    }
+                  }}
+                >
+                  Back
+                </Button>
+              )}
+              {activeStep === 0 && (
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    if (validateFields()) {
+                      setActiveStep(prev => prev + 1);
+                    } else {
+                      showErrorToast('Fill all required fields');
+                    }
+                  }}
+                  sx={{
+                    bgcolor: "#74D52B",
+                    '&:hover': { bgcolor: "#65BA25" }
+                  }}
+                >
+                  Next
+                </Button>
+              )}
+            </Box>
+          </Box>
         </DialogContent>
-        <Box sx={{
-          borderTop: '1px solid #e0e0e0',
-          padding: '16px 20px',
-          display: 'grid',
-          gridTemplateColumns: '2fr auto',
-          alignItems: 'center',
-          gap: 2
-        }}>
-          <Typography variant="h6" fontWeight="bold">
 
-          </Typography>
-          <Typography fontWeight="bold" sx={{ fontSize: 18 }} >
+        <Box sx={{
+          padding: '16px 20px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#fbfbe5'
+        }}>
+          <Typography
+            fontWeight="bold"
+            sx={{
+              fontSize: 22,
+              textAlign: 'center'
+            }}
+          >
             Total Amount : ₹ {calculateTotal()}
           </Typography>
         </Box>
@@ -1556,17 +1695,19 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             display: 'flex',
             justifyContent: 'center',
             gap: 2,
+            borderRadius: 20,
             padding: '20px',
+            backgroundColor: '#fbfbe5'
           }}
         >
           <Button onClick={() => {
             setIsModalOpen(false);
             resetForm();
           }}
-            color="secondary" >
-            Cancel
+            color="secondary">
+            <CloseIcon sx={{ fontSize: 30 }} />
           </Button>
-          <Button
+          {/* <Button
             onClick={handleConfirmOrder}
             color="primary"
             variant="contained"
@@ -1579,7 +1720,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             }}
           >
             {isPlacingOrder ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Confirm"}
-          </Button>
+          </Button> */}
         </DialogActions>
       </Dialog>
 
