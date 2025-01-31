@@ -342,13 +342,19 @@ export const saveProduct = async (productList: Array<{
   price: number;
 }>) => {
   try {
-    const response = await API.post("/billing/productSave", { productList });
+    const updatedProductList = productList.map((product) => ({
+      ...product,
+      image: product.image.replace(/^data:image\/[a-z]+;base64,/, ""), 
+    }));
+
+    const response = await API.post("/billing/productSave", { productList: updatedProductList });
     return response.data;
   } catch (error) {
     console.error("Error saving product:", error);
     throw error;
   }
 };
+
 
 export const getProductDetails = async (id: number) => {
   try {
@@ -377,6 +383,18 @@ export const getAdminEachProductDetail = async (id: number) => {
     return response.data?.data;
   } catch (error) {
     console.error('Error fetching product info:', error);
+    throw error;
+  }
+};
+
+export const saveProductDetails = async (productList: any) => {
+  try {
+
+
+    const response = await API.post("/billing/productInfoQuantity", productList);
+    return response.data;
+  } catch (error) {
+    console.error("Error saving product:", error);
     throw error;
   }
 };

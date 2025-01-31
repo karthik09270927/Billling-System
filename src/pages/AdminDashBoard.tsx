@@ -32,7 +32,7 @@ import nodata from '../assets/no-data.png';
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboard: React.FC = () => {
-  const { selectedCategoryId, subCategories, setProductId } = useCategory();
+  const { selectedCategoryId, subCategories, setProductId, setProductName } = useCategory();
   const [_selectedItems, setSelectedItems] = useState<any[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,7 +46,7 @@ const AdminDashboard: React.FC = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategory, setSubCategory] = useState<any[]>([]);
   const [selectedProductCategoryId, setselectedProductCategoryId] = useState<number>(0);
-  const [_selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
+  const [selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
 
   const navigate = useNavigate();
 
@@ -118,9 +118,11 @@ const AdminDashboard: React.FC = () => {
     setselectedSubCategoryId(value);
   };
 
-  const handleEditClick = (value: any) => {
+  const handleEditClick = (value: any,name: any) => {
     navigate(`/admin-dashboard/edit-product/${value}`);
+    console.log("name", name);
     setProductId(value);
+    setProductName(name);
   };
 
   const handleAddNewItem = () => {
@@ -169,17 +171,20 @@ const AdminDashboard: React.FC = () => {
         productName: product.productName,
         image: product.productImage,
         billingProductCategory: selectedProductCategoryId || 0,
-        billingProductSubCategory: selectedSubcategory || 0,
+        billingProductSubCategory: selectedSubCategoryId || 0,
       }));
       console.log("Product List:", productList);
 
       const response = await saveProduct(productList);
       console.log("Product saved successfully:", response);
+      fetchProducts();
     } catch (error) {
       console.error("Error in submitting product:", error);
+      fetchProducts();
     } finally {
       reset();
       setIsModalOpen(false);
+      fetchProducts();
     }
   };
 
@@ -216,7 +221,7 @@ const AdminDashboard: React.FC = () => {
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                 backgroundColor: "#f0f0f0",
                 "&:hover": {
-                  backgroundColor: "#74D52B",
+                  backgroundColor: "#FDBE73",
                   color: "white",
                 },
               }}
@@ -233,17 +238,17 @@ const AdminDashboard: React.FC = () => {
                 margin: "0 8px",
                 padding: "6px 16px",
                 borderRadius: "30px",
-                backgroundColor: selectedSubcategory?.id === subcategory.id ? "#74D52B" : "#f0f0f0",
+                backgroundColor: selectedSubcategory?.id === subcategory.id ? "#FDBE73" : "#f0f0f0",
                 color: selectedSubcategory?.id === subcategory.id ? "white" : "#333",
                 fontSize: "12px",
                 fontWeight: 600,
                 transition: "all 0.3s ease",
-                boxShadow: selectedSubcategory?.id === subcategory.id ? "0 4px 12px rgba(116, 213, 43, 0.2)" : "0 4px 8px rgba(0, 0, 0, 0.1)",
+                boxShadow: selectedSubcategory?.id === subcategory.id ? "0 4px 12px #FAEEE1" : "0 4px 8px rgba(0, 0, 0, 0.1)",
                 "&:hover": {
-                  backgroundColor: "#74D52B",
+                  backgroundColor: "#FDBE73",
                   color: "white",
                   transform: "translateY(-3px)",
-                  boxShadow: "0 8px 16px rgba(116, 213, 43, 0.2)",
+                  boxShadow: "0 8px 16px #FAEEE1",
                 },
                 "&:focus": {
                   outline: "none",
@@ -252,7 +257,7 @@ const AdminDashboard: React.FC = () => {
             >
               {subcategory.subCategoryName}
 
-              <Badge
+              {/* <Badge
                 showZero
                 badgeContent={subcategory.count}
                 color="primary"
@@ -270,7 +275,7 @@ const AdminDashboard: React.FC = () => {
                     boxShadow: "0 2px 6px rgba(21, 255, 0, 0.7)",
                   },
                 }}
-              />
+              /> */}
 
             </Button>
 
@@ -294,7 +299,7 @@ const AdminDashboard: React.FC = () => {
                 backgroundColor: "#f0f0f0",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                 "&:hover": {
-                  backgroundColor: "#74D52B",
+                  backgroundColor: "#FDBE73",
                   color: "white",
                 },
               }}
@@ -504,7 +509,7 @@ const AdminDashboard: React.FC = () => {
                                   transform: "scale(1.05)",
                                 },
                               }}
-                              onClick={() => handleEditClick(item.productId)}
+                              onClick={() => handleEditClick(item.productId, item.productName)}
                             >
                               Details
                             </Button>

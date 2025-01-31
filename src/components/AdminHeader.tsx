@@ -200,6 +200,12 @@ const AdminHeader = () => {
         }
     };
 
+    
+    const handleBack = () => {
+        if (step === 2) {
+            setStep(1);
+        }
+    };
 
 
     const handleNext = () => {
@@ -211,6 +217,8 @@ const AdminHeader = () => {
     useEffect(() => {
         getCategories();
     }, []);
+
+    
 
     return (
         <Box sx={{ pt: 0 }}>
@@ -289,9 +297,9 @@ const AdminHeader = () => {
                                     sx={{
                                         ...BoxcardStyle, boxShadow:
                                             selectedCategory === category.categoryName
-                                                ? "0 2px 5px #74d52b"
+                                                ? "0 2px 5px #FDBE73"
                                                 : "0 2px 5px rgba(0, 0, 0, 0.1)",
-                                        backgroundColor: selectedCategory === category.categoryName ? "rgb(238, 255, 226)" : "#F9F9F9",
+                                        backgroundColor: selectedCategory === category.categoryName ? "#faeee1" : "#F9F9F9",
 
                                     }}
                                 >
@@ -326,7 +334,7 @@ const AdminHeader = () => {
                                             variant="body2"
                                             sx={{
                                                 fontWeight: "bold",
-                                                color: selectedCategory === category.categoryName ? "#74d52b" : "#333",
+                                                color: selectedCategory === category.categoryName ? "rgb(255, 145, 0)" : "#333",
                                             }}
                                         >
                                             {category.categoryName}
@@ -345,7 +353,7 @@ const AdminHeader = () => {
                                 <Box
                                     sx={modalBoxStyle}
                                 >
-                                    <AddIcon sx={{ fontSize: "60px", color: "#74d52b" }} />
+                                    <AddIcon sx={{ fontSize: "60px", color: "#FDBE73" }} />
                                 </Box>
 
                                 <CardContent sx={{ textAlign: "center", padding: "8px 0" }}>
@@ -372,7 +380,7 @@ const AdminHeader = () => {
                         <>
                             <Typography
                                 variant="h6"
-                                sx={{ textAlign: "center", mb: 3, fontWeight: "bold", color: "#333" }}
+                                sx={{ textAlign: "center", mb: 3, fontWeight: "bold", color: "rgb(255, 145, 0)" }}
                             >
                                 Add Category
                             </Typography>
@@ -395,7 +403,7 @@ const AdminHeader = () => {
                                                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                             />
                                         ) : (
-                                            <AddIcon sx={{ fontSize: "50px", color: "#74d52b" }} />
+                                            <AddIcon sx={{ fontSize: "50px", color: "rgb(255, 145, 0)" }} />
                                         )}
                                     </Box>
                                 </label>
@@ -439,6 +447,11 @@ const AdminHeader = () => {
                                     fullWidth
                                     onClick={handleNext}
                                     disabled={!itemName || !uploadedImage}
+                                    sx={{
+                                        backgroundColor: "rgb(255, 145, 0)",
+                                        "&:hover": {
+                                            backgroundColor: "#FDBE73",
+                                        }}}
                                 >
                                     Next
                                 </Button>
@@ -451,7 +464,7 @@ const AdminHeader = () => {
                         <>
                             <Typography
                                 variant="h6"
-                                sx={{ textAlign: "center", mb: 3, fontWeight: "bold", color: "#333" }}
+                                sx={{ textAlign: "center", mb: 3, fontWeight: "bold", color: "rgb(255, 145, 0)" }}
                             >
                                 Add Subcategories
                             </Typography>
@@ -466,8 +479,8 @@ const AdminHeader = () => {
                                 />
                                 <Button
                                     variant="contained"
-                                    color="primary"
                                     onClick={handleAddSubCategory}
+                                    sx={{ backgroundColor: "#FDBE73", "&:hover": { backgroundColor: "#FDBE73" } }}
                                 >
                                     {editIndex !== null ? 'Update' : 'Add'}
                                 </Button>
@@ -482,20 +495,29 @@ const AdminHeader = () => {
                                                 aria-label="delete"
                                                 onClick={() => handleEditSubCategory(index)}
                                             >
-                                                <EditIcon />
+                                                <EditIcon sx={{ color: "#38bc36" }} />
                                             </IconButton>
                                             <IconButton
                                                 edge="end"
                                                 aria-label="delete"
                                                 onClick={() => handleRemoveSubCategory(index)}
                                             >
-                                                <DeleteIcon />
+                                                <DeleteIcon sx={{ color: "red" }}/>
                                             </IconButton>
                                         </ListItemSecondaryAction>
                                     </ListItem>
                                 ))}
                             </List>
                             <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
+                            <Button
+                                    variant="contained"
+                                    
+                                    fullWidth
+                                    sx={{ mt: 3 }}
+                                    onClick={handleBack}
+                                >
+                                    Back
+                                </Button>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -507,11 +529,15 @@ const AdminHeader = () => {
                                 </Button>
                                 <Button
                                     variant="contained"
-                                    color="success"
                                     fullWidth
-                                    sx={{ mt: 3 }}
                                     onClick={handleSubmit}
                                     disabled={subCategory.length === 0}
+                                    sx={{
+                                        mt: 3 ,
+                                        backgroundColor: "rgb(255, 145, 0)",
+                                        "&:hover": {
+                                            backgroundColor: "#FDBE73",
+                                        }}}
                                 >
                                     Submit
                                 </Button>
