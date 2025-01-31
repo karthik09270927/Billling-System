@@ -70,18 +70,18 @@ export const LoginPage: React.FC = () => {
       const { accessToken } = result.data;
 
       if (accessToken) {
-        // Decode the accessToken to extract role
+
         const decodedToken: { role: string } = jwtDecode(accessToken);
         console.log('Decoded Token:', decodedToken);
         localStorage.setItem('userRole', decodedToken.role);
 
 
-        // Show splash screen
+
         setShowSplash(true);
-        if(result.data.status===200){
+        if (result.data.status === 200) {
           setShowSplash(false);
         }
-        // Hide splash screen and navigate after 5 seconds
+
         setTimeout(() => {
           if (decodedToken.role === 'admin') {
             navigate('/admin-dashboard');
@@ -145,6 +145,58 @@ export const LoginPage: React.FC = () => {
       <Grid container sx={loginGrid}>
         {!isMobile && (
           <Grid item xs={12} md={6} sx={{ height: '100vh' }}>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                height: '60px',
+                background: '#80bf20',
+                color: 'white',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 9999,
+              }}
+            >
+              <motion.div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  overflow: 'hidden',
+                }}
+                animate={{
+                  x: ['100%', '-100%'],  
+                }}
+                transition={{
+                  duration: 18,    
+                  ease: 'linear', 
+                  repeat: Infinity,  
+                  repeatType: "loop",  
+                  delay: 0, 
+                  times: [0, 0.5, 1],
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    textShadow: '0px 0px 10px rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  Special Offer: 50% off on all items! Shop Now!
+                </Typography>
+              </motion.div>
+
+
+            </Box>
+
             <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", background: '#ffffff' }}>
               <img src={logo} alt="login"
                 style={{
