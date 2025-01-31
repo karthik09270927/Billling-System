@@ -51,7 +51,7 @@ export default function AdminHeader() {
               display: { xs: "none", sm: "block", md: "flex" }
             }}
           >
-           <img src={logo} alt="logo" style={{ width: "40px", height: "40px" }} /><Typography color="#7cc323" fontSize={23} fontWeight={800}> REFRESH HYPERMARKET</Typography>
+           <img src={logo} alt="logo" style={{ width: "40px", height: "40px" }} /><Typography color="#7cc323" fontSize={23} fontWeight={800}> FRESH HYPERMARKET</Typography>
           </Typography>
 
           <Box sx={{ flexGrow: 2, display: "block" }}>
