@@ -46,7 +46,7 @@ const AdminDashboard: React.FC = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategory, setSubCategory] = useState<any[]>([]);
   const [selectedProductCategoryId, setselectedProductCategoryId] = useState<number>(0);
-  const [_selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
+  const [selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
 
   const navigate = useNavigate();
 
@@ -169,17 +169,20 @@ const AdminDashboard: React.FC = () => {
         productName: product.productName,
         image: product.productImage,
         billingProductCategory: selectedProductCategoryId || 0,
-        billingProductSubCategory: selectedSubcategory || 0,
+        billingProductSubCategory: selectedSubCategoryId || 0,
       }));
       console.log("Product List:", productList);
 
       const response = await saveProduct(productList);
       console.log("Product saved successfully:", response);
+      fetchProducts();
     } catch (error) {
       console.error("Error in submitting product:", error);
+      fetchProducts();
     } finally {
       reset();
       setIsModalOpen(false);
+      fetchProducts();
     }
   };
 

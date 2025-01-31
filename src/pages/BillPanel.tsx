@@ -1462,7 +1462,6 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         <DialogTitle
           sx={{
             textAlign: 'center',
-            padding: '20px',
             color: '#333',
             fontWeight: 800,
             '& .MuiTypography-root': {
@@ -1476,7 +1475,6 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
           sx={{
             flex: 1,
             overflowY: 'auto',
-            padding: '20px',
             '&::-webkit-scrollbar': {
               width: '8px'
             },
@@ -1492,8 +1490,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                 <StepLabel
                   StepIconComponent={() => (
                     <Box sx={{
-                      width: 35,
-                      height: 35,
+                      width: 45,
+                      height: 45,
                       borderRadius: '50%',
                       bgcolor: activeStep >= index ? '#74D52B' : '#e0e0e0',
                       display: 'flex',
@@ -1529,7 +1527,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                         '&:hover': { bgcolor: "#65BA25" }
                       }}
                     >
-                      {index === steps.length - 1 ? 'Confirm Order' : 'Next'}
+                      {index === steps.length - 1 ? 'Confirm' : 'Next'}
                     </Button>
                   </Box>
                 </StepContent>
