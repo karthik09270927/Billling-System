@@ -8,6 +8,7 @@ export const CategoryProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
   const [subCategories, setSubCategories] = useState<any[]>([]);
   const [isSubCategoriesLoading, setIsSubCategoriesLoading] = useState<boolean>(false);
   const [productId, setProductId] = useState<number | null>(null);
+  const [productName, setProductName] = useState<string | null>(null);
 
   console.log("Selected Category Name:", selectedCategory);
   console.log("Selected Category ID:", selectedCategoryId);
@@ -26,6 +27,8 @@ export const CategoryProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         setIsSubCategoriesLoading,
         productId,
         setProductId,
+        productName,
+        setProductName,
       }}
     >
       {children}
