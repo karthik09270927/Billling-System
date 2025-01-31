@@ -14,7 +14,7 @@ const ProductManagement = () => {
                 flexShrink: 0,
               }}
             >
-              < AdminHeader/>
+              < AdminHeader />
             </Box>
             <Box
               sx={{
@@ -22,9 +22,11 @@ const ProductManagement = () => {
                 overflowY: "auto",
                 padding: 1,
                 scrollbarWidth: "thin",
+                scrollbarColor: "#FDBE73 transparent !important",
               }}
             >
-             < AdminDashboard/>
+
+              < AdminDashboard />
             </Box>
           </Card>
         </Grid>
