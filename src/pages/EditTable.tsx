@@ -6,11 +6,12 @@ import { getAdminEachProductDetail, getProductDetails, saveProductDetails } from
 import { useCategory } from "../Hooks/useContext";
 import CentralizeDatePicker from "../centralizedComponents/forms/DatePicker";
 import { gridStyles } from "../styles/centralizedStyles";
-import EditIcon from '@mui/icons-material/Edit'
+import { useNavigate } from "react-router-dom";
 interface ProductData {
     id: number;
     productName: string;
     quantity: string;
+    productId: number;
     weightage: string;
     costPrice: number;
     sellingPrice: number;
@@ -22,14 +23,18 @@ const EditTable: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const { productId } = useCategory();
+    const { productId,productName } = useCategory();
+    const navigate = useNavigate();
     const modalTitle = isEdit ? "Edit Product" : "Add Product";
+
+    console.log("productName:", productName);
+    
 
     const { control, handleSubmit, reset } = useForm({
         defaultValues: {
             id: null,
             productId: null,
-            productName: "",
+            productName: productName || "",
             quantity: "",
             weightage: "",
             manufacturedate: "",
@@ -153,6 +158,9 @@ const EditTable: React.FC = () => {
         setIsModalOpen(true);
     };
 
+    const handleBack = () => {
+        navigate("/admin-dashboard");
+    };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
@@ -160,13 +168,14 @@ const EditTable: React.FC = () => {
         reset({
             id: null,
             productId: null,
-            productName: "",
+            productName: productName || "",
             quantity: "",
             weightage: "",
             manufacturedate: "",
             expirydate: "",
             sellingPrice: 0,
             mrpPrice: 0,
+            costPrice: 0
         });
 
     };
@@ -175,8 +184,8 @@ const EditTable: React.FC = () => {
     const onSubmit = async (data: any) => {
         try {
             const productList = {
-                id: data.id || 0,
-                productId: data.productId || 0,
+                id: data.id || null,
+                productId: data.productId || productId,
                 quantity: data.quantity || "",
                 mrpPrice: data.mrpPrice || 0,
                 costPrice: data.costPrice || 0,
@@ -245,13 +254,21 @@ const EditTable: React.FC = () => {
                         <Typography variant="subtitle1">Detailed overview of user activity</Typography>
                     </Box>
                     <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                    <Button
+                            variant="contained"
+                            onClick={handleBack}
+                            sx={{ backgroundColor: "#eb4034", borderRadius: "12px", marginRight: "10px" }}
+                        // onClick={handleOpenAddProductModal}
+                        >
+                           Back
+                        </Button>
                         <Button
                             variant="contained"
                             onClick={handleAddNewItem}
                             sx={{ backgroundColor: "#f5f58e", color: "#000", borderRadius: "12px" }}
                         // onClick={handleOpenAddProductModal}
                         >
-                            Add Product
+                            Add Stock
                         </Button>
                     </Box>
 

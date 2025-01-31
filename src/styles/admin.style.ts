@@ -25,7 +25,7 @@ export const AdminHeaderIconStyle = {
 }
 
 export const AdminHeaderIconEditStyle = {
-    backgroundColor: "rgb(238, 255, 226)",
+    backgroundColor: "#FBFBE5",
     borderRadius: "20px",
     "& .MuiOutlinedInput-root": {
         "& fieldset": {
@@ -35,7 +35,7 @@ export const AdminHeaderIconEditStyle = {
 }
 
 export const TextFieldStyle = {
-    backgroundColor: "rgb(238, 255, 226)",
+    backgroundColor: "#FBFBE5",
     borderRadius: "20px",
     "& .MuiOutlinedInput-root": {
         "& fieldset": {
@@ -71,10 +71,10 @@ export const editIconCardStyle = {
     position: "absolute",
     borderRadius: "0% 30% 0% 70%",
     right: "0px",
-    backgroundColor: "#74d52b",
+    backgroundColor: "rgb(255, 145, 0)",
     zIndex: 1,
     '&:hover': {
-        backgroundColor: "rgb(169, 252, 91)",
+        backgroundColor: "rgb(255, 145, 0)",
     },
 }
 
@@ -135,6 +135,6 @@ export const uploadImageStyle = {
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    border: "1px dashed #74d52b",
+    border: "1px dashed rgb(255, 145, 0)",
     overflow: "hidden",
 }
