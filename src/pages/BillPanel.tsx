@@ -87,6 +87,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     setPhoneNumber('');
     setEmail('');
     setPaymentMode('Cash');
+    setActiveStep(0);
     setErrors({
       name: '',
       phoneNumber: '',
@@ -149,9 +150,15 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }
 
     // Email validation
+    // if (!email) {
+    //   newErrors.email = 'Email is required';
+    // } else if (!/^[a-zA-Z0-9._-]+$/.test(email)) {
+    //   newErrors.email = 'Invalid email format';
+    // }
+
     if (!email) {
       newErrors.email = 'Email is required';
-    } else if (!/^[a-zA-Z0-9._-]+$/.test(email)) {
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
       newErrors.email = 'Invalid email format';
     }
 
@@ -189,7 +196,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     try {
       const billData = {
         userName: name,
-        userEmail: email + '@coherent.in',
+        userEmail: email,
         userPhone: phoneNumber,
         paymentMode: paymentMode,
         products: selectedItems.map(item => ({
@@ -228,7 +235,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         const userData = await getUserDetails(value);
         if (userData?.userName && userData?.userEmail) {
           setName(userData.userName);
-          setEmail(userData.userEmail.split('@')[0]); // Remove @coherent.in
+          // setEmail(userData.userEmail.split('@')[0]); // Remove @coherent.in
+          setEmail(userData.userEmail);
         }
       } catch (error) {
         setName('');
@@ -251,11 +259,23 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }
   };
 
+  // const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value;
+  //   const baseEmail = value.replace(/@coherent\.in$/, '');
+  //   setEmail(baseEmail);
+  //   if (baseEmail.trim()) {
+  //     setErrors(prev => ({ ...prev, email: '' }));
+  //   }
+  // };
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const baseEmail = value.replace(/@coherent\.in$/, '');
-    setEmail(baseEmail);
-    if (baseEmail.trim()) {
+
+    // Set the email directly without modifying it
+    setEmail(value);
+
+    // Check if the email is not empty
+    if (value) {
       setErrors(prev => ({ ...prev, email: '' }));
     }
   };
@@ -410,7 +430,10 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       case 'Cash':
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <CashPayment amount={parseFloat(calculateTotal())} />
+            <CashPayment
+              amount={parseFloat(calculateTotal())}
+              onSubmit={handleConfirmOrder}
+            />
           </Box>
         );
       case 'Card':
@@ -431,7 +454,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       case 'UPI':
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <UPIPayment amount={calculateTotal()} onSubmit={() => console.log('payment Successfully')} />
+            <UPIPayment
+              amount={parseFloat(calculateTotal())}
+              onSubmit={handleConfirmOrder}
+              email={email}
+            />
           </Box>
         );
       default:
@@ -604,7 +631,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               }
             })
           }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, marginTop: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
               {['Cash', 'Card', 'UPI'].map((mode) => (
                 <Button
                   key={mode}
@@ -692,7 +719,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               onClick={() => setIsFullScreen(true)}
               sx={{
                 '&:hover': {
-                  backgroundColor: '#f9f9f9'
+                  backgroundColor: '#fefae0'
                 }
               }}
             >
@@ -705,7 +732,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               onClick={handleQrIconClick}
               sx={{
                 '&:hover': {
-                  backgroundColor: '#f9f9f9'
+                  backgroundColor: '#fefae0'
                 }
               }}
             >
@@ -1176,7 +1203,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               onClick={() => setIsFullScreen(false)}
               sx={{
                 '&:hover': {
-                  backgroundColor: '#f9f9f9'
+                  backgroundColor: '#fefae0'
                 }
               }}
             >
@@ -1189,7 +1216,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               onClick={handleQrIconClick}
               sx={{
                 '&:hover': {
-                  backgroundColor: '#f9f9f9'
+                  backgroundColor: '#fefae0'
                 }
               }}
             >
@@ -1674,17 +1701,18 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         </DialogContent>
 
         <Box sx={{
-          padding: '16px 20px',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#fbfbe5'
+          backgroundColor: '#fefae0',
+          padding: '10px 16px',
+          mt: 1
         }}>
           <Typography
             fontWeight="bold"
             sx={{
               fontSize: 22,
-              textAlign: 'center'
+              textAlign: 'center',
             }}
           >
             Total Amount : ₹ {calculateTotal()}
@@ -1695,13 +1723,12 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             display: 'flex',
             justifyContent: 'center',
             gap: 2,
-            borderRadius: 20,
-            padding: '20px',
-            backgroundColor: '#fbfbe5'
+            backgroundColor: '#fefae0'
           }}
         >
           <Button onClick={() => {
             setIsModalOpen(false);
+            setActiveStep(0);
             resetForm();
           }}
             color="secondary">

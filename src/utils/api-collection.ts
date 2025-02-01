@@ -220,6 +220,22 @@ export const verifyCardOtp = async (otpData: OtpVerification): Promise<any> => {
   }
 };
 
+export const generateQRCode = async (email: string, billAmount: number): Promise<any> => {
+  try {
+    const response = await API.post('/card/generateQRCode', {
+      params: {
+        email: email,
+        billAmount: billAmount,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error generating QR code:', error);
+    throw error; 
+  }
+};
+
+
 
 export const forgotPassword = async (userEmail: string): Promise<any> => {
   try {
@@ -344,7 +360,7 @@ export const saveProduct = async (productList: Array<{
   try {
     const updatedProductList = productList.map((product) => ({
       ...product,
-      image: product.image.replace(/^data:image\/[a-z]+;base64,/, ""), 
+      image: product.image.replace(/^data:image\/[a-z]+;base64,/, ""),
     }));
 
     const response = await API.post("/billing/productSave", { productList: updatedProductList });
