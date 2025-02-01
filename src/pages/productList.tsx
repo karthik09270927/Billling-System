@@ -25,13 +25,21 @@ const ProductListPage: React.FC = () => {
     const [_selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
 
     const columns: GridColDef[] = [
+        {
+            field: "serialNumber",
+            headerName: "S.No",
+            flex: 0.5,
+            headerAlign: "center",
+            align: "center",
+            renderCell: (params) => rows.findIndex(row => row.id === params.id) + 1,
+        },
         { field: "id", headerName: "Product ID", flex: 0.6, headerAlign: "center", align: "center" },
         { field: "productName", headerName: "Product Name", flex: 1.5, headerAlign: "center", align: "center" },
         { field: "quantity", headerName: "Quantity", flex: 1, headerAlign: "center", align: "center" },
         { field: "weightage", headerName: "Weight", flex: 1, headerAlign: "center", align: "center" },
-        { field: "costPrice", headerName: "Cost Price", flex: 1, headerAlign: "center", align: "center" },
-        { field: "sellingPrice", headerName: "Selling Price", flex: 1, headerAlign: "center", align: "center" },
-        { field: "mrpPrice", headerName: "MRP Price", flex: 1, headerAlign: "center", align: "center" },
+        { field: "costPrice", headerName: "Cost Price", flex: 1, headerAlign: "center", align: "center" ,renderCell: (params) => `₹ ${params.value}`,},
+        { field: "sellingPrice", headerName: "Selling Price", flex: 1, headerAlign: "center", align: "center" ,renderCell: (params) => `₹ ${params.value}`,},
+        { field: "mrpPrice", headerName: "MRP Price", flex: 1, headerAlign: "center", align: "center",renderCell: (params) => `₹ ${params.value}`, },
         {
             field: "image",
             headerName: "Product Image",

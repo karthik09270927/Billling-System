@@ -49,7 +49,7 @@ const AdminDashboard: React.FC = () => {
   const [selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
 
   const navigate = useNavigate();
-
+  
   const getCategories = async () => {
     try {
       const data = await fetchCategories();
@@ -219,7 +219,7 @@ const AdminDashboard: React.FC = () => {
                 borderRadius: "50%",
                 alignItems: "center",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                backgroundColor: "#f0f0f0",
+                backgroundColor: "#FBFBE5",
                 "&:hover": {
                   backgroundColor: "#FDBE73",
                   color: "white",
@@ -238,8 +238,8 @@ const AdminDashboard: React.FC = () => {
                 margin: "0 8px",
                 padding: "6px 16px",
                 borderRadius: "30px",
-                backgroundColor: selectedSubcategory?.id === subcategory.id ? "#FDBE73" : "#f0f0f0",
-                color: selectedSubcategory?.id === subcategory.id ? "white" : "#333",
+                backgroundColor: selectedSubcategory === subcategory.id ? "#FDBE73" : "#FBFBE5",
+                color: selectedSubcategory === subcategory.id ? "white" : "#333",
                 fontSize: "12px",
                 fontWeight: 600,
                 transition: "all 0.3s ease",
@@ -296,7 +296,7 @@ const AdminDashboard: React.FC = () => {
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                backgroundColor: "#f0f0f0",
+                backgroundColor: "#FBFBE5",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                 "&:hover": {
                   backgroundColor: "#FDBE73",

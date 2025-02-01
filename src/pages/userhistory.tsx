@@ -6,6 +6,7 @@ import { fetchUserList } from "../utils/api-collection";
 import { gridStyles } from "../styles/centralizedStyles";
 
 interface UserData {
+  id: number;
   orderId: number;
   userName: string;
   purchasedDate: string;
@@ -27,11 +28,19 @@ const UserHistoryPage: React.FC = () => {
 
   // Define columns for the DataGrid
   const columns: GridColDef[] = [
+    {
+      field: "serialNumber",
+      headerName: "S.No",
+      flex: 0.5,
+      headerAlign: "center",
+      align: "center",
+      renderCell: (params) => rows.findIndex(row => row.id === params.id) + 1,
+  },
     { field: "orderId", headerName: "Order ID", flex: 0.5, headerAlign: "center", align: "center" },
     { field: "userName", headerName: "User Name", flex: 1, headerAlign: "center", align: "center" },
     { field: "purchasedDate", headerName: "Purchased Date", flex: 1.5, headerAlign: "center", align: "center" },
     { field: "paymentMode", headerName: "Payment Mode", flex: 1, headerAlign: "center", align: "center" },
-    { field: "totalAmount", headerName: "Total Amount", flex: 1, headerAlign: "center", align: "center" },
+    { field: "totalAmount", headerName: "Total Amount", flex: 1, headerAlign: "center", align: "center",renderCell: (params) => `₹ ${params.value}`, },
     {
       field: "invoice",
       headerName: "Invoice",
