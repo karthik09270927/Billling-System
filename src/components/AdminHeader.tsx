@@ -226,7 +226,7 @@ const AdminHeader = () => {
                 <IconButton
                     onClick={toggleHeader}
                     sx={AdminHeaderBoxStyle} >
-                    <ExpandMoreIcon sx={{ fontSize: 20, color: "#333" }} />
+                    <ExpandMoreIcon sx={{ fontSize: 20, color: "#333" ,}} />
                 </IconButton>
             )}
 
@@ -299,7 +299,7 @@ const AdminHeader = () => {
                                             selectedCategory === category.categoryName
                                                 ? "0 2px 5px #FDBE73"
                                                 : "0 2px 5px rgba(0, 0, 0, 0.1)",
-                                        backgroundColor: selectedCategory === category.categoryName ? "#faeee1" : "#F9F9F9",
+                                        backgroundColor: selectedCategory === category.categoryName ? "#FBFBE5" : "#F9F9F9",
 
                                     }}
                                 >
