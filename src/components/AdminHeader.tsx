@@ -257,15 +257,15 @@ const AdminHeader = () => {
                                 <IconButton
                                     onClick={handleShowEdit}
                                     sx={AdminHeaderIconEditStyle}>
-                                    <EditIcon />
+                                    <EditIcon sx={{ fontSize: "18px" }} />
                                 </IconButton>
                                 <IconButton
                                     onClick={handleShowDelete}
                                     sx={AdminHeaderIconEditStyle}>
-                                    <DeleteIcon />
+                                    <DeleteIcon sx={{ fontSize: "18px" }} />
                                 </IconButton>
                                 <TextField
-                                    placeholder="Search something sweet on your mind..."
+                                    placeholder="Search something..."
                                     variant="outlined"
                                     InputProps={{
                                         startAdornment: (
