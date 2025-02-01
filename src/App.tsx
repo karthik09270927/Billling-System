@@ -9,11 +9,7 @@ import { CategoryProvider } from './Hooks/useContext';
 import { SelectedItemsProvider } from './Hooks/productContext';
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const [isDarkMode, _setIsDarkMode] = useState(false);
 
   return (
     <SelectedItemsProvider>

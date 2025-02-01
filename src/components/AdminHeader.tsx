@@ -128,6 +128,7 @@ const AdminHeader = () => {
             setSelectedCategoryId(categoryId);
             const response = await fetchSubCategories(categoryId);
             setSubCategories(response.data);
+            
         } catch (error) {
             console.error("Error fetching subcategories:", error);
         }
@@ -291,59 +292,70 @@ const AdminHeader = () => {
                             sx={cardBoxStyle}
                         >
                             {categories.map((category, index) => (
-                                <Card
-                                    key={index}
-                                    onClick={() => handleCategoryClick(category.id, category.categoryName)}
-                                    sx={{
-                                        ...BoxcardStyle, boxShadow:
-                                            selectedCategory === category.categoryName
-                                                ? "0 2px 5px #FDBE73"
-                                                : "0 2px 5px rgba(0, 0, 0, 0.1)",
-                                        backgroundColor: selectedCategory === category.categoryName ? "#FBFBE5" : "#F9F9F9",
-
-                                    }}
-                                >
-                                    {editProduct && (
-                                        <IconButton
-                                            onClick={() => handleEdit(category.id)}
-                                            sx={editIconCardStyle}
-                                        >
-                                            <EditIcon sx={{ fontSize: "18px", color: "#fff" }} />
-                                        </IconButton>
-                                    )
-                                    }
-                                    {deleteProduct && (
-                                        <IconButton
-                                            onClick={() => handleDelete(category.id)}
-                                            sx={deleteIconCardStyle}
-                                        >
-                                            <DeleteIcon sx={{ fontSize: "18px", color: "#fff" }} />
-                                        </IconButton>
-                                    )
-                                    }
-
-                                    <CardMedia
-                                        component="img"
-                                        height="90"
-                                        image={`data:image/jpeg;base64,${category.image}`}
-                                        alt={category.categoryName}
-                                        sx={{ borderRadius: "12px 12px 0 0" }}
-                                    />
-                                    <CardContent sx={{ textAlign: "center", padding: "8px 0" }}>
-                                        <Typography
-                                            variant="body2"
-                                            sx={{
-                                                fontWeight: "bold",
-                                                color: selectedCategory === category.categoryName ? "rgb(255, 145, 0)" : "#333",
-                                            }}
-                                        >
-                                            {category.categoryName}
-                                        </Typography>
-                                        <Typography variant="caption" sx={{ color: "#999", fontSize: "12px" }}>
-                                            {category.count} Items
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
+                        <Card
+                        key={index}
+                        onClick={() => handleCategoryClick(category.id, category.categoryName)}
+                        sx={{
+                            ...BoxcardStyle,
+                            boxShadow: selectedCategory === category.categoryName
+                                ? "0 2px 5px #FDBE73"
+                                : "0 2px 5px rgba(0, 0, 0, 0.1)",
+                            backgroundColor: selectedCategory === category.categoryName ? "#FBFBE5" : "#F9F9F9",
+                            overflow: "hidden", // Prevents overflow issues
+                            position: "relative",
+                            "&:hover .card-media": { 
+                                transform: "scale(1.2)", // Zoom in effect
+                                transition: "transform 0.3s ease-in-out" 
+                            }
+                        }}
+                    >
+                        {editProduct && (
+                            <IconButton
+                                onClick={() => handleEdit(category.id)}
+                                sx={editIconCardStyle}
+                            >
+                                <EditIcon sx={{ fontSize: "18px", color: "#fff" }} />
+                            </IconButton>
+                        )}
+                        {deleteProduct && (
+                            <IconButton
+                                onClick={() => handleDelete(category.id)}
+                                sx={deleteIconCardStyle}
+                            >
+                                <DeleteIcon sx={{ fontSize: "18px", color: "#fff" }} />
+                            </IconButton>
+                        )}
+                    
+                        <CardMedia
+                            component="img"
+                            height="90"
+                            image={`data:image/jpeg;base64,${category.image}`}
+                            alt={category.categoryName}
+                            className="card-media"
+                            sx={{
+                                borderRadius: "12px 12px 0 0",
+                                transition: "transform 0.3s ease-in-out",
+                                display: "block",
+                                margin: "auto" // Keeps image centered
+                            }}
+                        />
+                        <CardContent sx={{ textAlign: "center", padding: "8px 0" }}>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    fontWeight: "bold",
+                                    color: selectedCategory === category.categoryName ? "rgb(255, 145, 0)" : "#333",
+                                }}
+                            >
+                                {category.categoryName}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: "#999", fontSize: "12px" }}>
+                                {category.count} Items
+                            </Typography>
+                        </CardContent>
+                    </Card>                    
+                        
+                          
                             ))}
 
                             <Card
@@ -480,14 +492,14 @@ const AdminHeader = () => {
                                 <Button
                                     variant="contained"
                                     onClick={handleAddSubCategory}
-                                    sx={{ backgroundColor: "#FDBE73", "&:hover": { backgroundColor: "#FDBE73" } }}
+                                    sx={{ backgroundColor: "#fca74c", "&:hover": { backgroundColor: "#FDBE73" } }}
                                 >
                                     {editIndex !== null ? 'Update' : 'Add'}
                                 </Button>
                             </Box>
                             <List>
                                 {subCategory.map((subCategory, index) => (
-                                    <ListItem key={index} sx={{ borderBottom: "1px solid #ddd" }}>
+                                    <ListItem key={index} sx={{ borderBottom: "1px solid #FDBE73" }}>
                                         <ListItemText primary={subCategory} />
                                         <ListItemSecondaryAction>
                                             <IconButton
@@ -513,7 +525,12 @@ const AdminHeader = () => {
                                     variant="contained"
                                     
                                     fullWidth
-                                    sx={{ mt: 3 }}
+                                    sx={{ mt: 3,
+                                        backgroundColor: "#3880fc",
+                                        "&:hover": {
+                                            backgroundColor: "#95bbfc",
+                                        }}}
+                                    
                                     onClick={handleBack}
                                 >
                                     Back

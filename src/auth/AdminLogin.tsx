@@ -157,65 +157,27 @@ export const LoginPage: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                zIndex: 9999,
+                zIndex: 100,
               }}
             >
               <motion.div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%',
-                  overflow: 'hidden',
-                }}
-                animate={{
-                  x: ["100%", "-100%"],
-                }}
-                transition={{
-                  duration: 20,
-                  ease: "linear",
-                  repeat: Infinity,
-                }}
+                animate={{ x: ["0%", "70%", "0%"] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                style={{ position: "absolute", width: "100%" }}
               >
-                <div style={{ display: 'flex' }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      whiteSpace: 'nowrap',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '18px',
-                      textShadow: '0px 0px 10px rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    🚀 Special Offer: 50% off on all items! Shop Now! 🎉
-                  </Typography>
-                  {/* Duplicate the text to create a continuous scroll */}
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      whiteSpace: 'nowrap',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '18px',
-                      textShadow: '0px 0px 10px rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    🚀 Special Offer: 50% off on all items! Shop Now! 🎉
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      whiteSpace: 'nowrap',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '18px',
-                      textShadow: '0px 0px 10px rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    🚀 Special Offer: 50% off on all items! Shop Now! 🎉
-                  </Typography>
-                </div>
+
+                <Typography
+                  variant="h6"
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    textShadow: '0px 0px 10px rgba(255, 255, 255, 0.6)',
+                  }}
+                >
+                  📢 Special Offer: 80% off on all items! Shop Now! 🏷️ ⏳
+                </Typography>
               </motion.div>
 
 

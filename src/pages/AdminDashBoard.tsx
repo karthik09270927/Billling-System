@@ -14,7 +14,6 @@ import {
   InputLabel,
   FormControl,
   IconButton,
-  Badge,
   CircularProgress,
   CardMedia,
 } from "@mui/material";
@@ -256,27 +255,6 @@ const AdminDashboard: React.FC = () => {
               }}
             >
               {subcategory.subCategoryName}
-
-              {/* <Badge
-                showZero
-                badgeContent={subcategory.count}
-                color="primary"
-                sx={{
-                  position: "absolute",
-                  top: "0px",
-                  right: "0px",
-                  "& .MuiBadge-badge": {
-                    backgroundColor:
-                      selectedSubcategory === subcategory ? "#f9f9f9" : "#74D52B",
-                    color: selectedSubcategory === subcategory ? "#74D52B" : "#ffffff",
-                    fontSize: "12px",
-                    minWidth: "22px",
-                    height: "22px",
-                    boxShadow: "0 2px 6px rgba(21, 255, 0, 0.7)",
-                  },
-                }}
-              /> */}
-
             </Button>
 
           ))}
@@ -441,6 +419,7 @@ const AdminDashboard: React.FC = () => {
                                 transform: "translateY(-5px)",
                                 boxShadow: "0 6px 15px rgba(0, 0, 0, 0.2)",
                               },
+                              
                             }}
                             onClick={() => handleItemClick(item)}
                           >
@@ -513,8 +492,6 @@ const AdminDashboard: React.FC = () => {
                             >
                               Details
                             </Button>
-
-
                           </Card>
                         </Grid>
                       )
