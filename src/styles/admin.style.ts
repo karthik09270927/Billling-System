@@ -1,10 +1,15 @@
+import { Height } from "@mui/icons-material"
+
 export const AdminHeaderBoxStyle = {
     position: "fixed",
-    top: 90,
+    top: 80,
     left: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#FBFBE5",
     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
     zIndex: 1000,
+    '&:hover': {
+        backgroundColor: "#FDBE73",
+    },
 }
 
 export const AdminHeaderSubBoxStyle = {
@@ -19,14 +24,19 @@ export const AdminHeaderIconStyle = {
     position: "fixed",
     top: 80,
     left: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#FBFBE5",
     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
     zIndex: 1000,
+    '&:hover': {
+        backgroundColor: "#FDBE73",
+    },
 }
 
 export const AdminHeaderIconEditStyle = {
     backgroundColor: "#FBFBE5",
     borderRadius: "20px",
+    mt: 2,
+    height  : "36px",
     "& .MuiOutlinedInput-root": {
         "& fieldset": {
             border: "none",
@@ -36,7 +46,9 @@ export const AdminHeaderIconEditStyle = {
 
 export const TextFieldStyle = {
     backgroundColor: "#FBFBE5",
-    borderRadius: "20px",
+    borderRadius: "10px",
+    mt: 2,
+    height  : "36px",
     "& .MuiOutlinedInput-root": {
         "& fieldset": {
             border: "none",
