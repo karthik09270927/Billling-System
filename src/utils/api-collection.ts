@@ -57,7 +57,7 @@ API.interceptors.request.use(
 // Response Interceptor
 API.interceptors.response.use(
   (response: any) => {
-    setTimeout(() => {}, 1000);
+    setTimeout(() => { }, 1000);
     return response;
   },
   async (error: any) => {
@@ -185,6 +185,41 @@ export const getProductInfoById = async (id: number) => {
   }
 };
 
+interface CardDetails {
+  cardType: string;
+  cardNumber: string;
+  cardValidity: string;
+  cvvNumber: string;
+  email: string;
+}
+
+interface OtpVerification {
+  enteredOtp: string;
+  email: string;
+}
+
+export const saveCardDetails = async (cardData: CardDetails): Promise<any> => {
+  try {
+    const response = await API.post('/card/saveCard', cardData);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error saving card:', error);
+    throw error.response?.data?.message || 'Failed to save card details';
+  }
+};
+
+export const verifyCardOtp = async (otpData: OtpVerification): Promise<any> => {
+  try {
+    const response = await API.get('/card/verifyOtpAndPlaceOrder', {
+      params: otpData
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error verifying OTP:', error);
+    throw error.response?.data?.message || 'Failed to verify OTP';
+  }
+};
+
 
 export const forgotPassword = async (userEmail: string): Promise<any> => {
   try {
@@ -247,7 +282,7 @@ const base64ToFile = (base64String: string, fileName: string): File => {
 };
 
 export const postProductCategory = async (
-  taskProject: { id: any; categoryName: string; subCategory:{ id: number[] | null; subCategoryName: string }[] },
+  taskProject: { id: any; categoryName: string; subCategory: { id: number[] | null; subCategoryName: string }[] },
   base64Image: string
 ): Promise<any> => {
   try {
@@ -256,7 +291,7 @@ export const postProductCategory = async (
       ...taskProject,
       subCategory: taskProject.subCategory.map(sub => ({
         ...sub,
-        id: Array.isArray(sub.id) ? (sub.id[0] !== null ? sub.id[0] : undefined) : (sub.id !== null ? sub.id : undefined), 
+        id: Array.isArray(sub.id) ? (sub.id[0] !== null ? sub.id[0] : undefined) : (sub.id !== null ? sub.id : undefined),
       }))
     };
     const formData = new FormData();
@@ -290,12 +325,12 @@ export const fetchUpdateProductCategory = async (selectedCategoryId: number) => 
 
 export const fetchUserList = async () => {
   const response = await API.get(`/billingProduct/userHistory`);
-  return response.data;   
+  return response.data;
 };
 
 export const getAdminProductList = async () => {
   const response = await API.get(`/billing/adminProductsList`);
-  return response.data;   
+  return response.data;
 };
 
 export const saveProduct = async (productList: Array<{

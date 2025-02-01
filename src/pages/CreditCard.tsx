@@ -25,10 +25,15 @@ import amexBgLogo from '../assets/cards/AMEX log.png';
 import visaBgLogo from '../assets/cards/visa logo.png';
 import rupayBgLogo from '../assets/cards/rupay logo.png';
 import mastercardBgLogo from '../assets/cards/mastercard logo.png';
+import { showErrorToast, showSuccessToast } from '../utils/toast';
+import { saveCardDetails, verifyCardOtp } from '../utils/api-collection';
+import { useNavigate } from 'react-router-dom';
 
 interface CreditCardProps {
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
   amount: number;
+  email: string;
+  onClose?: () => void;
 }
 
 type CardType = 'VISA' | 'MASTERCARD' | 'AMEX' | 'RUPAY' | 'UNKNOWN';
@@ -38,7 +43,7 @@ const StyledCard = styled(Card)<{ cardtype: string }>(({ theme, cardtype }) => {
   const cardStyle = getCardType(cardtype);
   return {
     padding: theme.spacing(3),
-    borderRadius: 16,
+    borderRadius: 18,
     background:
       cardStyle.type === 'AMEX'
         ? `${cardStyle.gradient}, url(${amexBgLogo}) center/50% no-repeat`
@@ -117,29 +122,29 @@ const getCardType = (number: string): { type: CardType; gradient: string; shadow
         type: 'AMEX',
         gradient: 'linear-gradient(135deg, #0099CC 0%, #006699 100%)',
         shadow: '#0099CC',
-        color:''
+        color: ''
       };
     case '4':
       return {
         type: 'VISA',
         gradient: 'linear-gradient(135deg, #1A1F71 0%, #2B3990 100%)',
         shadow: '#1A1F71',
-        color:''
+        color: ''
       };
     case '5':
       return {
         type: 'MASTERCARD',
         gradient: 'linear-gradient(135deg, #EB001B 0%, #FF5F00 100%)',
         shadow: '#EB001B',
-        color:''
+        color: ''
       };
     case '6':
     case '8':
       return {
         type: 'RUPAY',
         gradient: 'linear-gradient(135deg, #ffe259 0%, #ffa751 100%)',
-        shadow: '#799F0C',
-        color:''
+        shadow: '#ffe259',
+        color: ''
       };
     default:
       return {
@@ -151,7 +156,7 @@ const getCardType = (number: string): { type: CardType; gradient: string; shadow
   }
 };
 
-const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount }) => {
+const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount, email, onClose }) => {
   const [cardNumber, setCardNumber] = useState('');
   const [cardName, setCardName] = useState('');
   const [expiry, setExpiry] = useState('');
@@ -160,6 +165,7 @@ const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState('');
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({
     cardNumber: '',
     cardName: '',
@@ -218,17 +224,72 @@ const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount }) => {
     }
   };
 
-  const handlePayClick = () => {
+  const formatEmail = (email: string) => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail.includes('@')) {
+      return cleanEmail;
+    }
+    // Append domain for consistent format
+    return `${cleanEmail}@coherent.in`;
+  };
+
+  const handlePayClick = async () => {
     if (validateForm()) {
-      setShowOtp(true);
+      setIsLoading(true);
+      try {
+        await saveCardDetails({
+          cardType: cardType,
+          cardNumber: cardNumber.replace(/\s/g, ''),
+          cardValidity: expiry,
+          cvvNumber: cvv,
+          email: formatEmail(email)
+        });
+        setShowOtp(true);
+        showSuccessToast('OTP sent successfully');
+      } catch (error: any) {
+        showErrorToast(error.message || 'Failed to process payment');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const handleOtpSubmit = async () => {
-    if (otp.length === 6) {
+    if (otp.length === 4) {
       setIsLoading(true);
       try {
+        await verifyCardOtp({
+          enteredOtp: otp,
+          email: formatEmail(email)
+        });
+
         await onSubmit();
+
+        showSuccessToast('Payment successful');
+        setOtp('');
+        setShowOtp(false);
+        setCardNumber('');
+        setCardName('');
+        setExpiry('');
+        setCvv('');
+        setCardType('CREDIT');
+        setErrors({
+          cardNumber: '',
+          cardName: '',
+          expiry: '',
+          cvv: '',
+          otp: ''
+        });
+
+
+        onClose?.();
+
+        // Navigate to staff dashboard
+        setTimeout(() => {
+          navigate('/staff-dashboard');
+        }, 1500);
+      } catch (error: any) {
+        showErrorToast(error.message || 'Invalid OTP');
       } finally {
         setIsLoading(false);
         setShowOtp(false);
@@ -502,16 +563,16 @@ const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount }) => {
             value={otp}
             onChange={(e) => {
               const value = e.target.value.replace(/\D/g, '');
-              if (value.length <= 6) {
+              if (value.length <= 4) {
                 setOtp(value);
                 setErrors(prev => ({ ...prev, otp: '' }));
               }
             }}
             error={!!errors.otp}
             helperText={errors.otp}
-            placeholder="Enter 6-digit OTP"
+            placeholder="Enter 4-digit OTP"
             inputProps={{
-              maxLength: 6,
+              maxLength: 4,
               style: { textAlign: 'center', letterSpacing: '0.5em' }
             }}
           />
@@ -536,7 +597,7 @@ const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount }) => {
               variant="contained"
               fullWidth
               onClick={handleOtpSubmit}
-              disabled={isLoading || otp.length !== 6}
+              disabled={isLoading || otp.length !== 4}
               sx={{
                 height: "50px",
                 backgroundColor: "#74D52B",
