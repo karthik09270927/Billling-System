@@ -224,14 +224,14 @@ const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount, email, onClos
     }
   };
 
-  const formatEmail = (email: string) => {
-    const cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail.includes('@')) {
-      return cleanEmail;
-    }
-    // Append domain for consistent format
-    return `${cleanEmail}@coherent.in`;
-  };
+  // const formatEmail = (email: string) => {
+  //   const cleanEmail = email.trim().toLowerCase();
+  //   if (cleanEmail.includes('@')) {
+  //     return cleanEmail;
+  //   }
+  //   // Append domain for consistent format
+  //   return `${cleanEmail}@coherent.in`;
+  // };
 
   const handlePayClick = async () => {
     if (validateForm()) {
@@ -242,7 +242,7 @@ const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount, email, onClos
           cardNumber: cardNumber.replace(/\s/g, ''),
           cardValidity: expiry,
           cvvNumber: cvv,
-          email: formatEmail(email)
+          email: email
         });
         setShowOtp(true);
         showSuccessToast('OTP sent successfully');
@@ -260,7 +260,7 @@ const CreditCard: React.FC<CreditCardProps> = ({ onSubmit, amount, email, onClos
       try {
         await verifyCardOtp({
           enteredOtp: otp,
-          email: formatEmail(email)
+          email: email
         });
 
         await onSubmit();
