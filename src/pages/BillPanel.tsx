@@ -150,15 +150,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }
 
     // Email validation
-    // if (!email) {
-    //   newErrors.email = 'Email is required';
-    // } else if (!/^[a-zA-Z0-9._-]+$/.test(email)) {
-    //   newErrors.email = 'Invalid email format';
-    // }
-
     if (!email) {
       newErrors.email = 'Email is required';
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+    } else if (!/^[a-zA-Z0-9._-]+$/.test(email)) {
       newErrors.email = 'Invalid email format';
     }
 
@@ -196,8 +190,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     try {
       const billData = {
         userName: name,
-        userEmail: email,
+        userEmail: email + '@coherent.in',
         userPhone: phoneNumber,
+        billAmount: parseFloat(calculateTotal()),
         paymentMode: paymentMode,
         products: selectedItems.map(item => ({
           productId: item.productId,
@@ -235,8 +230,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         const userData = await getUserDetails(value);
         if (userData?.userName && userData?.userEmail) {
           setName(userData.userName);
-          // setEmail(userData.userEmail.split('@')[0]); // Remove @coherent.in
-          setEmail(userData.userEmail);
+          setEmail(userData.userEmail.split('@')[0]); // Remove @coherent.in
+          // setEmail(userData.userEmail);
         }
       } catch (error) {
         setName('');
@@ -259,26 +254,26 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }
   };
 
-  // const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value;
-  //   const baseEmail = value.replace(/@coherent\.in$/, '');
-  //   setEmail(baseEmail);
-  //   if (baseEmail.trim()) {
-  //     setErrors(prev => ({ ...prev, email: '' }));
-  //   }
-  // };
-
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-
-    // Set the email directly without modifying it
-    setEmail(value);
-
-    // Check if the email is not empty
-    if (value) {
+    const baseEmail = value.replace(/@coherent\.in$/, '');
+    setEmail(baseEmail);
+    if (baseEmail.trim()) {
       setErrors(prev => ({ ...prev, email: '' }));
     }
   };
+
+  // const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value;
+
+  //   // Set the email directly without modifying it
+  //   setEmail(value);
+
+  //   // Check if the email is not empty
+  //   if (value) {
+  //     setErrors(prev => ({ ...prev, email: '' }));
+  //   }
+  // };
 
 
   // Add debounced error handler
@@ -551,7 +546,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                 gap: 2,
                 p: 2,
                 borderBottom: '1px solid #e0e0e0',
-                backgroundColor: '#f5f5f5',
+                backgroundColor: '#fbf8cc',
                 position: 'sticky',
                 top: 0,
                 zIndex: 1,
@@ -686,7 +681,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         <Box
           sx={{
             height: "50px",
-            backgroundColor: "#fbfbe5",
+            backgroundColor: "#fbf8cc",
             borderBottom: '3px solid #e0e0e0',
             padding: "8px",
             flexShrink: 0,
@@ -1049,7 +1044,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
 
         <Box
           sx={{
-            backgroundColor: '#fbfbe5',
+            backgroundColor: '#fbf8cc',
             // borderTop: '3px solid #e0e0e0',
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             padding: 3,
@@ -1129,7 +1124,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
         <Box
           sx={{
             height: "60px",
-            backgroundColor: "#fbfbe5",
+            backgroundColor: "#fbf8cc",
             padding: "8px 16px",
             flexShrink: 0,
             display: "flex",
@@ -1251,7 +1246,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                       marginBottom: 2,
                       padding: 2,
                       borderRadius: 8,
-                      backgroundColor: '#f5f5f5',
+                      backgroundColor: '#   ',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
 
                     }}
@@ -1463,7 +1458,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
 
         <Box
           sx={{
-            backgroundColor: '#fbfbe5',
+            backgroundColor: '#fbf8cc',
             // borderTop: '3px solid #e0e0e0',
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             padding: 3,
@@ -1594,7 +1589,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               position: 'sticky',
               top: 0,
               // background: 'linear-gradient(135deg, #799F0C 0%, #ACBB78 100%)',
-              backgroundColor: '#fbfbe5',
+              backgroundColor: '#fbf8cc',
               zIndex: 10,
               pt: 3,
               pb: 2,
@@ -1704,7 +1699,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#fefae0',
+          backgroundColor: '#fbf8cc',
           padding: '10px 16px',
           mt: 1
         }}>
@@ -1723,7 +1718,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             display: 'flex',
             justifyContent: 'center',
             gap: 2,
-            backgroundColor: '#fefae0'
+            backgroundColor: '#fbf8cc'
           }}
         >
           <Button onClick={() => {

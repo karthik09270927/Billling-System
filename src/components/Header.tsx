@@ -158,14 +158,22 @@ const Header = () => {
                                         ),
                                     }}
                                     sx={{
-                                        backgroundColor: "#fbfbe5",
-                                        borderRadius: "20px",
-                                        "& .MuiOutlinedInput-root": {
-                                            "& fieldset": {
-                                                border: "none",
-                                            },
-                                        },
-                                    }}
+                                        width: '200px',
+                                        '& .MuiOutlinedInput-root': {
+                                          backgroundColor: '#fffcf2',
+                                          borderRadius: '8px',
+                                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                          '& fieldset': {
+                                            border: 'none'
+                                          },
+                                          '&:hover fieldset': {
+                                            border: 'none'
+                                          },
+                                          '&.Mui-focused fieldset': {
+                                            border: 'none'
+                                          }
+                                        }
+                                      }}
                                 />
                                 <Tooltip title="Logout" placement="top" arrow>
                                     <IconButton>
@@ -213,7 +221,7 @@ const Header = () => {
                                             selectedCategory === category.categoryName
                                                 ? "0 2px 5px #74d52b"
                                                 : "0 2px 5px rgba(0, 0, 0, 0.1)",
-                                        backgroundColor: selectedCategory === category.categoryName ? "rgb(238, 255, 226)" : "#F9F9F9",
+                                        backgroundColor: selectedCategory === category.categoryName ? "rgb(238, 255, 226)" : "#fffcf2",
                                         cursor: "pointer",
                                         transition: "box-shadow 0.3s",
                                     }}

@@ -157,7 +157,7 @@ const StaffDashboard: React.FC = () => {
                         ? "0 4px 12px rgba(116, 213, 43, 0.2)"
                         : "0 4px 8px rgba(0, 0, 0, 0.1)",
                     backgroundColor:
-                      selectedSubcategory === subcategory.id ? "#74D52B" : "#f0f0f0",
+                      selectedSubcategory === subcategory.id ? "#74D52B" : "#fffcf2",
                     color: selectedSubcategory === subcategory.id ? "white" : "#333",
                     transition: "all 0.5s ease out",
                     "&:hover": {
@@ -231,18 +231,21 @@ const StaffDashboard: React.FC = () => {
             ),
           }}
           sx={{
-            height: "40px",
-            backgroundColor: "#fbfbe5",
-            borderRadius: "20px",
-            mt: 4,
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                border: "none",
+            width: '100%',
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: '#fffcf2',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              '& fieldset': {
+                border: 'none'
               },
-              "& .MuiInputBase-input": {
-                padding: "8px 12px",
+              '&:hover fieldset': {
+                border: 'none'
               },
-            },
+              '&.Mui-focused fieldset': {
+                border: 'none'
+              }
+            }
           }}
         />
         {/* Displaying Products in Grid */}
@@ -257,7 +260,7 @@ const StaffDashboard: React.FC = () => {
                 (searchTerm ? searchResults : filteredBySubcategory).map((item: any) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
                     <Badge
-                      badgeContent={`${item.weightage}g`}
+                      badgeContent={`${item.weightage}`}
                       color="primary"
                       anchorOrigin={{
                         vertical: 'top',

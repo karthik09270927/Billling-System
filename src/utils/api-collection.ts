@@ -153,6 +153,7 @@ export const saveBill = async (billData: {
   userName: string;
   userEmail: string;
   userPhone: string;
+  billAmount: any;
   paymentMode: string;
   products: Array<{ productId: number; quantity: number }>;
 }) => {
@@ -220,14 +221,9 @@ export const verifyCardOtp = async (otpData: OtpVerification): Promise<any> => {
   }
 };
 
-export const generateQRCode = async (email: string, billAmount: number): Promise<any> => {
+export const generateQRCode = async ( QR: {email: any, billAmount: number}): Promise<any> => {
   try {
-    const response = await API.post('/card/generateQRCode', {
-      params: {
-        email: email,
-        billAmount: billAmount,
-      },
-    });
+    const response = await API.post('/card/generateQRCode' , QR);
     return response.data;
   } catch (error) {
     console.error('Error generating QR code:', error);
@@ -235,6 +231,31 @@ export const generateQRCode = async (email: string, billAmount: number): Promise
   }
 };
 
+export const downloadQRCode = async (email: string, billAmount: string) => {
+  try {
+    const response = await API.get('/card/downloadQRCode', {
+      params: {
+        email,
+        billAmount
+      },
+      responseType: 'blob'
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error downloading QR code:', error);
+    throw error;
+  }
+};
+
+export const sendOTPMail = async (email: string): Promise<any> => {
+  try {
+    const response = await API.post('/card/sendPaymentOTPMail', { email });
+    return response.data;
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    throw error;
+  }
+};
 
 
 export const forgotPassword = async (userEmail: string): Promise<any> => {
