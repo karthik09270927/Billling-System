@@ -163,7 +163,7 @@ export const LoginPage: React.FC = () => {
               <motion.div
                 animate={{ x: ["0%", "70%", "0%"] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                style={{ position: "absolute", width: "100%" }}
+                style={{ position: "fixed", width: "100%" }}
               >
 
                 <Typography
@@ -179,10 +179,6 @@ export const LoginPage: React.FC = () => {
                   📢 Special Offer: 80% off on all items! Shop Now! 🏷️ ⏳
                 </Typography>
               </motion.div>
-
-
-
-
             </Box>
 
             <Box sx={{ borderRadius: "30px", overflow: "hidden", mt: 2, mx: 2, height: "95%", background: '#ffffff' }}>
