@@ -257,10 +257,10 @@ export const sendOTPMail = async (email: string): Promise<any> => {
   }
 };
 
-export const getPdfInvoice = async (billingId: number): Promise<string> => {
+export const getPdfInvoice = async (billingId: number, customerMail: string): Promise<string> => {
   try {
     const response = await API.get(
-      `/billingProduct/downloadPages?billingId=${billingId}`,
+      `/billingProduct/downloadPages?billingId=${billingId}&customerMail=${encodeURIComponent(customerMail)}`,
       { responseType: 'blob' } // Ensure it's downloaded as a blob (PDF)
     );
 

@@ -55,6 +55,7 @@ const InvoiceDialog: React.FC<InvoiceDialogProps> = ({
             day: '2-digit',
         }).format(date);
     };
+    
 
     return (
         <Dialog open={open} onClose={(_, reason) => {
