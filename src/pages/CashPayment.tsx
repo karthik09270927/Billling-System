@@ -1,20 +1,43 @@
 import React, { useState } from 'react';
-import { Box, Typography, Paper, Button, CircularProgress } from '@mui/material';
+import { Box, Typography, Paper, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import rupee from '../assets/rupee.png';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import InvoiceDialog from '../centralizedComponents/forms/InvoiceDialog';
 
 interface CashPaymentProps {
   amount: number;
   onSubmit: () => Promise<void>;
+  userName?: string;
+  userEmail?: string;
+  userPhone?: string;
+  paymentMode?: string;
+  products?: Array<{
+    productName: string;
+    quantity: number;
+    sellingPrice: number;
+  }>;
 }
 
-const CashPayment: React.FC<CashPaymentProps> = ({ amount, onSubmit }) => {
+const CashPayment: React.FC<CashPaymentProps> = ({
+  amount,
+  onSubmit,
+  userName = "",
+  userEmail = "",
+  userPhone = "",
+  paymentMode = "",
+  products = []
+}) => {
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
 
   const handlePayClick = async () => {
     setIsLoading(true);
     try {
       await onSubmit();
+      setShowPreview(false);
     } catch (error) {
       console.error('Payment failed:', error);
     } finally {
@@ -84,12 +107,6 @@ const CashPayment: React.FC<CashPaymentProps> = ({ amount, onSubmit }) => {
             borderRadius: 2
           }}
         >
-          {/* <CurrencyRupeeIcon
-            sx={{
-              fontSize: 48,
-              color: 'black',
-            }}
-          /> */}
           <Typography
             variant="h2"
             sx={{
@@ -137,6 +154,65 @@ const CashPayment: React.FC<CashPaymentProps> = ({ amount, onSubmit }) => {
           `PAY`
         )}
       </Button>
+
+      <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={() => setShowPreview(true)}
+          startIcon={<ReceiptLongIcon className="w-5 h-5" />}
+          sx={{
+            height: "50px",
+            borderColor: "#799F0C",
+            color: "#799F0C",
+            fontSize: "16px",
+            fontWeight: "bold",
+            borderRadius: "8px",
+            '&:hover': {
+              borderColor: "#5fb321",
+              backgroundColor: "rgba(95, 179, 33, 0.1)"
+            }
+          }}
+        >
+          Preview Invoice
+        </Button>
+      </Box>
+
+
+      {/* Preview PDF */}
+      <Dialog
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+      >
+        <DialogTitle>Invoice Preview</DialogTitle>
+        <DialogContent>
+          {pdfUrl ? (
+            <iframe
+              src={pdfUrl}
+              style={{ width: '100%', height: '500px' }}
+              frameBorder="0"
+            />
+          ) : (
+            <CircularProgress />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPreview(false)} color="primary">Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <InvoiceDialog
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        userName={userName}
+        userEmail={userEmail}
+        userPhone={userPhone}
+        paymentMode={paymentMode}
+        amount={amount}
+        products={products}
+        onSubmit={handlePayClick}
+      />
+
     </>
   );
 };

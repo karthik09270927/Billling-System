@@ -32,7 +32,7 @@ import {
 import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { getProductInfoById, getUserDetails, saveBill } from "../utils/api-collection";
+import { getPdfInvoice, getProductInfoById, getUserDetails, saveBill } from "../utils/api-collection";
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
@@ -72,6 +72,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isShowingError, setIsShowingError] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
 
   const [errors, setErrors] = useState({
@@ -172,8 +173,60 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
 
 
   const calculateTotal = () => {
-    return selectedItems?.reduce((acc, item) => acc + item.mrpPrice * item.quantity, 0).toFixed(2);
+    return selectedItems?.reduce((acc, item) => acc + item.sellingPrice * item.quantity, 0).toFixed(2);
   };
+
+
+  // const handleConfirmOrder = async () => {
+  //   console.info('Starting order confirmation process...');
+
+  //   if (!validateFields()) {
+  //     console.warn('Validation failed:', errors);
+  //     return;
+  //   }
+
+  //   setIsPlacingOrder(true);
+  //   console.info('Processing order...');
+
+  //   try {
+  //     const billData = {
+  //       userName: name,
+  //       userEmail: email + '@coherent.in',
+  //       userPhone: phoneNumber,
+  //       billAmount: parseFloat(calculateTotal()),
+  //       paymentMode: paymentMode,
+  //       products: selectedItems.map(item => ({
+  //         productId: item.productId,
+  //         quantity: item.quantity
+  //       }))
+  //     };
+
+  //     console.log('Sending bill data:', billData);
+  //     const response: { data: { billingId: any } } = await saveBill(billData);
+  //     console.log('Success', response)
+  //     console.info('Order placed successfully!');
+  //     showSuccessToast('Order placed successfully');
+  //     const billingId = response.data.billingId;
+  //     console.info('Fetching PDF Invoice for Billing ID:', billingId);
+
+  //     // Fetch the PDF using the billingId
+  //     const pdfUrl = await getPdfInvoice(billingId);
+
+  //     // Set PDF URL for viewing (you can save it to state or directly open a new window)
+  //     setPdfUrl(pdfUrl);
+  //     resetCart();
+  //     setIsFullScreen(false);
+  //     setIsModalOpen(false);
+  //     setSelectedItems([]);
+  //     resetForm();
+  //   } catch (error: any) {
+  //     console.error('Order placement failed:', error);
+  //     showErrorToast('Failed to place order');
+  //   } finally {
+  //     console.info('Order process completed');
+  //     setIsPlacingOrder(false);
+  //   }
+  // };
 
 
   const handleConfirmOrder = async () => {
@@ -201,10 +254,25 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       };
 
       console.log('Sending bill data:', billData);
-      const response = await saveBill(billData);
+      const response: { data: { billingId: any } } = await saveBill(billData);
       console.log('Success', response)
       console.info('Order placed successfully!');
       showSuccessToast('Order placed successfully');
+      const billingId = response.data.billingId;
+      console.info('Fetching PDF Invoice for Billing ID:', billingId);
+
+      // Fetch the PDF using the billingId
+      const pdfUrl = await getPdfInvoice(billingId);
+
+      // Automatically download the PDF
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `Invoice-${billingId}.pdf`; 
+      link.click(); // Trigger the download
+
+      // Set PDF URL for viewing (you can save it to state or directly open a new window)
+      setPdfUrl(pdfUrl);
+
       resetCart();
       setIsFullScreen(false);
       setIsModalOpen(false);
@@ -218,6 +286,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       setIsPlacingOrder(false);
     }
   };
+
 
   const handlePhoneNumberChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -420,6 +489,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     }, 100);
   };
 
+
+
   const PaymentContent = () => {
     switch (paymentMode) {
       case 'Cash':
@@ -428,6 +499,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             <CashPayment
               amount={parseFloat(calculateTotal())}
               onSubmit={handleConfirmOrder}
+              userName={name}
+              userEmail={email}
+              userPhone={phoneNumber}
+              products={selectedItems}
+              paymentMode={paymentMode}
             />
           </Box>
         );
@@ -438,6 +514,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               onSubmit={handleConfirmOrder}
               amount={parseFloat(calculateTotal())}
               email={email}
+              userName={name}
+              userEmail={email}
+              userPhone={phoneNumber}
+              products={selectedItems}
+              paymentMode={paymentMode}
               onClose={() => {
                 setIsModalOpen(false);
                 setIsFullScreen(false);
@@ -453,6 +534,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               amount={parseFloat(calculateTotal())}
               onSubmit={handleConfirmOrder}
               email={email}
+              userName={name}
+              userEmail={email}
+              userPhone={phoneNumber}
+              products={selectedItems}
+              paymentMode={paymentMode}
             />
           </Box>
         );
@@ -537,7 +623,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               }}
             />
           </Box>
-          <Box sx={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ height: 'auto', display: 'flex', flexDirection: 'column' }}>
             {/* Fixed Header */}
             <Box
               sx={{
@@ -603,7 +689,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                     × {item.quantity}
                   </Typography>
                   <Typography sx={{ fontWeight: "600", textAlign: 'right', color: '#333' }}>
-                    ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
+                    ₹ {(item.sellingPrice * item.quantity).toFixed(2)}
                   </Typography>
                 </Box>
               ))}
@@ -1002,7 +1088,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
+                    ₹ {(item.sellingPrice * item.quantity).toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
@@ -1057,7 +1143,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             </Grid>
             <Grid item xs={6} md={6}>
               <Typography align="right">
-                ₹{selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0).toFixed(2)}
+                ₹{selectedItems.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0).toFixed(2)}
               </Typography>
             </Grid>
 
@@ -1075,7 +1161,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6" align="right" fontWeight="bold">
-                ₹{(selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0)).toFixed(2)}
+                ₹{(selectedItems.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0)).toFixed(2)}
               </Typography>
             </Grid>
 
@@ -1414,7 +1500,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                       }}
                     >
                       <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        ₹ {(item.mrpPrice * item.quantity).toFixed(2)}
+                        ₹ {(item.sellingPrice * item.quantity).toFixed(2)}
                       </Typography>
                     </Box>
                   </Box>
@@ -1475,7 +1561,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             </Grid>
             <Grid item xs={6} md={6}>
               <Typography align="right">
-                ₹{selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0).toFixed(2)}
+                ₹{selectedItems.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0).toFixed(2)}
               </Typography>
             </Grid>
 
@@ -1493,7 +1579,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
             </Grid>
             <Grid item xs={6} md={6}>
               <Typography variant="h6" align="right" fontWeight="bold">
-                ₹{(selectedItems.reduce((sum, item) => sum + (item.mrpPrice * item.quantity), 0)).toFixed(2)}
+                ₹{(selectedItems.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0)).toFixed(2)}
               </Typography>
             </Grid>
 
@@ -1651,22 +1737,22 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
 
             {/* Navigation Buttons */}
             <Box sx={{
-              bottom: 0,
               p: 2,
-              borderTop: '3px solid #eee',
               display: 'flex',
-              justifyContent: 'space-between'
+              justifyContent: 'center'
             }}>
               {activeStep > 0 && (
                 <Button
                   onClick={() => setActiveStep(prev => prev - 1)}
-                  variant="outlined"
+                  variant="contained"
                   sx={{
+                    background: '#799F0C',
                     borderColor: "#74D52B",
-                    color: "#74D52B",
+                    color: "#ffffff",
                     '&:hover': {
                       borderColor: "#65BA25",
-                      bgcolor: "rgba(116, 213, 43, 0.1)"
+                      color: '#ffffff',
+                      bgcolor: "#74D52B"
                     }
                   }}
                 >
@@ -1684,8 +1770,14 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                     }
                   }}
                   sx={{
-                    bgcolor: "#74D52B",
-                    '&:hover': { bgcolor: "#65BA25" }
+                    background: '#799F0C',
+                    borderColor: "#74D52B",
+                    color: "#ffffff",
+                    '&:hover': {
+                      borderColor: "#65BA25",
+                      color: '#ffffff',
+                      bgcolor: "#74D52B"
+                    }
                   }}
                 >
                   Next
