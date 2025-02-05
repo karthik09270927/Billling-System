@@ -156,10 +156,10 @@ export const saveBill = async (billData: {
   billAmount: any;
   paymentMode: string;
   products: Array<{ productId: number; quantity: number }>;
-}) => {
+}): Promise<{ data: { billingId: any } }> => {
   try {
     const response = await API.post("/billingProduct/saveBill", billData);
-    return response.data;
+    return response.data as { data: { billingId: any } };
   } catch (error) {
     console.error("Error saving bill:", error);
     throw error;
@@ -253,6 +253,22 @@ export const sendOTPMail = async (email: string): Promise<any> => {
     return response.data;
   } catch (error) {
     console.error('Error sending OTP:', error);
+    throw error;
+  }
+};
+
+export const getPdfInvoice = async (billingId: number): Promise<string> => {
+  try {
+    const response = await API.get(
+      `/billingProduct/downloadPages?billingId=${billingId}`,
+      { responseType: 'blob' } // Ensure it's downloaded as a blob (PDF)
+    );
+
+    const blob = response.data;
+    const url = URL.createObjectURL(blob as Blob); // Create an object URL to preview the PDF
+    return url;
+  } catch (error) {
+    console.error('Error fetching PDF:', error);
     throw error;
   }
 };
