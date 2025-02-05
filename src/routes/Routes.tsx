@@ -8,6 +8,7 @@ import ProductManagement from '../pages/productmanagement';
 import UserHistoryPage from '../pages/userhistory';
 import ProductListPage from '../pages/productList';
 import EditTable from '../pages/EditTable';
+import OffersPage from '../pages/Offers/OffersPage';
 
 
 const AppRoutes = () => {
@@ -30,6 +31,7 @@ const AppRoutes = () => {
         <Route path="productmanagement"  element={<ProductManagement />}  />
         <Route path="userhistory"  element={<UserHistoryPage />}  />
         <Route path="productlist"  element={<ProductListPage />}  />
+        <Route path="offerspage"  element={<OffersPage />}  />
         <Route path="edit-product/:id"  element={<EditTable />}  />
         </Route>
       </Routes>

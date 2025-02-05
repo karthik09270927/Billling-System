@@ -16,6 +16,7 @@ const navItems = [
   { name: "Product Management", path: "/admin-dashboard/productmanagement" },
   { name: "User History", path: "/admin-dashboard/userhistory" },
   { name: "Products List", path: "/admin-dashboard/productList" },
+  { name: "Offers Page", path: "/admin-dashboard/offerspage" },
 ];
 
 
