@@ -231,7 +231,7 @@ export const generateQRCode = async ( QR: {email: any, billAmount: number}): Pro
   }
 };
 
-export const downloadQRCode = async (email: string, billAmount: string) => {
+export const downloadQRCode = async (email: string, billAmount: number): Promise<Blob> => {
   try {
     const response = await API.get('/card/downloadQRCode', {
       params: {
@@ -240,7 +240,7 @@ export const downloadQRCode = async (email: string, billAmount: string) => {
       },
       responseType: 'blob'
     });
-    return response.data;
+    return response.data as Blob;
   } catch (error) {
     console.error('Error downloading QR code:', error);
     throw error;

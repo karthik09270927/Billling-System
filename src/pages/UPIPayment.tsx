@@ -19,7 +19,7 @@ import UPIIcon from '../assets/cards/upi.png';
 import EmailIcon from '@mui/icons-material/Email';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import KeyIcon from '@mui/icons-material/Key';
-import { generateQRCode, sendOTPMail, verifyCardOtp } from '../utils/api-collection';
+import { downloadQRCode, generateQRCode, sendOTPMail, verifyCardOtp } from '../utils/api-collection';
 import success from '../assets/sounds/success.mp3';
 import errorsound from '../assets/sounds/error.mp3';
 import { showErrorToast, showSuccessToast } from '../utils/toast';
@@ -147,7 +147,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
         successSound.play();
 
         // Display a success toast message
-        showSuccessToast('QR code scanned successfully!');
+        showSuccessToast('QR code scanned successfully & send the OTP your email!');
       });
     }
   };
@@ -217,13 +217,37 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
     }
   };
 
+  // const handlePhonePeClick = async () => {
+  //   try {
+  //     const QR = { email: email + '@coherent.in', billAmount: amount };
+  //     const response = await generateQRCode(QR);
+  //     console.log('QR Code generated:', response.data);
+  //   } catch (error) {
+  //     console.error('Error generating QR code:', error);
+  //   }
+  // };
+
   const handlePhonePeClick = async () => {
     try {
+      // Define the payload for both APIs
       const QR = { email: email + '@coherent.in', billAmount: amount };
+
+      // Step 1: Call the generateQRCode API
       const response = await generateQRCode(QR);
       console.log('QR Code generated:', response.data);
+
+      // Step 2: Call the downloadQRCode API with the same payload to fetch the QR code as a file
+      const qrDownloadData = await downloadQRCode(QR.email, QR.billAmount);
+
+      // Step 3: Automatically download the QR code image
+      const url = window.URL.createObjectURL(new Blob([qrDownloadData]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'QRCode.png';  // Specify the desired name for the downloaded QR code file
+      link.click();  // Trigger the download
+
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error('Error processing QR code:', error);
     }
   };
 
@@ -281,90 +305,90 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
         </Select>
 
         {paymentOption === 'upi' && (
-          
-            <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+          <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <TextField
+              fullWidth
+              placeholder="Enter mail id"
+              value={email}
+              sx={{
+
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                  '& fieldset': {
+                    borderColor: '#e0e0e0'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#5fb321'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#5fb321'
+                  }
+                }
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon sx={{ color: '#666' }} />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Typography sx={{ color: '#666' }}>@coherent.in</Typography>
+                  </InputAdornment>
+                )
+              }}
+            />
+
+            {showOtpField && (
               <TextField
                 fullWidth
-                placeholder="Enter mail id"
-                value={email}
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
                 sx={{
-
+                  mt: 1,
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    '& fieldset': {
-                      borderColor: '#e0e0e0'
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#5fb321'
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#5fb321'
-                    }
+                    borderRadius: '8px'
                   }
                 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <EmailIcon sx={{ color: '#666' }} />
+                      <KeyIcon sx={{ color: '#666' }} />
                     </InputAdornment>
                   ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Typography sx={{ color: '#666' }}>@coherent.in</Typography>
-                    </InputAdornment>
-                  )
                 }}
               />
+            )}
 
-              {showOtpField && (
-                <TextField
-                  fullWidth
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  sx={{
-                    mt: 1,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '8px'
-                    }
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <KeyIcon sx={{ color: '#666' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+            <Button
+              variant="contained"
+              onClick={() => {
+                if (!showOtpField) {
+                  sendOTPMail(email + '@coherent.in').then(() => {
+                    setShowOtpField(true);
+                  });
+                } else {
+                  handleOtpSubmit();
+                }
+              }}
+              disabled={!email || (showOtpField && !otp)}
+              sx={{
+                bgcolor: '#5fb321',
+                mt: 4,
+                width: '50%', // Set width to 50%
+                '&:hover': { bgcolor: '#5fb321' }
+              }}
+            >
+              {isVerifying ? (
+                <CircularProgress size={24} sx={{ color: 'white' }} />
+              ) : (
+                showOtpField ? 'Verify OTP' : 'Send OTP'
               )}
+            </Button>
+          </Box>
 
-              <Button
-                variant="contained"
-                onClick={() => {
-                  if (!showOtpField) {
-                    sendOTPMail(email + '@coherent.in').then(() => {
-                      setShowOtpField(true);
-                    });
-                  } else {
-                    handleOtpSubmit();
-                  }
-                }}
-                disabled={!email || (showOtpField && !otp)}
-                sx={{
-                  bgcolor: '#5fb321',
-                  mt: 4,
-                  width: '50%', // Set width to 50%
-                  '&:hover': { bgcolor: '#5fb321' }
-                }}
-              >
-                {isVerifying ? (
-                  <CircularProgress size={24} sx={{ color: 'white' }} />
-                ) : (
-                  showOtpField ? 'Verify OTP' : 'Send OTP'
-                )}
-              </Button>
-            </Box>
-            
         )}
 
         {paymentOption === 'phonepe' && (
