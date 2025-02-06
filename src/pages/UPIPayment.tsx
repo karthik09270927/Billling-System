@@ -93,6 +93,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
   const [apiCalled, setApiCalled] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const navigate = useNavigate();
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
   const [errors, setErrors] = useState({
     otp: ''
   });
@@ -245,6 +246,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
       link.href = url;
       link.download = 'QRCode.png';  // Specify the desired name for the downloaded QR code file
       link.click();  // Trigger the download
+      setQrImageUrl(url);
 
     } catch (error) {
       console.error('Error processing QR code:', error);
@@ -552,18 +554,20 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
               gap: 2
             }}>
               {/* Empty QR Box */}
-              {/* <Box sx={{
-              width: 200,
-              height: 200,
-              border: '2px dashed #48269f',
-              borderRadius: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              bgcolor: 'white'
-            }}>
-              <Typography color="textSecondary">Scan QR Code</Typography>
-            </Box> */}
+              {qrImageUrl && (
+                <Box sx={{
+                  width: 200,
+                  height: 200,
+                  border: '2px dashed #48269f',
+                  borderRadius: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: 'white'
+                }}>
+                  <img src={qrImageUrl} alt="QR Code" style={{ maxWidth: '200px', height: 'auto' }} />
+                </Box>
+              )}
 
               {/* Payment Details */}
               <Typography variant="h5" sx={{ color: '#48269f', fontWeight: 'bold' }}>

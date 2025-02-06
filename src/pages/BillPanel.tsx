@@ -259,15 +259,16 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       console.info('Order placed successfully!');
       showSuccessToast('Order placed successfully');
       const billingId = response.data.billingId;
+      const customerMail = billData.userEmail;
       console.info('Fetching PDF Invoice for Billing ID:', billingId);
 
       // Fetch the PDF using the billingId
-      const pdfUrl = await getPdfInvoice(billingId);
+      const pdfUrl = await getPdfInvoice(billingId, customerMail);
 
       // Automatically download the PDF
       const link = document.createElement('a');
       link.href = pdfUrl;
-      link.download = `Invoice-${billingId}.pdf`; 
+      link.download = `Invoice-${billingId}.pdf`;
       link.click(); // Trigger the download
 
       // Set PDF URL for viewing (you can save it to state or directly open a new window)
@@ -278,6 +279,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       setIsModalOpen(false);
       setSelectedItems([]);
       resetForm();
+      showSuccessToast('Invoice has been sent to your email!');
     } catch (error: any) {
       console.error('Order placement failed:', error);
       showErrorToast('Failed to place order');
@@ -1680,7 +1682,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               pt: 3,
               pb: 2,
               px: 3,
-              borderRadius: 16
+              borderRadius: 10
             }}>
               <Stepper
                 activeStep={activeStep}
