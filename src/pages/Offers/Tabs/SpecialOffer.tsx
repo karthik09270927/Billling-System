@@ -100,7 +100,10 @@ const SpecialOffer = () => {
                                 label="Discount Percentage"
                                 fullWidth
                                 value={discount}
-                                onChange={(e) => setDiscount(Number(e.target.value))}
+                                onChange={(e) => {
+                                    const value = Math.min(100, Number(e.target.value)); // Ensure max is 100
+                                    setDiscount(value);
+                                }}
                                 sx={{ mt: 3 }}
                             />
                             <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
