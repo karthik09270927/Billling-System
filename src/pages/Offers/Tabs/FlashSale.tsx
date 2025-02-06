@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { Box, Card, CardContent, Typography, Grid, MenuItem, TextField, Button, LinearProgress } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Box, Card, CardContent, Typography, MenuItem, TextField, Button, LinearProgress, FormControl, InputLabel, Select } from "@mui/material";
 import { ArrowForward, ArrowBack, Category as CategoryIcon, LocalOffer as OfferIcon, CalendarToday as CalendarIcon } from "@mui/icons-material";
+import { fetchCategories, fetchSubCategories, saveFlashOffer } from "../../../utils/api-collection";
+import { Controller, useForm } from "react-hook-form";
 
 const categoryOptions = {
     electronics: ["Mobiles", "Laptops", "Accessories"],
@@ -8,15 +10,26 @@ const categoryOptions = {
     home: ["Furniture", "Decor", "Appliances"]
 } as const;
 
-type CategoryType = keyof typeof categoryOptions;
 
 const FlashSale = () => {
-    const [category, setCategory] = useState<CategoryType | "">("");
-    const [subCategory, setSubCategory] = useState("");
     const [offerName, setOfferName] = useState("");
     const [discount, setDiscount] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
     const [step, setStep] = useState(0);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [subCategory, setSubCategory] = useState<any[]>([]);
+    const [selectedProductCategoryId, setselectedProductCategoryId] = useState<number>(0);
+    const [selectedSubCategoryId, setselectedSubCategoryId] = useState<number>(0);
+
+    const { control, handleSubmit, watch, setValue, register, reset, getValues } = useForm({
+        defaultValues: {
+            category: "",
+            subCategory: "",
+            offerName: "",
+            discount: 0,
+            duration: 0
+        },
+    });
 
     const steps = [
         { label: "Category", icon: <CategoryIcon /> },
@@ -28,6 +41,64 @@ const FlashSale = () => {
     const handleStepChange = (newStep: number) => {
         setStep(newStep);
     };
+
+    const getCategories = async () => {
+        try {
+            const data = await fetchCategories();
+            setCategories(data);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
+
+    const getSubCategories = async (id: any) => {
+        try {
+            const subdata = await fetchSubCategories(id);
+            setSubCategory(subdata.data);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
+
+
+    const handleCategoryChange = (value: any) => {
+        console.log("Category changed to:", value);
+        getSubCategories(value);
+        setselectedProductCategoryId(value);
+    };
+
+    const handleSubCategoryChange = (value: any) => {
+        setselectedSubCategoryId(value);
+    };
+
+
+    const onSubmit = async (data: any) => {
+        console.log("Submit data", data);
+        
+        try {
+            const productList = {
+                subCategoryId: selectedSubCategoryId || 0,
+                discountPercentage: data.discount || 0,
+                offerName: data.offerName || "",
+                offerType: "Flash Sale",
+            };
+            console.log("Product List:", productList);
+
+            const response = await saveFlashOffer(productList);
+            console.log("Product saved successfully:", response);
+            setStep(0);
+        } catch (error) {
+            console.error("Error in submitting product:", error);
+        } finally {
+            reset();
+            setStep(0);
+        }
+    };
+
+
+    useEffect(() => {
+        getCategories();
+    }, []);
 
     return (
         <Box sx={{ display: "flex", height: "100vh" }}>
@@ -74,20 +145,32 @@ const FlashSale = () => {
                     <Card sx={{ boxShadow: 3, borderRadius: 2, padding: 3 }}>
                         <CardContent>
                             <Typography variant="h6" sx={{ fontWeight: "bold", color: "#7ec326" }}>Step 1: Select Category</Typography>
-                            <TextField
-                                select
-                                label="Category"
-                                fullWidth
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value as CategoryType)}
-                                sx={{ mt: 3 }}
-                            >
-                                {Object.keys(categoryOptions).map((cat) => (
-                                    <MenuItem key={cat} value={cat} sx={{ color: "#444f68" }}>
-                                        {cat.toUpperCase()}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
+                            <FormControl fullWidth sx={{ mt: 3 }}>
+                                <InputLabel id="category-label">Category</InputLabel>
+                                <Controller
+                                    name="category"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            {...field}
+                                            labelId="category-label"
+                                            label="Category"
+                                            defaultValue=""
+
+                                            onChange={(event) => {
+                                                field.onChange(event);
+                                                handleCategoryChange(event.target.value);
+                                            }}
+                                        >
+                                            {categories.map((category, index) => (
+                                                <MenuItem key={index} value={category.id}>
+                                                    {category.categoryName}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    )}
+                                />
+                            </FormControl>
                             <Button
                                 variant="contained"
                                 onClick={() => handleStepChange(1)}
@@ -95,7 +178,7 @@ const FlashSale = () => {
                                     mt: 3, backgroundColor: "#7ec326", color: "#fff", borderRadius: "20px", width: "100%",
                                     "&:disabled": { backgroundColor: "#e8f5e9" }
                                 }}
-                                disabled={!category}
+                                disabled={!categories}
                             >
                                 Next Step <ArrowForward sx={{ ml: 1 }} />
                             </Button>
@@ -104,24 +187,36 @@ const FlashSale = () => {
                 )}
 
                 {/* Subcategory Selection Card */}
-                {step === 1 && category && (
+                {step === 1 && categories && (
                     <Card sx={{ boxShadow: 3, borderRadius: 2, padding: 3 }}>
                         <CardContent>
                             <Typography variant="h6" sx={{ fontWeight: "bold", color: "#7ec326" }}>Step 2: Select Subcategory</Typography>
-                            <TextField
-                                select
-                                label="Subcategory"
-                                fullWidth
-                                value={subCategory}
-                                onChange={(e) => setSubCategory(e.target.value)}
-                                sx={{ mt: 3 }}
-                            >
-                                {categoryOptions[category].map((sub) => (
-                                    <MenuItem key={sub} value={sub} sx={{ color: "#444f68" }}>
-                                        {sub}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
+                            <FormControl fullWidth sx={{ mt: 3 }}>
+                                <InputLabel id="subcategory-label">Sub Category</InputLabel>
+                                <Controller
+                                    name="subCategory"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+
+                                            {...field}
+                                            labelId="subcategory-label"
+                                            label="Sub Category"
+                                            defaultValue=""
+                                            onChange={(event) => {
+                                                field.onChange(event);
+                                                handleSubCategoryChange(event.target.value);
+                                            }}
+                                        >
+                                            {subCategory.map((subCategories, index) => (
+                                                <MenuItem key={index} value={subCategories.id}>
+                                                    {subCategories.subCategoryName}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    )}
+                                />
+                            </FormControl>
                             <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
                                 <Button variant="outlined" onClick={() => handleStepChange(0)} sx={{
                                     color: "#7ec326", borderColor: "#7ec326", borderRadius: "20px", width: "48%"
@@ -150,8 +245,7 @@ const FlashSale = () => {
                             <TextField
                                 label="Offer Name"
                                 fullWidth
-                                value={offerName}
-                                onChange={(e) => setOfferName(e.target.value)}
+                                {...register("offerName")}
                                 sx={{ mt: 3 }}
                             />
                             <Typography variant="body2" sx={{ color: "#555", mt: 1 }}>Enter the discount percentage</Typography>
@@ -159,8 +253,9 @@ const FlashSale = () => {
                                 type="number"
                                 label="Discount Percentage"
                                 fullWidth
-                                value={discount}
-                                onChange={(e) => setDiscount(Number(e.target.value))}
+                                {...register("discount", {
+                                    setValueAs: (value) => Math.min(100, Number(value) || 0),
+                                })}
                                 sx={{ mt: 3 }}
                             />
                             <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
@@ -192,17 +287,17 @@ const FlashSale = () => {
                                 type="number"
                                 label="Duration (Days)"
                                 fullWidth
-                                value={duration}
-                                onChange={(e) => setDuration(Number(e.target.value))}
+                                {...register("duration")}
                                 sx={{ mt: 3 }}
                             />
+                            
                             <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
                                 <Button variant="outlined" onClick={() => handleStepChange(2)} sx={{
                                     color: "#7ec326", borderColor: "#7ec326", borderRadius: "20px", width: "48%"
                                 }}><ArrowBack sx={{ mr: 1 }} /> Back</Button>
                                 <Button
                                     variant="contained"
-                                    onClick={() => alert('Offer Submitted!')}
+                                    onClick={handleSubmit(onSubmit)}
                                     sx={{
                                         backgroundColor: "#7ec326", color: "#fff", borderRadius: "20px", width: "48%"
                                     }}
@@ -220,3 +315,5 @@ const FlashSale = () => {
 };
 
 export default FlashSale;
+
+

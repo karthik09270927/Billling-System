@@ -453,3 +453,13 @@ export const saveProductDetails = async (productList: any) => {
 };
 
 
+export const saveFlashOffer = async (payload: any): Promise<any> => {
+  try {
+    const response = await API.post('/offer/productFlashOffer', payload);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error saving card:', error);
+    throw error.response?.data?.message || 'Failed to save card details';
+  }
+};
+
