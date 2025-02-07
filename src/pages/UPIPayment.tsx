@@ -12,7 +12,9 @@ import {
   styled,
   InputAdornment,
   DialogTitle,
-  IconButton
+  IconButton,
+  keyframes,
+  SelectChangeEvent
 } from '@mui/material';
 import PhonepeIcon from '../assets/cards/PhonePe.png';
 import UPIIcon from '../assets/cards/upi.png';
@@ -69,6 +71,54 @@ const StyledInput = styled(TextField)(({ error }) => ({
     }
   }
 }));
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const StyledSelect = styled(Select)`
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  background: white;
+
+  &:hover {
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  & .MuiOutlinedInput-notchedOutline {
+    border-color: #74d52b;
+    transition: border-color 0.3s ease-in-out;
+  }
+
+  &:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #65ba25;
+  }
+
+  &.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #65ba25;
+    box-shadow: 0px 0px 5px rgba(116, 213, 43, 0.5);
+  }
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+  animation: ${fadeIn} 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #e9edc9;
+    transform: scale(1.05);
+  }
+`;
 
 const UPIPayment: React.FC<UPIPaymentProps> = ({
   amount,
@@ -268,7 +318,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
           </Typography>
         </Box>
 
-        <Select
+        {/* <Select
           value={paymentOption}
           onChange={(e) => setPaymentOption(e.target.value)}
           fullWidth
@@ -304,7 +354,46 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
             />
             Enter UPI ID
           </MenuItem>
-        </Select>
+        </Select> */}
+
+        
+        <StyledSelect
+          value={paymentOption}
+          onChange={(e) => setPaymentOption(e.target.value as string)}
+          fullWidth
+          displayEmpty
+          sx={{
+            mb: 3,
+            "& .MuiSelect-select": {
+              color: paymentOption ? "inherit" : "text.secondary",
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+            },
+          }}
+        >
+          <StyledMenuItem value="" disabled>
+            <em>Select Payment Option</em>
+          </StyledMenuItem>
+          <StyledMenuItem value="phonepe">
+            <Box
+              component="img"
+              src={PhonepeIcon}
+              alt="PhonePe"
+              sx={{ width: 24, height: 24 }}
+            />
+            PhonePe
+          </StyledMenuItem>
+          <StyledMenuItem value="upi">
+            <Box
+              component="img"
+              src={UPIIcon}
+              alt="UPI"
+              sx={{ width: 24, height: 24 }}
+            />
+            Enter UPI ID
+          </StyledMenuItem>
+        </StyledSelect>
 
         {paymentOption === 'upi' && (
 

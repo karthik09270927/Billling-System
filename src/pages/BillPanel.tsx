@@ -54,6 +54,49 @@ interface RightPanelProps {
   customerName?: string;
 }
 
+const PaymentButton = styled(Button)`
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 1000ms;
+  font-size: 15px;
+  position: relative;
+  overflow: hidden;
+  outline: 2px solid #74d52b;
+  margin-right: 10px;
+
+    &:last-child {
+    margin-right: 0; /* Removes margin from the last button */
+  }
+
+  &:hover {
+    color: #ffffff;
+    transform: scale(1.1);
+    outline: 2px solid #65ba25;
+    box-shadow: 4px 5px 17px -4px #268391;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: -50px;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: #74d52b;
+    transform: skewX(45deg);
+    z-index: -1;
+    transition: width 1000ms;
+  }
+
+  &:hover::before {
+    width: 250%;
+  }
+`;
+
 const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
   const { selectedItems, setSelectedItems } = useSelectedItems();
   const [isLoadingUser, setIsLoadingUser] = useState(false);
@@ -460,7 +503,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     };
   }, []);
 
-  const CustomConnector = styled(StepConnector)(({ theme }) => ({
+  const CustomConnector = styled(StepConnector)(() => ({
     [`&.${stepConnectorClasses.alternativeLabel}`]: {
       top: 22,
     },
@@ -716,7 +759,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
           }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
               {['Cash', 'Card', 'UPI'].map((mode) => (
-                <Button
+                <PaymentButton
                   key={mode}
                   variant={paymentMode === mode ? "contained" : "outlined"}
                   onClick={() => {
@@ -734,7 +777,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                   }}
                 >
                   {mode}
-                </Button>
+                </PaymentButton>
               ))}
             </Box>
 
@@ -1334,7 +1377,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                       marginBottom: 2,
                       padding: 2,
                       borderRadius: 8,
-                      backgroundColor: '#   ',
+                      backgroundColor: '#',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
 
                     }}
@@ -1398,7 +1441,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                       justifyContent="flex-end" // Add this
                       sx={{
                         width: '100%',  // Add this
-                        marginLeft: 'auto' // Add this if needed
+                        marginLeft: 'auto', // Add this if needed
                       }}
                     >
                       <IconButton
