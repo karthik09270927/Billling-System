@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
     Box,
     Grid,
@@ -34,8 +34,13 @@ const Header = () => {
             try {
                 const data = await fetchCategories();
                 setCategories(data);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching categories:", error);
+                if (error.response && error.response.data) {
+                    throw error.response.data.message;
+                } else {
+                    throw "Something went wrong";
+                }
             }
         };
 
@@ -160,20 +165,20 @@ const Header = () => {
                                     sx={{
                                         width: '200px',
                                         '& .MuiOutlinedInput-root': {
-                                          backgroundColor: '#fffcf2',
-                                          borderRadius: '8px',
-                                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                          '& fieldset': {
-                                            border: 'none'
-                                          },
-                                          '&:hover fieldset': {
-                                            border: 'none'
-                                          },
-                                          '&.Mui-focused fieldset': {
-                                            border: 'none'
-                                          }
+                                            backgroundColor: '#fffcf2',
+                                            borderRadius: '8px',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                            '& fieldset': {
+                                                border: 'none'
+                                            },
+                                            '&:hover fieldset': {
+                                                border: 'none'
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                border: 'none'
+                                            }
                                         }
-                                      }}
+                                    }}
                                 />
                                 <Tooltip title="Logout" placement="top" arrow>
                                     <IconButton>

@@ -132,9 +132,9 @@ export const LoginPage: React.FC = () => {
             Fresh HyperMarket Billing System
           </Typography>
         </motion.div>
-        <Typography sx={{ mt: 2 }}>
+        <div style={{ marginTop: 2 }}>
           <MainLoader />
-        </Typography>
+        </div >
 
       </SplashScreen>
     );

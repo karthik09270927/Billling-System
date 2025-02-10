@@ -10,8 +10,6 @@ import {
   TextField,
   Badge,
   Pagination,
-  Skeleton,
-  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCategory } from "../Hooks/useContext";
@@ -33,6 +31,20 @@ const StaffDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
 
+  if (selectedItems) {
+    console.log(selectedItems);
+  }
+
+  if(setSelectedItems) {
+    console.log(setSelectedItems);
+  }
+
+  if(setPageSize) {
+    console.log(setPageSize);
+  }
+
+
+  
 
   const fetchProducts = async () => {
     try {
@@ -64,18 +76,18 @@ const StaffDashboard: React.FC = () => {
   };
 
   // Handle item click to add to the selected items
-  const handleItemClick = (item: any) => {
-    setSelectedItems((prevItems) => {
-      const existingItem = prevItems.find((i) => i.id === item.id);
-      if (existingItem) {
-        return prevItems.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-        );
-      } else {
-        return [...prevItems, { ...item, quantity: 1 }];
-      }
-    });
-  };
+  // const handleItemClick = (item: any) => {
+  //   setSelectedItems((prevItems) => {
+  //     const existingItem = prevItems.find((i) => i.id === item.id);
+  //     if (existingItem) {
+  //       return prevItems.map((i) =>
+  //         i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+  //       );
+  //     } else {
+  //       return [...prevItems, { ...item, quantity: 1 }];
+  //     }
+  //   });
+  // };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase();
@@ -136,7 +148,7 @@ const StaffDashboard: React.FC = () => {
                 No subcategories
               </Typography>
             ) : (
-              subCategories.map((subcategory: any, index: any) => (
+              subCategories.map((subcategory: any) => (
                 <Card
                   key={subcategory.id}
                   onClick={() => handleSubcategorySelect(subcategory)}
@@ -293,7 +305,7 @@ const StaffDashboard: React.FC = () => {
                             boxShadow: '4px 4px 6px 6px #b5e48c',
                           },
                         }}
-                        // onClick={() => handleItemClick(item)}
+                      // onClick={() => handleItemClick(item)}
                       >
                         <Box
                           sx={{
@@ -331,14 +343,14 @@ const StaffDashboard: React.FC = () => {
                             {item.productName}
                           </Typography>
                           <Typography
-                          variant="body2"
-                          sx={{
-                            fontSize: "16px",
-                            color: "red",
-                          }}
-                        >
-                          ₹ {item.mrpPrice || "Price Unavailable"}
-                        </Typography>
+                            variant="body2"
+                            sx={{
+                              fontSize: "16px",
+                              color: "red",
+                            }}
+                          >
+                            ₹ {item.mrpPrice || "Price Unavailable"}
+                          </Typography>
                         </CardContent>
                       </Card>
                     </Badge>

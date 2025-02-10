@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography, Button, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, CircularProgress } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography, Button, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
 import invoicelogo from '../../assets/bgrem.png';
 
 interface InvoiceDialogProps {
@@ -20,7 +20,6 @@ interface InvoiceDialogProps {
 
 const InvoiceDialog: React.FC<InvoiceDialogProps> = ({
     open,
-    onSubmit,
     onClose,
     userName,
     userEmail,
@@ -35,18 +34,34 @@ const InvoiceDialog: React.FC<InvoiceDialogProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
 
+    if(isLoading) {
+        console.log(isLoading);
+    }
 
-    const handlePayClick = async () => {
-        setIsLoading(true);
-        try {
-            await onSubmit();
-            setShowPreview(false);
-        } catch (error) {
-            console.error('Payment failed:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    if(showPreview) {
+        console.log(showPreview);
+    }
+
+    if(setIsLoading) {
+        console.log(setIsLoading);
+    }
+
+    if(setShowPreview) {
+        console.log(setShowPreview);
+    }
+
+
+    // const handlePayClick = async () => {
+    //     setIsLoading(true);
+    //     try {
+    //         await onSubmit();
+    //         setShowPreview(false);
+    //     } catch (error) {
+    //         console.error('Payment failed:', error);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     const formatDate = (date: Date) => {
         return new Intl.DateTimeFormat('en-US', {

@@ -11,20 +11,16 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  MenuItem,
-  Select,
   InputAdornment,
   CardMedia,
   IconButton,
   Stack,
   Tooltip,
   Badge,
-  Divider,
   debounce,
   Stepper,
   Step,
   StepLabel,
-  StepContent,
   StepConnector,
   styled,
   stepConnectorClasses,
@@ -33,7 +29,6 @@ import { useSelectedItems } from "../Hooks/productContext";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { getPdfInvoice, getProductInfoById, getUserDetails, saveBill } from "../utils/api-collection";
-import QrCode2Icon from '@mui/icons-material/QrCode2';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { Html5QrcodeScanner } from "html5-qrcode";
@@ -49,6 +44,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import CreditCard from "./CreditCard";
 import UPIPayment from "./UPIPayment";
 import CashPayment from "./CashPayment";
+import barcode from '../assets/barcode.gif';
 
 interface RightPanelProps {
   customerName?: string;
@@ -117,6 +113,18 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
+  if (isPlacingOrder) {
+    console.log(isPlacingOrder);
+  }
+
+  if(setScannedBarcodes) {
+    console.log(setScannedBarcodes);
+  }
+
+  if(pdfUrl){
+    console.log(pdfUrl);
+  }
+
 
   const [errors, setErrors] = useState({
     name: '',
@@ -141,15 +149,15 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     });
   };
 
-  const isFormValid = () => {
-    const isNameValid = name.length >= 3;
-    const isPhoneValid = /^\d{10}$/.test(phoneNumber);
-    const isEmailValid = /^[a-zA-Z0-9._-]+$/.test(email);
-    const isPaymentSelected = !!paymentMode;
-    const hasMinimumProducts = selectedItems.length > 0;
+  // const isFormValid = () => {
+  //   const isNameValid = name.length >= 3;
+  //   const isPhoneValid = /^\d{10}$/.test(phoneNumber);
+  //   const isEmailValid = /^[a-zA-Z0-9._-]+$/.test(email);
+  //   const isPaymentSelected = !!paymentMode;
+  //   const hasMinimumProducts = selectedItems.length > 0;
 
-    return isNameValid && isPhoneValid && isEmailValid && isPaymentSelected && hasMinimumProducts;
-  };
+  //   return isNameValid && isPhoneValid && isEmailValid && isPaymentSelected && hasMinimumProducts;
+  // };
 
   const resetCart = () => {
     setSelectedItems([]);
@@ -509,12 +517,12 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
     },
     [`&.${stepConnectorClasses.active}`]: {
       [`& .${stepConnectorClasses.line}`]: {
-        backgroundImage: 'linear-gradient(95deg, #74D52B 0%, #65BA25 100%)',
+        backgroundImage: 'linear-gradient(135deg, #74D52B 0%, #65BA25 100%)',
       },
     },
     [`&.${stepConnectorClasses.completed}`]: {
       [`& .${stepConnectorClasses.line}`]: {
-        backgroundImage: 'linear-gradient(95deg, #74D52B 0%, #65BA25 100%)',
+        backgroundImage: 'linear-gradient(135deg, #74D52B 0%, #65BA25 100%)',
       },
     },
     [`& .${stepConnectorClasses.line}`]: {
@@ -522,7 +530,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
       border: 0,
       backgroundColor: '#eaeaf0',
       borderRadius: 1,
-      transition: 'all 0.5s ease',
+      transition: 'all 0.5s ease-in-out',
     },
   }));
 
@@ -668,7 +676,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
               }}
             />
           </Box>
-          <Box sx={{ height: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ height: 'auto', display: 'flex', flexDirection: 'column', border: '2px solid #fcf8cd' }}>
             {/* Fixed Header */}
             <Box
               sx={{
@@ -676,23 +684,24 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                 gridTemplateColumns: "60px 2fr 1fr 1fr",
                 gap: 2,
                 p: 2,
-                borderBottom: '1px solid #e0e0e0',
                 backgroundColor: '#fbf8cc',
                 position: 'sticky',
                 top: 0,
                 zIndex: 1,
+                border: '2px solid #fcf8cd'
               }}
             >
-              <Typography variant="subtitle2">Image</Typography>
-              <Typography variant="subtitle2">Product</Typography>
-              <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>Qty</Typography>
-              <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>Price</Typography>
+              <Typography variant="subtitle1" fontWeight="bold">Image</Typography>
+              <Typography variant="subtitle1" fontWeight="bold" >Product</Typography>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ textAlign: 'center' }}>Qty</Typography>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ textAlign: 'right' }}>Price</Typography>
             </Box>
 
             {/* Scrollable Content */}
             <Box sx={{
               overflowY: 'auto',
               flex: 1,
+              border: '2px solid #fcf8cd',
               '&::-webkit-scrollbar': {
                 width: '8px',
               },
@@ -708,6 +717,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                     display: "grid",
                     gridTemplateColumns: "60px 2fr 1fr 1fr",
                     alignItems: "center",
+                    border: '2px solid #fcf8cd',
                     gap: 2,
                     p: 2,
                     borderBottom: '1px solid #f0f0f0',
@@ -724,7 +734,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                       width: 50,
                       height: 50,
                       objectFit: "cover",
-                      borderRadius: '4px'
+                      borderRadius: '4px',
                     }}
                   />
                   <Typography variant="body2" sx={{ fontWeight: "bold", color: '#333' }}>
@@ -862,9 +872,14 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                 }
               }}
             >
-              <Tooltip title="Scan the barcode" placement="top" arrow>
+              {/* <Tooltip title="Scan the barcode" placement="top" arrow>
                 <QrCode2Icon />
+              </Tooltip> */}
+
+              <Tooltip title="Scan the barcode" placement="top" arrow>
+                <img src={barcode} style={{ width: 30, height: 34 }} />
               </Tooltip>
+
             </IconButton>
           </Box>
         </Box>
@@ -1346,8 +1361,12 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                 }
               }}
             >
-              <Tooltip title="Scan the barcode" placement="top" arrow>
+              {/* <Tooltip title="Scan the barcode" placement="top" arrow>
                 <QrCode2Icon />
+              </Tooltip> */}
+
+              <Tooltip title="Scan the barcode" placement="top" arrow>
+                <img src={barcode} style={{ width: 30, height: 26 }} />
               </Tooltip>
             </IconButton>
           </Box>
@@ -1745,6 +1764,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: 'white',
+                          transition: 'all 0.5s ease-in-out',
+                          transform: activeStep >= index ? 'scale(1.2)' : 'scale(1)',
                         }}>
                           {step.icon}
                         </Box>
@@ -1753,7 +1774,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ customerName }) => {
                         '& .MuiStepLabel-label': {
                           color: activeStep >= index ? '#74D52B' : '#000000',
                           fontWeight: activeStep === index ? 600 : 400,
-                          transition: 'all 0.3s ease'
+                          transition: 'all 0.5s ease-in-out',
+                          opacity: activeStep >= index ? 1 : 0.5,
                         }
                       }}
                     >

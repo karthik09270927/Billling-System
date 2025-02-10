@@ -113,10 +113,7 @@ export const fetchCategories = async (): Promise<any> => {
     return (response.data as any).data;
   } catch (error: any) {
     console.error("Error fetching categories:", error);
-    throw (
-      (error.response?.data as { message: string })?.message ||
-      "Something went wrong"
-    );
+    throw error.response?.data?.message ?? "Something went wrong";
   }
 };
 

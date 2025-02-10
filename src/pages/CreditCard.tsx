@@ -484,7 +484,7 @@ const CreditCard: React.FC<CreditCardProps> = ({
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <CreditCardIcon sx={{ color: '#666' }} />
+                        <CreditCardIcon sx={{ color: '#799F0C' }} />
                       </InputAdornment>
                     ),
                   }}
@@ -504,7 +504,7 @@ const CreditCard: React.FC<CreditCardProps> = ({
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <PersonIcon sx={{ color: '#666' }} />
+                        <PersonIcon sx={{ color: '#799F0C' }} />
                       </InputAdornment>
                     ),
                   }}
@@ -523,7 +523,7 @@ const CreditCard: React.FC<CreditCardProps> = ({
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <EventIcon sx={{ color: '#666' }} />
+                          <EventIcon sx={{ color: '#799F0C' }} />
                         </InputAdornment>
                       ),
                     }}
@@ -546,7 +546,7 @@ const CreditCard: React.FC<CreditCardProps> = ({
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockIcon sx={{ color: '#666' }} />
+                          <LockIcon sx={{ color: '#799F0C' }} />
                         </InputAdornment>
                       ),
                     }}

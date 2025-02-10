@@ -32,6 +32,9 @@ const CashPayment: React.FC<CashPaymentProps> = ({
   const [showPreview, setShowPreview] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
+  if(setPdfUrl) {
+    console.log(setPdfUrl);
+  }
 
   const handlePayClick = async () => {
     setIsLoading(true);
@@ -189,6 +192,7 @@ const CashPayment: React.FC<CashPaymentProps> = ({
           {pdfUrl ? (
             <iframe
               src={pdfUrl}
+              title="Invoice PDF Preview"
               style={{ width: '100%', height: '500px' }}
               frameBorder="0"
             />

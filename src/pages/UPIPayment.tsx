@@ -14,7 +14,6 @@ import {
   DialogTitle,
   IconButton,
   keyframes,
-  SelectChangeEvent
 } from '@mui/material';
 import PhonepeIcon from '../assets/cards/PhonePe.png';
 import UPIIcon from '../assets/cards/upi.png';
@@ -49,12 +48,12 @@ interface UPIPaymentProps {
   }>;
 }
 
-const StyledTextField = styled(TextField)({
-  '& .MuiOutlinedInput-root': {
-    backgroundColor: 'white',
-    borderRadius: 8,
-  }
-});
+// const StyledTextField = styled(TextField)({
+//   '& .MuiOutlinedInput-root': {
+//     backgroundColor: 'white',
+//     borderRadius: 8,
+//   }
+// });
 
 const StyledInput = styled(TextField)(({ error }) => ({
   '& .MuiOutlinedInput-root': {
