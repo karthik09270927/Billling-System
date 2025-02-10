@@ -20,6 +20,7 @@ import { useCategory } from "../Hooks/useContext";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { fetchCategories, fetchSubCategories } from "../utils/api-collection";
+import Logout from "../centralizedComponents/forms/Logout";
 
 const Header = () => {
     const [isHeaderOpen, setIsHeaderOpen] = useState(true);
@@ -27,6 +28,35 @@ const Header = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const { selectedCategory, setSelectedCategory, setSubCategories, setSelectedCategoryId, setIsSubCategoriesLoading } = useCategory();
     const navigate = useNavigate();
+    const [time, setTime] = useState(new Date().toLocaleString("en-US", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        timeZone: "UTC"
+    }));
+
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTime(new Date().toLocaleString("en-US", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                timeZone: "UTC"
+            }));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
 
     // Fetch categories from the API on component mount
     useEffect(() => {
@@ -137,13 +167,8 @@ const Header = () => {
 
                         {/* Date and Time */}
                         <Grid item>
-                            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#666", ml: 4 }}>
-                                {new Date().toLocaleString("en-US", {
-                                    weekday: "short",
-                                    day: "numeric",
-                                    month: "short",
-                                    year: "numeric",
-                                })}
+                            <Typography variant="body1" sx={{ fontWeight: "bold", color: "#666", ml: 4 }}>
+                                {time}
                             </Typography>
                         </Grid>
 
@@ -165,7 +190,7 @@ const Header = () => {
                                     sx={{
                                         width: '200px',
                                         '& .MuiOutlinedInput-root': {
-                                            backgroundColor: '#fffcf2',
+                                            backgroundColor: '#fcf8cd',
                                             borderRadius: '8px',
                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                                             '& fieldset': {
@@ -180,11 +205,16 @@ const Header = () => {
                                         }
                                     }}
                                 />
-                                <Tooltip title="Logout" placement="top" arrow>
-                                    <IconButton>
-                                        <LogoutIcon sx={{ fontSize: 28, color: "red" }} onClick={handleLogout} />
+                                {/* <Tooltip title="Logout" placement="top" arrow>
+                                    <IconButton onClick={handleLogout}>
+                                        <Logout />
                                     </IconButton>
-                                </Tooltip>
+                                </Tooltip> */}
+
+                                <IconButton onClick={handleLogout}>
+                                    <Logout />
+                                </IconButton>
+
                             </Box>
                         </Grid>
                     </Grid>
